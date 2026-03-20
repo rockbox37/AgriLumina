@@ -1,10 +1,10 @@
-// lib/secondPage.dart
+// lib/buy_credits_page.dart
 import 'package:flutter/material.dart';
-import 'package:my_first_flutter_app/findBuyersPage.dart';
-import 'package:my_first_flutter_app/findSellers.dart';
-import 'package:my_first_flutter_app/main.dart';
-import 'package:my_first_flutter_app/profilePage.dart';
-import 'package:my_first_flutter_app/secondPage.dart';
+import 'package:agrilumina/find_buyers_page.dart';
+import 'package:agrilumina/find_sellers.dart';
+import 'package:agrilumina/main.dart';
+import 'package:agrilumina/profile_page.dart';
+/* second_page import removed — unused here */
 
 class BuyCreditsPage extends StatefulWidget {
 
@@ -28,13 +28,6 @@ class _BuyCreditsPageState extends State<BuyCreditsPage> {
       ),
       body: Center(
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text('Buy Credits page Column.'),
@@ -53,47 +46,41 @@ class _BuyCreditsPageState extends State<BuyCreditsPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Navigate to a new screen when the button is pressed
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => FindBuyersPage()),
                 );
               }, 
               child: Text('Find Buyers'), 
-            ), // Button label
+            ),
             ElevatedButton(
               onPressed: () {
-                // Navigate to a new screen when the button is pressed
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => FindSellersPage()),
                 );
               }, 
               child: Text('Find Sellers'), 
-            ), // Button label
+            ),
             ElevatedButton(
               onPressed: () {
-                // Navigate to a new screen when the button is pressed
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ProfilePage()),
                 );
               }, 
               child: Text('My Profile'), 
-            ), // Button label
+            ),
             IconButton(
             onPressed: () {
-                // Navigate to a new screen when the button is pressed
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => MyApp()),
                 );
             },
-            //icon: const Icon(Icons.reset_tv), // The icon to display
             icon:const ImageIcon(AssetImage('assets/images/icon.png')
             ),
-            iconSize: 90.0, // Optional: customize the icon size
-            //color: Colors.red, // Optional: customize the icon color)
+            iconSize: 90.0,
           ),
           ],
         ),

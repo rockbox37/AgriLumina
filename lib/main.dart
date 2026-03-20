@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:my_first_flutter_app/secondPage.dart';
-import 'package:my_first_flutter_app/profilePage.dart';
+import 'package:agrilumina/second_page.dart';
+import 'package:agrilumina/profile_page.dart';
 
 void main() {
   runApp(const MyApp());
