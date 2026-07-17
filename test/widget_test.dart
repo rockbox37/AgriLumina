@@ -136,4 +136,111 @@ void main() {
     expect(find.textContaining('Near you · Near sample area'), findsOneWidget);
     expect(find.text('Jean-Pierre M.'), findsOneWidget);
   });
+
+  testWidgets('Discover search narrows list and clears to restore', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(locationService: FakeLocationService()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('discover_search_field')), findsOneWidget);
+    expect(find.text('Jean-Pierre M.'), findsOneWidget);
+    expect(find.text('Grace Trading'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('discover_search_field')),
+      'Kabare',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Grace Trading'), findsOneWidget);
+    expect(find.text('Jean-Pierre M.'), findsNothing);
+
+    await tester.tap(find.byTooltip('Clear search'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Jean-Pierre M.'), findsOneWidget);
+    expect(find.text('Grace Trading'), findsOneWidget);
+  });
+
+  testWidgets('Discover search composes with crop chip and empty state', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(locationService: FakeLocationService()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilterChip, 'Maize'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Jean-Pierre M.'), findsOneWidget);
+    expect(find.text('Grace Trading'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('discover_search_field')),
+      'Kabare',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Grace Trading'), findsOneWidget);
+    expect(find.text('Jean-Pierre M.'), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const Key('discover_search_field')),
+      'zzzz-no-match',
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('No matches for "zzzz-no-match" among Maize buyers.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Discover search works for buyer role (nearby sellers)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(locationService: FakeLocationService()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Buyer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nearby sellers'), findsOneWidget);
+    expect(find.text('Marie L.'), findsOneWidget);
+    expect(find.text('Samuel Growers'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('discover_search_field')),
+      'Kabare',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Samuel Growers'), findsOneWidget);
+    expect(find.text('Marie L.'), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const Key('discover_search_field')),
+      'nope',
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('No matches for "nope" among sellers.'),
+      findsOneWidget,
+    );
+  });
 }
