@@ -29,6 +29,16 @@ void main() {
     expect(fr.resolvedDisplayName('Marie'), 'Marie');
   });
 
+  test('resolvedLocation localizes unset and legacy Not set seed', () {
+    final en = lookupAppLocalizations(const Locale('en'));
+    final fr = lookupAppLocalizations(const Locale('fr'));
+    expect(en.resolvedLocation(''), 'Not set');
+    expect(en.resolvedLocation('Not set'), 'Not set');
+    expect(fr.resolvedLocation(''), 'Non défini');
+    expect(fr.resolvedLocation('Not set'), 'Non défini');
+    expect(fr.resolvedLocation('Kabare'), 'Kabare');
+  });
+
   test('formatDistanceKmLocalized uses locale decimal separators', () {
     final en = lookupAppLocalizations(const Locale('en'));
     final fr = lookupAppLocalizations(const Locale('fr'));
@@ -50,6 +60,10 @@ void main() {
     expect(find.text('Accueil'), findsWidgets);
     expect(find.text('Bienvenue, Vous'), findsOneWidget);
     expect(find.text('Je suis…'), findsOneWidget);
+
+    await tester.tap(find.text('Profil'));
+    await tester.pumpAndSettle();
+    expect(find.text('Non défini'), findsOneWidget);
 
     await tester.tap(find.text('Découvrir'));
     await tester.pumpAndSettle();

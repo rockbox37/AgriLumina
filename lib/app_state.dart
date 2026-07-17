@@ -14,7 +14,7 @@ class AppState extends ChangeNotifier {
     this.credits = 5,
     this.role = UserRole.seller,
     this.displayName = '',
-    this.location = 'Not set',
+    this.location = '',
     List<String>? buyingInterests,
     List<String>? sellingInterests,
     List<Listing>? listings,
