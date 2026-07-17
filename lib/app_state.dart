@@ -13,7 +13,7 @@ class AppState extends ChangeNotifier {
     this.credits = 5,
     this.role = UserRole.seller,
     this.displayName = 'You',
-    this.location = bugobeLocationLabel,
+    this.location = 'Not set',
     this.cropInterest = 'Maize',
     List<Listing>? listings,
     LocationService? locationService,
@@ -43,10 +43,10 @@ class AppState extends ChangeNotifier {
   /// True when Discover should show live GPS-based distances.
   bool get usingGps => userPosition != null;
 
-  /// Approximate place label for the device position (or Bugobe fallback).
+  /// Approximate place label for the device position (or sample-area fallback).
   String get deviceLocationLabel {
     final pos = userPosition;
-    if (pos == null) return bugobeLocationLabel;
+    if (pos == null) return sampleAreaLabel;
     return approximateLocationLabel(pos.latitude, pos.longitude);
   }
 
@@ -86,7 +86,7 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  /// Requests a fresh GPS fix. Falls back to Bugobe seed distances on failure.
+  /// Requests a fresh GPS fix. Falls back to seed listing distances on failure.
   Future<void> refreshLocation() async {
     if (locationLoading) return;
     locationLoading = true;
@@ -101,7 +101,7 @@ class AppState extends ChangeNotifier {
     } else {
       userPosition = null;
       locationBannerMessage = result.message ??
-          'Could not read location. Showing distances from sample listings near Bugobe.';
+          'Could not read location. Showing distances from sample listings.';
     }
     notifyListeners();
   }

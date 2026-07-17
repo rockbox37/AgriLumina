@@ -34,7 +34,7 @@ void main() {
     expect(find.text('Nearby buyers'), findsOneWidget);
     expect(find.text('Jean-Pierre M.'), findsOneWidget);
     expect(
-      find.textContaining('Showing distances from sample listings near Bugobe'),
+      find.textContaining('Showing distances from sample listings'),
       findsOneWidget,
     );
 
@@ -133,7 +133,7 @@ void main() {
     await tester.tap(find.text('Discover'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Near you · Near Bugobe, DRC'), findsOneWidget);
+    expect(find.textContaining('Near you · Near sample area'), findsOneWidget);
     expect(find.text('Jean-Pierre M.'), findsOneWidget);
   });
 }

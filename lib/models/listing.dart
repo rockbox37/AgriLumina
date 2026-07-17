@@ -21,7 +21,7 @@ class Listing {
   final String crop;
   final String quantityHint;
 
-  /// Seed / fallback distance from Bugobe when GPS is unavailable.
+  /// Seed / fallback distance from the sample cluster when GPS is unavailable.
   final double distanceKm;
   final double latitude;
   final double longitude;
