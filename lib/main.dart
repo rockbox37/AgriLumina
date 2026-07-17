@@ -1,22 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/l10n/app_localizations.dart';
 import 'package:agrilumina/screens/app_shell.dart';
+import 'package:agrilumina/screens/splash_screen.dart';
 import 'package:agrilumina/services/location_service.dart';
 
 void main() {
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(const AgriluminaApp());
 }
 
 class AgriluminaApp extends StatefulWidget {
-  const AgriluminaApp({super.key, this.locationService, this.locale});
+  const AgriluminaApp({
+    super.key,
+    this.locationService,
+    this.locale,
+    this.showSplash = true,
+    this.removeNativeSplash = true,
+  });
 
   /// Optional override for tests (avoids real GPS / platform channels).
   final LocationService? locationService;
 
   /// Optional locale override for tests.
   final Locale? locale;
+
+  /// When false, skips the branded splash and opens the shell immediately.
+  final bool showSplash;
+
+  /// When false (widget tests), skips [FlutterNativeSplash.remove].
+  final bool removeNativeSplash;
 
   @override
   State<AgriluminaApp> createState() => _AgriluminaAppState();
@@ -64,7 +80,9 @@ class _AgriluminaAppState extends State<AgriluminaApp> {
           }
           return const Locale('en');
         },
-        home: const AppShell(),
+        home: widget.showSplash
+            ? SplashScreen(removeNativeSplash: widget.removeNativeSplash)
+            : const AppShell(),
       ),
     );
   }
@@ -72,14 +90,27 @@ class _AgriluminaAppState extends State<AgriluminaApp> {
 
 /// Kept for existing tests / hot-reload entry naming.
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, this.locationService, this.locale});
+  const MyApp({
+    super.key,
+    this.locationService,
+    this.locale,
+    this.showSplash = false,
+    this.removeNativeSplash = false,
+  });
 
   final LocationService? locationService;
   final Locale? locale;
+
+  /// Tests default to skipping the timed splash for speed / stability.
+  final bool showSplash;
+
+  final bool removeNativeSplash;
 
   @override
   Widget build(BuildContext context) => AgriluminaApp(
         locationService: locationService,
         locale: locale,
+        showSplash: showSplash,
+        removeNativeSplash: removeNativeSplash,
       );
 }
