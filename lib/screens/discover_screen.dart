@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
+import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/screens/listing_detail_screen.dart';
+import 'package:agrilumina/utils/crop_filter.dart';
 import 'package:agrilumina/utils/geo.dart';
 import 'package:agrilumina/utils/listing_search.dart';
 
-/// Crop chips shown on Discover (includes crops with no seed matches).
-const List<String> discoverCropFilters = [
-  'Maize',
-  'Cassava',
-  'Beans',
-  'Groundnuts',
-  'Rice',
-];
+export 'package:agrilumina/data/crop_vocabulary.dart' show discoverCropFilters;
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -23,14 +18,41 @@ class DiscoverScreen extends StatefulWidget {
 }
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
-  /// `null` means all crops.
-  String? _cropFilter;
+  DiscoverCropMode _cropMode = DiscoverCropMode.softInterest;
+  String? _manualCrop;
+  UserRole? _trackedRole;
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _syncRole(UserRole role) {
+    if (_trackedRole == role) return;
+    _trackedRole = role;
+    _cropMode = DiscoverCropMode.softInterest;
+    _manualCrop = null;
+  }
+
+  void _onCropSelected(String? crop) {
+    setState(() {
+      if (crop == null) {
+        // Explicit All — unfiltered counterparts.
+        _cropMode = DiscoverCropMode.showAll;
+        _manualCrop = null;
+        return;
+      }
+      if (_cropMode == DiscoverCropMode.manualCrop && _manualCrop == crop) {
+        // Deselect chip → return to interest soft-filter.
+        _cropMode = DiscoverCropMode.softInterest;
+        _manualCrop = null;
+        return;
+      }
+      _cropMode = DiscoverCropMode.manualCrop;
+      _manualCrop = crop;
+    });
   }
 
   @override
@@ -40,13 +62,23 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     return ListenableBuilder(
       listenable: state,
       builder: (context, _) {
+        _syncRole(state.role);
+
         final list = state.nearbyCounterparts;
-        final cropFiltered = _cropFilter == null
-            ? list
-            : list.where((l) => l.crop == _cropFilter).toList();
+        final interests = state.relevantInterests;
+        final cropFiltered = filterListingsByCrop(
+          listings: list,
+          mode: _cropMode,
+          manualCrop: _manualCrop,
+          relevantInterests: interests,
+        );
         final filtered =
             filterListingsByQuery(cropFiltered, _searchController.text);
 
+        final interestSoftActive = isInterestSoftFilterActive(
+          mode: _cropMode,
+          relevantInterests: interests,
+        );
         final title = state.role == UserRole.seller
             ? 'Nearby buyers'
             : 'Nearby sellers';
@@ -91,11 +123,21 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               if (list.isNotEmpty) ...[
                 _CropFilterBar(
                   crops: discoverCropFilters,
-                  selected: _cropFilter,
-                  onSelected: (crop) {
-                    setState(() => _cropFilter = crop);
-                  },
+                  mode: _cropMode,
+                  selectedCrop: _manualCrop,
+                  interestSoftActive: interestSoftActive,
+                  onSelected: _onCropSelected,
                 ),
+                if (interestSoftActive)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                    child: Text(
+                      interestFilterHelperText(state.role),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ),
                 _DiscoverSearchField(
                   controller: _searchController,
                   counterpart: counterpart,
@@ -111,7 +153,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   list: list,
                   cropFiltered: cropFiltered,
                   filtered: filtered,
-                  cropFilter: _cropFilter,
+                  cropMode: _cropMode,
+                  manualCrop: _manualCrop,
+                  interestSoftActive: interestSoftActive,
                   searchQuery: _searchController.text,
                   counterpart: counterpart,
                   state: state,
@@ -128,7 +172,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     required List<Listing> list,
     required List<Listing> cropFiltered,
     required List<Listing> filtered,
-    required String? cropFilter,
+    required DiscoverCropMode cropMode,
+    required String? manualCrop,
+    required bool interestSoftActive,
     required String searchQuery,
     required String counterpart,
     required AppState state,
@@ -140,11 +186,16 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     }
 
     if (cropFiltered.isEmpty) {
+      final message = cropMode == DiscoverCropMode.manualCrop && manualCrop != null
+          ? 'No $manualCrop ${counterpart}s nearby.'
+          : interestSoftActive
+              ? 'No ${counterpart}s nearby for your interests.'
+              : 'No ${counterpart}s nearby.';
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            'No $cropFilter ${counterpart}s nearby.',
+            message,
             textAlign: TextAlign.center,
           ),
         ),
@@ -153,8 +204,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
     final trimmedQuery = searchQuery.trim();
     if (filtered.isEmpty) {
-      final cropPart =
-          cropFilter == null ? '' : '$cropFilter ';
+      final cropPart = cropMode == DiscoverCropMode.manualCrop &&
+              manualCrop != null
+          ? '$manualCrop '
+          : '';
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -233,16 +286,24 @@ class _DiscoverSearchField extends StatelessWidget {
 class _CropFilterBar extends StatelessWidget {
   const _CropFilterBar({
     required this.crops,
-    required this.selected,
+    required this.mode,
+    required this.selectedCrop,
+    required this.interestSoftActive,
     required this.onSelected,
   });
 
   final List<String> crops;
-  final String? selected;
+  final DiscoverCropMode mode;
+  final String? selectedCrop;
+  final bool interestSoftActive;
   final ValueChanged<String?> onSelected;
 
   @override
   Widget build(BuildContext context) {
+    final allSelected =
+        mode == DiscoverCropMode.showAll ||
+        (mode == DiscoverCropMode.softInterest && !interestSoftActive);
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
@@ -252,7 +313,7 @@ class _CropFilterBar extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
               label: const Text('All'),
-              selected: selected == null,
+              selected: allSelected,
               onSelected: (_) => onSelected(null),
             ),
           ),
@@ -261,7 +322,8 @@ class _CropFilterBar extends StatelessWidget {
               padding: const EdgeInsets.only(right: 8),
               child: FilterChip(
                 label: Text(crop),
-                selected: selected == crop,
+                selected:
+                    mode == DiscoverCropMode.manualCrop && selectedCrop == crop,
                 onSelected: (_) => onSelected(crop),
               ),
             ),

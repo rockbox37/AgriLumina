@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
+import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/models/user_role.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -12,7 +13,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _locationController;
-  late final TextEditingController _cropController;
   bool _initialized = false;
 
   @override
@@ -22,7 +22,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final state = AppStateScope.of(context);
     _nameController = TextEditingController(text: state.displayName);
     _locationController = TextEditingController(text: state.location);
-    _cropController = TextEditingController(text: state.cropInterest);
     _initialized = true;
   }
 
@@ -31,7 +30,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_initialized) {
       _nameController.dispose();
       _locationController.dispose();
-      _cropController.dispose();
     }
     super.dispose();
   }
@@ -80,13 +78,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _cropController,
-                decoration: const InputDecoration(
-                  labelText: 'Crop interest',
-                  border: OutlineInputBorder(),
-                ),
+              const SizedBox(height: 24),
+              _InterestSection(
+                title: 'Buying interests',
+                emptyHint: 'None yet — add crops you want to buy',
+                selected: state.buyingInterests,
+                onToggle: state.toggleBuyingInterest,
+              ),
+              const SizedBox(height: 20),
+              _InterestSection(
+                title: 'Selling interests',
+                emptyHint: 'None yet — add crops you want to sell',
+                selected: state.sellingInterests,
+                onToggle: state.toggleSellingInterest,
               ),
               const SizedBox(height: 20),
               FilledButton(
@@ -98,9 +102,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     location: _locationController.text.trim().isEmpty
                         ? state.location
                         : _locationController.text.trim(),
-                    cropInterest: _cropController.text.trim().isEmpty
-                        ? state.cropInterest
-                        : _cropController.text.trim(),
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Profile saved.')),
@@ -118,6 +119,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class _InterestSection extends StatelessWidget {
+  const _InterestSection({
+    required this.title,
+    required this.emptyHint,
+    required this.selected,
+    required this.onToggle,
+  });
+
+  final String title;
+  final String emptyHint;
+  final List<String> selected;
+  final ValueChanged<String> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        if (selected.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              emptyHint,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final crop in discoverCropFilters)
+              FilterChip(
+                label: Text(crop),
+                selected: selected.contains(crop),
+                onSelected: (_) => onToggle(crop),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
