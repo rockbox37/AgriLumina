@@ -50,8 +50,7 @@ void main() {
     expect(find.text('Call'), findsOneWidget);
     expect(find.text('WhatsApp'), findsOneWidget);
 
-    // Brand home leading replaces BackButton; pop the pushed route explicitly.
-    Navigator.of(tester.element(find.text('Call'))).pop();
+    await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
 
     expect(find.text('Nearby buyers'), findsOneWidget);
@@ -89,6 +88,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Unlock for 1 credit'), findsOneWidget);
+    // Pushed detail keeps BackButton beside the brand home control.
+    expect(find.byType(BackButton), findsOneWidget);
+    expect(find.byKey(BrandHomeLeading.buttonKey), findsOneWidget);
 
     await tester.tap(find.byKey(BrandHomeLeading.buttonKey));
     await tester.pumpAndSettle();

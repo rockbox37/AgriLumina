@@ -30,7 +30,8 @@ class ListingDetailScreen extends StatelessWidget {
         if (listing == null) {
           return Scaffold(
             appBar: AppBar(
-              leading: const BrandHomeLeading(),
+              leadingWidth: BrandHomeLeading.backAndBrandLeadingWidth,
+              leading: const BrandHomeLeading(includeBackWhenCanPop: true),
               title: const Text('Listing'),
             ),
             body: const Center(child: Text('Listing not found.')),
@@ -41,7 +42,8 @@ class ListingDetailScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            leading: const BrandHomeLeading(),
+            leadingWidth: BrandHomeLeading.backAndBrandLeadingWidth,
+            leading: const BrandHomeLeading(includeBackWhenCanPop: true),
             title: Text(listing.name),
           ),
           body: ListView(
