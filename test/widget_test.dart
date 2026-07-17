@@ -55,6 +55,31 @@ void main() {
     expect(find.text('4 credits'), findsWidgets);
   });
 
+  testWidgets('Discover soft-filters by selling interests by default', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(locationService: FakeLocationService()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+
+    // Seed sellingInterests = [Maize] soft-filters counterparts.
+    expect(find.text('Showing crops you sell'), findsOneWidget);
+    expect(find.text('Jean-Pierre M.'), findsOneWidget);
+    expect(find.text('Grace Trading'), findsOneWidget);
+    expect(find.text('Amina K.'), findsNothing);
+
+    await tester.tap(find.widgetWithText(FilterChip, 'All'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Showing crops you sell'), findsNothing);
+    expect(find.text('Jean-Pierre M.'), findsOneWidget);
+    expect(find.text('Amina K.'), findsOneWidget);
+  });
+
   testWidgets('Discover crop filter narrows list and shows empty state', (
     tester,
   ) async {
@@ -64,6 +89,9 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilterChip, 'All'));
     await tester.pumpAndSettle();
 
     expect(find.text('Jean-Pierre M.'), findsOneWidget);
@@ -86,6 +114,73 @@ void main() {
 
     expect(find.text('Jean-Pierre M.'), findsOneWidget);
     expect(find.text('Amina K.'), findsOneWidget);
+  });
+
+  testWidgets('Role change clears chip and applies buying interests', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(locationService: FakeLocationService()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilterChip, 'Cassava'));
+    await tester.pumpAndSettle();
+    expect(find.text('Amina K.'), findsOneWidget);
+
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+
+    // Add Beans to buying interests, then switch role to Buyer.
+    await tester.tap(find.widgetWithText(FilterChip, 'Beans').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Buyer'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Showing crops you buy'), findsOneWidget);
+    expect(find.text('Nearby sellers'), findsOneWidget);
+    // Soft-filter to Beans sellers; Cassava chip override was cleared.
+    expect(find.text('Esther W.'), findsOneWidget);
+    expect(find.text('Marie L.'), findsNothing);
+    expect(find.text('Joseph Farm'), findsNothing);
+  });
+
+  testWidgets('Profile shows buying and selling interest sections', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(locationService: FakeLocationService()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Buying interests'), findsOneWidget);
+    expect(find.text('Selling interests'), findsOneWidget);
+    expect(
+      find.text('None yet — add crops you want to buy'),
+      findsOneWidget,
+    );
+    expect(find.text('Crop interest'), findsNothing);
+    expect(find.widgetWithText(FilterChip, 'Maize'), findsWidgets);
+
+    await tester.tap(find.text('Buyer'));
+    await tester.pumpAndSettle();
+    // Both sections remain editable regardless of role.
+    expect(find.text('Buying interests'), findsOneWidget);
+    expect(find.text('Selling interests'), findsOneWidget);
+
+    // First Beans chip is under Buying interests.
+    await tester.tap(find.widgetWithText(FilterChip, 'Beans').first);
+    await tester.pumpAndSettle();
+    expect(find.text('None yet — add crops you want to buy'), findsNothing);
   });
 
   testWidgets('Unlocked contact Call and WhatsApp use launcher', (tester) async {
@@ -219,9 +314,11 @@ void main() {
     await tester.tap(find.text('Discover'));
     await tester.pumpAndSettle();
 
+    // Empty buyingInterests → all counterpart sellers (no soft crop filter).
     expect(find.text('Nearby sellers'), findsOneWidget);
     expect(find.text('Marie L.'), findsOneWidget);
     expect(find.text('Samuel Growers'), findsOneWidget);
+    expect(find.text('Showing crops you buy'), findsNothing);
 
     await tester.enterText(
       find.byKey(const Key('discover_search_field')),
@@ -244,3 +341,4 @@ void main() {
     );
   });
 }
+

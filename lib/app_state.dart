@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/data/mock_listings.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
@@ -14,10 +15,14 @@ class AppState extends ChangeNotifier {
     this.role = UserRole.seller,
     this.displayName = 'You',
     this.location = 'Not set',
-    this.cropInterest = 'Maize',
+    List<String>? buyingInterests,
+    List<String>? sellingInterests,
     List<Listing>? listings,
     LocationService? locationService,
-  })  : listings = List.unmodifiable(listings ?? mockListings),
+  })  : buyingInterests = List<String>.from(buyingInterests ?? const []),
+        sellingInterests =
+            List<String>.from(sellingInterests ?? const ['Maize']),
+        listings = List.unmodifiable(listings ?? mockListings),
         _locationService = locationService ?? PluginLocationService();
 
   static const int unlockContactCost = 1;
@@ -30,7 +35,13 @@ class AppState extends ChangeNotifier {
   UserRole role;
   String displayName;
   String location;
-  String cropInterest;
+
+  /// Crops the user wants to buy (shared Discover vocabulary).
+  List<String> buyingInterests;
+
+  /// Crops the user wants to sell (shared Discover vocabulary).
+  List<String> sellingInterests;
+
   final List<Listing> listings;
   final Set<String> unlockedListingIds = {};
 
@@ -39,6 +50,10 @@ class AppState extends ChangeNotifier {
   UserLocation? userPosition;
   bool locationLoading = false;
   String? locationBannerMessage;
+
+  /// Interest list used for Discover soft-filter for the active role.
+  List<String> get relevantInterests =>
+      role == UserRole.seller ? sellingInterests : buyingInterests;
 
   /// True when Discover should show live GPS-based distances.
   bool get usingGps => userPosition != null;
@@ -131,14 +146,65 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
+  /// Adds [crop] to buying interests. Ignores unknown crops and duplicates.
+  void addBuyingInterest(String crop) {
+    if (!_tryAddInterest(buyingInterests, crop)) return;
+    notifyListeners();
+  }
+
+  /// Removes [crop] from buying interests if present.
+  void removeBuyingInterest(String crop) {
+    if (!buyingInterests.remove(crop)) return;
+    notifyListeners();
+  }
+
+  /// Toggles [crop] on the buying list (vocabulary only).
+  void toggleBuyingInterest(String crop) {
+    if (!isKnownCrop(crop)) return;
+    if (buyingInterests.contains(crop)) {
+      buyingInterests.remove(crop);
+    } else {
+      buyingInterests.add(crop);
+    }
+    notifyListeners();
+  }
+
+  /// Adds [crop] to selling interests. Ignores unknown crops and duplicates.
+  void addSellingInterest(String crop) {
+    if (!_tryAddInterest(sellingInterests, crop)) return;
+    notifyListeners();
+  }
+
+  /// Removes [crop] from selling interests if present.
+  void removeSellingInterest(String crop) {
+    if (!sellingInterests.remove(crop)) return;
+    notifyListeners();
+  }
+
+  /// Toggles [crop] on the selling list (vocabulary only).
+  void toggleSellingInterest(String crop) {
+    if (!isKnownCrop(crop)) return;
+    if (sellingInterests.contains(crop)) {
+      sellingInterests.remove(crop);
+    } else {
+      sellingInterests.add(crop);
+    }
+    notifyListeners();
+  }
+
+  bool _tryAddInterest(List<String> list, String crop) {
+    if (!isKnownCrop(crop)) return false;
+    if (list.contains(crop)) return false;
+    list.add(crop);
+    return true;
+  }
+
   void updateProfile({
     String? displayName,
     String? location,
-    String? cropInterest,
   }) {
     if (displayName != null) this.displayName = displayName;
     if (location != null) this.location = location;
-    if (cropInterest != null) this.cropInterest = cropInterest;
     notifyListeners();
   }
 }
