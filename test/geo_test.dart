@@ -17,7 +17,7 @@ void main() {
     });
 
     test('known short distance is in a sensible range', () {
-      // ~3.2 km north of Bugobe (mock buyer b1)
+      // ~3.2 km north of seed center (mock buyer b1)
       final km = haversineKm(bugobeLatitude, bugobeLongitude, -2.121, 28.850);
       expect(km, greaterThan(2.5));
       expect(km, lessThan(4.0));
@@ -32,10 +32,10 @@ void main() {
   });
 
   group('approximateLocationLabel', () {
-    test('near Bugobe uses local label', () {
+    test('near seed center uses sample-area label', () {
       expect(
         approximateLocationLabel(bugobeLatitude, bugobeLongitude),
-        'Near Bugobe, DRC',
+        'Near sample area',
       );
     });
 
@@ -71,7 +71,7 @@ void main() {
       await state.refreshLocation();
 
       expect(state.usingGps, isTrue);
-      expect(state.deviceLocationLabel, 'Near Bugobe, DRC');
+      expect(state.deviceLocationLabel, 'Near sample area');
 
       final nearby = state.nearbyCounterparts;
       expect(nearby, isNotEmpty);
@@ -79,7 +79,7 @@ void main() {
         expect(nearby[i].distanceKm, greaterThanOrEqualTo(nearby[i - 1].distanceKm));
       }
 
-      // Closest buyer seed should still be Jean-Pierre near Bugobe market.
+      // Closest buyer seed should still be Jean-Pierre near the village market.
       expect(nearby.first.id, 'b1');
       expect(
         nearby.first.distanceKm,

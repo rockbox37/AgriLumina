@@ -1,9 +1,9 @@
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 
-/// Seed listings for Bugobe and nearby markets (MVP mock data).
+/// Seed listings for the MVP mock cluster (rural market samples).
 ///
-/// Coordinates are approximate Bugobe-area points so GPS distance sorting works.
+/// Coordinates stay geographically coherent so GPS distance sorting works.
 const List<Listing> mockListings = [
   Listing(
     id: 'b1',
@@ -14,7 +14,7 @@ const List<Listing> mockListings = [
     distanceKm: 3.2,
     latitude: -2.121,
     longitude: 28.850,
-    location: 'Bugobe market',
+    location: 'Village market',
     lastActiveLabel: 'Active today',
     phone: '+243 970 111 201',
   ),
@@ -27,7 +27,7 @@ const List<Listing> mockListings = [
     distanceKm: 8.5,
     latitude: -2.150,
     longitude: 28.927,
-    location: 'Near Bugobe',
+    location: 'Near village',
     lastActiveLabel: 'Active yesterday',
     phone: '+243 970 111 202',
   ),
@@ -79,7 +79,7 @@ const List<Listing> mockListings = [
     distanceKm: 2.1,
     latitude: -2.132,
     longitude: 28.845,
-    location: 'Bugobe',
+    location: 'Village',
     lastActiveLabel: 'Active today',
     phone: '+243 970 222 101',
   ),
@@ -92,7 +92,7 @@ const List<Listing> mockListings = [
     distanceKm: 6.7,
     latitude: -2.190,
     longitude: 28.890,
-    location: 'Bugobe hills',
+    location: 'Nearby hills',
     lastActiveLabel: 'Active yesterday',
     phone: '+243 970 222 102',
   ),

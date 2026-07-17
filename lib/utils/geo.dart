@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 
-/// Approximate center of Bugobe used when GPS is unavailable.
+/// Approximate center of the seed listing cluster used when GPS is unavailable.
+/// Coords stay geographically coherent so offline distance ranking works.
 const double bugobeLatitude = -2.150;
 const double bugobeLongitude = 28.850;
-const String bugobeLocationLabel = 'Bugobe, DRC';
+
+/// Generic label for the seed listing area (not a product home geography).
+const String sampleAreaLabel = 'Sample area';
 
 /// Great-circle distance between two WGS84 points in kilometers.
 double haversineKm(
@@ -31,14 +34,14 @@ String formatDistanceKm(double km) => '${roundKm(km)} km';
 
 /// Short label for the user's position without reverse geocoding.
 String approximateLocationLabel(double latitude, double longitude) {
-  final distanceFromBugobe = haversineKm(
+  final distanceFromSeedCenter = haversineKm(
     latitude,
     longitude,
     bugobeLatitude,
     bugobeLongitude,
   );
-  if (distanceFromBugobe < 50) {
-    return 'Near Bugobe, DRC';
+  if (distanceFromSeedCenter < 50) {
+    return 'Near sample area';
   }
   return 'Your current location';
 }
