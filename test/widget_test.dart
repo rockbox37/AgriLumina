@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/main.dart';
+import 'package:agrilumina/screens/listing_detail_screen.dart';
 import 'package:agrilumina/services/location_service.dart';
 import 'package:agrilumina/utils/geo.dart';
 
+import 'fake_contact_launcher.dart';
 import 'fake_location_service.dart';
 
 void main() {
@@ -43,11 +46,73 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('+243 970 111 201'), findsOneWidget);
+    expect(find.text('Call'), findsOneWidget);
+    expect(find.text('WhatsApp'), findsOneWidget);
 
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
 
     expect(find.text('4 credits'), findsWidgets);
+  });
+
+  testWidgets('Discover crop filter narrows list and shows empty state', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(locationService: FakeLocationService()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Jean-Pierre M.'), findsOneWidget);
+    expect(find.text('Amina K.'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilterChip, 'Cassava'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Amina K.'), findsOneWidget);
+    expect(find.text('Jean-Pierre M.'), findsNothing);
+
+    await tester.tap(find.widgetWithText(FilterChip, 'Rice'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('No Rice buyers nearby.'), findsOneWidget);
+    expect(find.text('Amina K.'), findsNothing);
+
+    await tester.tap(find.widgetWithText(FilterChip, 'All'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Jean-Pierre M.'), findsOneWidget);
+    expect(find.text('Amina K.'), findsOneWidget);
+  });
+
+  testWidgets('Unlocked contact Call and WhatsApp use launcher', (tester) async {
+    final launcher = FakeContactLauncher();
+    final state = AppState(locationService: FakeLocationService());
+    expect(state.unlockContact('b1'), isTrue);
+
+    await tester.pumpWidget(
+      AppStateScope(
+        state: state,
+        child: MaterialApp(
+          home: ListingDetailScreen(
+            listingId: 'b1',
+            contactLauncher: launcher,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Call'));
+    await tester.pumpAndSettle();
+    expect(launcher.lastCallPhone, '+243 970 111 201');
+
+    await tester.tap(find.text('WhatsApp'));
+    await tester.pumpAndSettle();
+    expect(launcher.lastWhatsAppPhone, '+243 970 111 201');
   });
 
   testWidgets('Discover shows GPS label when location succeeds', (tester) async {

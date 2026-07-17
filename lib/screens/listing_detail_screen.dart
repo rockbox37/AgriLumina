@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/models/listing.dart';
+import 'package:agrilumina/services/contact_launcher.dart';
 import 'package:agrilumina/utils/geo.dart';
 
 class ListingDetailScreen extends StatelessWidget {
-  const ListingDetailScreen({super.key, required this.listingId});
+  const ListingDetailScreen({
+    super.key,
+    required this.listingId,
+    ContactLauncher? contactLauncher,
+  }) : contactLauncher = contactLauncher ?? const UrlLauncherContactLauncher();
 
   final String listingId;
+  final ContactLauncher contactLauncher;
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +65,30 @@ class ListingDetailScreen extends StatelessWidget {
                   listing.phone,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () => _launchCall(context, listing.phone),
+                        icon: const Icon(Icons.call),
+                        label: const Text('Call'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton.tonalIcon(
+                        onPressed: () =>
+                            _launchWhatsApp(context, listing.phone),
+                        icon: const Icon(Icons.chat),
+                        label: const Text('WhatsApp'),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 8),
                 Text(
-                  'Call or message on WhatsApp using this number.',
+                  'Opens your phone dialer or WhatsApp. No in-app chat.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -106,6 +133,32 @@ class ListingDetailScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _launchCall(BuildContext context, String phone) async {
+    final ok = await contactLauncher.call(phone);
+    if (!context.mounted) return;
+    if (!ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open the phone dialer on this device.'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _launchWhatsApp(BuildContext context, String phone) async {
+    final ok = await contactLauncher.openWhatsApp(phone);
+    if (!context.mounted) return;
+    if (!ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not open WhatsApp. Install WhatsApp or try Call instead.',
+          ),
+        ),
+      );
+    }
   }
 }
 
