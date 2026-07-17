@@ -7,6 +7,7 @@ import 'package:agrilumina/screens/listing_detail_screen.dart';
 import 'package:agrilumina/utils/crop_filter.dart';
 import 'package:agrilumina/utils/geo.dart';
 import 'package:agrilumina/utils/listing_search.dart';
+import 'package:agrilumina/widgets/brand_mark.dart';
 
 export 'package:agrilumina/data/crop_vocabulary.dart' show discoverCropFilters;
 
@@ -81,11 +82,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         );
         final title = state.role == UserRole.seller
             ? 'Nearby buyers'
-            : 'Nearby sellers';
+            : 'Find Sellers';
         final counterpart = state.role.counterpart.label.toLowerCase();
 
         return Scaffold(
           appBar: AppBar(
+            leading: const BrandHomeLeading(),
             title: Text(title),
             actions: [
               if (state.locationLoading)

@@ -20,8 +20,9 @@ class HomeScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
+            leading: const BrandHomeLeading(),
             title: const BrandLogo(height: 32),
-            titleSpacing: 16,
+            titleSpacing: 8,
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 12),

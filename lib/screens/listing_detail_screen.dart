@@ -3,6 +3,7 @@ import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/services/contact_launcher.dart';
 import 'package:agrilumina/utils/geo.dart';
+import 'package:agrilumina/widgets/brand_mark.dart';
 
 class ListingDetailScreen extends StatelessWidget {
   const ListingDetailScreen({
@@ -28,7 +29,11 @@ class ListingDetailScreen extends StatelessWidget {
 
         if (listing == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Listing')),
+            appBar: AppBar(
+              leadingWidth: BrandHomeLeading.backAndBrandLeadingWidth,
+              leading: const BrandHomeLeading(includeBackWhenCanPop: true),
+              title: const Text('Listing'),
+            ),
             body: const Center(child: Text('Listing not found.')),
           );
         }
@@ -36,7 +41,11 @@ class ListingDetailScreen extends StatelessWidget {
         final unlocked = state.isUnlocked(listing.id);
 
         return Scaffold(
-          appBar: AppBar(title: Text(listing.name)),
+          appBar: AppBar(
+            leadingWidth: BrandHomeLeading.backAndBrandLeadingWidth,
+            leading: const BrandHomeLeading(includeBackWhenCanPop: true),
+            title: Text(listing.name),
+          ),
           body: ListView(
             padding: const EdgeInsets.all(20),
             children: [
