@@ -104,8 +104,8 @@ class AppState extends ChangeNotifier {
   /// Seed mocks plus any published local listings.
   List<Listing> get listings => [
         ..._seedListings,
-        if (mySellerListing != null) mySellerListing!,
-        if (myBuyerListing != null) myBuyerListing!,
+        ?mySellerListing,
+        ?myBuyerListing,
       ];
 
   /// True when Discover should show live GPS-based distances.
