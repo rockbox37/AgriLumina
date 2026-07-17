@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/utils/geo.dart';
+import 'package:agrilumina/widgets/brand_mark.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -19,7 +20,8 @@ class HomeScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Agrilumina'),
+            title: const BrandLogo(height: 32),
+            titleSpacing: 16,
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 12),
@@ -35,6 +37,11 @@ class HomeScreen extends StatelessWidget {
           body: ListView(
             padding: const EdgeInsets.all(20),
             children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: BrandLogo(height: 72),
+              ),
+              const SizedBox(height: 20),
               Text(
                 'Welcome, ${state.displayName}',
                 style: Theme.of(context).textTheme.headlineSmall,

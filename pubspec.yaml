@@ -50,14 +50,12 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
 
 flutter_launcher_icons:
-  android: "launcher_icon" # Set to true or specify an asset name
+  android: "launcher_icon"
   ios: true
-  image_path: "assets/images/icon.png"
-  # Optional: Specify different icons for Android and iOS
-  
-  # min_sdk_android: 21 # Optional: specify minimum Android SDK version
-  # image_path_ios: "assets/ios_icon.png"
-  # image_path_android: "assets/android_icon.png"
+  image_path: "assets/branding/agrilumina_launcher_icon.png"
+  adaptive_icon_background: "#14532D"
+  adaptive_icon_foreground: "assets/branding/agrilumina_icon.png"
+  remove_alpha_ios: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -72,11 +70,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/icon.png
+    - assets/branding/agrilumina_logo.png
+    - assets/branding/agrilumina_icon.png
     - assets/images/Buyer.png
     - assets/images/Seller.png
-    - assets/images/MarketHub logo.png
-  #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

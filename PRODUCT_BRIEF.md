@@ -1,7 +1,7 @@
 # Agrilumina — Product Brief (MVP)
 
 **Status:** Draft · Jul 2026  
-**Brand:** Agrilumina (app/package/UI). MarketHub logo/art may remain as visual assets until a final mark exists.  
+**Brand:** Agrilumina (app/package/UI). Official logo/icon live under `assets/branding/`.  
 **Design focus:** Usable anywhere; built for rural farmers with poor or intermittent phone networks (low bandwidth, phone-first). MVP seed data uses Bugobe and nearby rural markets (DRC) as sample context.
 
 ---
@@ -56,7 +56,7 @@ Agrilumina helps a seller discover nearby crop buyers, spend credits to unlock c
 
 ## Brand decision (locked)
 
-Ship as **Agrilumina**. Keep MarketHub logo/art until a final mark exists; do not rename logo asset files unless necessary.
+Ship as **Agrilumina**. Use `assets/branding/agrilumina_logo.png` (wordmark + emblem) and `assets/branding/agrilumina_icon.png` (emblem) for UI and launcher icons.
 
 ## Non-goals this quarter
 

@@ -16,7 +16,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Agrilumina'), findsOneWidget);
+    expect(find.bySemanticsLabel('Agrilumina'), findsWidgets);
     expect(find.text('5 credits'), findsWidgets);
     expect(find.text('I am a…'), findsOneWidget);
     expect(find.text('5 nearby buyers'), findsOneWidget);
