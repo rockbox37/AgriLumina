@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/data/crop_vocabulary.dart';
+import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/widgets/brand_mark.dart';
 
@@ -42,25 +43,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ListenableBuilder(
       listenable: state,
       builder: (context, _) {
+        final l10n = context.l10n;
         return Scaffold(
           appBar: AppBar(
             leading: const BrandHomeLeading(),
-            title: const Text('Profile'),
+            title: Text(l10n.navProfile),
           ),
           body: ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              Text('Role', style: Theme.of(context).textTheme.titleMedium),
+              Text(l10n.labelRole, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               SegmentedButton<UserRole>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: UserRole.seller,
-                    label: Text('Seller'),
+                    label: Text(l10n.roleSeller),
                   ),
                   ButtonSegment(
                     value: UserRole.buyer,
-                    label: Text('Buyer'),
+                    label: Text(l10n.roleBuyer),
                   ),
                 ],
                 selected: {state.role},
@@ -69,30 +71,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 24),
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Display name',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.displayName,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Location',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.labelLocation,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 24),
               _InterestSection(
-                title: 'Buying interests',
-                emptyHint: 'None yet — add crops you want to buy',
+                title: l10n.buyingInterests,
+                emptyHint: l10n.buyingInterestsEmpty,
                 selected: state.buyingInterests,
                 onToggle: state.toggleBuyingInterest,
               ),
               const SizedBox(height: 20),
               _InterestSection(
-                title: 'Selling interests',
-                emptyHint: 'None yet — add crops you want to sell',
+                title: l10n.sellingInterests,
+                emptyHint: l10n.sellingInterestsEmpty,
                 selected: state.sellingInterests,
                 onToggle: state.toggleSellingInterest,
               ),
@@ -108,15 +110,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         : _locationController.text.trim(),
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Profile saved.')),
+                    SnackBar(content: Text(l10n.profileSaved)),
                   );
                 },
-                child: const Text('Save profile'),
+                child: Text(l10n.saveProfile),
               ),
               const SizedBox(height: 16),
               Text(
-                'Credits: ${state.credits} · '
-                'Unlocked contacts: ${state.unlockedListingIds.length}',
+                l10n.profileStats(
+                  state.credits,
+                  state.unlockedListingIds.length,
+                ),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

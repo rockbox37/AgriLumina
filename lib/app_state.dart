@@ -50,7 +50,9 @@ class AppState extends ChangeNotifier {
 
   UserLocation? userPosition;
   bool locationLoading = false;
-  String? locationBannerMessage;
+
+  /// Status for the Discover location banner when GPS is unavailable.
+  LocationFetchStatus? locationBannerStatus;
 
   /// Interest list used for Discover soft-filter for the active role.
   List<String> get relevantInterests =>
@@ -59,11 +61,11 @@ class AppState extends ChangeNotifier {
   /// True when Discover should show live GPS-based distances.
   bool get usingGps => userPosition != null;
 
-  /// Approximate place label for the device position (or sample-area fallback).
-  String get deviceLocationLabel {
+  /// Approximate place kind for the device position (localize in UI).
+  ApproximateLocationKind get deviceLocationKind {
     final pos = userPosition;
-    if (pos == null) return sampleAreaLabel;
-    return approximateLocationLabel(pos.latitude, pos.longitude);
+    if (pos == null) return ApproximateLocationKind.nearSampleArea;
+    return approximateLocationKind(pos.latitude, pos.longitude);
   }
 
   double distanceKmFor(Listing listing) {
@@ -113,11 +115,12 @@ class AppState extends ChangeNotifier {
     locationLoading = false;
     if (result.isSuccess && result.position != null) {
       userPosition = result.position;
-      locationBannerMessage = null;
+      locationBannerStatus = null;
     } else {
       userPosition = null;
-      locationBannerMessage = result.message ??
-          'Could not read location. Showing distances from sample listings.';
+      locationBannerStatus = result.status == LocationFetchStatus.success
+          ? LocationFetchStatus.error
+          : result.status;
     }
     notifyListeners();
   }

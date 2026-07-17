@@ -31,18 +31,18 @@ void main() {
     });
   });
 
-  group('approximateLocationLabel', () {
-    test('near seed center uses sample-area label', () {
+  group('approximateLocationKind', () {
+    test('near seed center uses sample-area kind', () {
       expect(
-        approximateLocationLabel(bugobeLatitude, bugobeLongitude),
-        'Near sample area',
+        approximateLocationKind(bugobeLatitude, bugobeLongitude),
+        ApproximateLocationKind.nearSampleArea,
       );
     });
 
-    test('far away uses generic label', () {
+    test('far away uses current-location kind', () {
       expect(
-        approximateLocationLabel(0, 0),
-        'Your current location',
+        approximateLocationKind(0, 0),
+        ApproximateLocationKind.currentLocation,
       );
     });
   });
@@ -71,7 +71,7 @@ void main() {
       await state.refreshLocation();
 
       expect(state.usingGps, isTrue);
-      expect(state.deviceLocationLabel, 'Near sample area');
+      expect(state.deviceLocationKind, ApproximateLocationKind.nearSampleArea);
 
       final nearby = state.nearbyCounterparts;
       expect(nearby, isNotEmpty);

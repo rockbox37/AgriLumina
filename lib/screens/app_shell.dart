@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
+import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/screens/credits_screen.dart';
 import 'package:agrilumina/screens/discover_screen.dart';
 import 'package:agrilumina/screens/home_screen.dart';
@@ -18,6 +19,7 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
+    final l10n = context.l10n;
 
     return ListenableBuilder(
       listenable: state,
@@ -30,26 +32,26 @@ class AppShell extends StatelessWidget {
           bottomNavigationBar: NavigationBar(
             selectedIndex: state.shellTabIndex,
             onDestinationSelected: state.goToTab,
-            destinations: const [
+            destinations: [
               NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home),
-                label: 'Home',
+                icon: const Icon(Icons.home_outlined),
+                selectedIcon: const Icon(Icons.home),
+                label: l10n.navHome,
               ),
               NavigationDestination(
-                icon: Icon(Icons.travel_explore_outlined),
-                selectedIcon: Icon(Icons.travel_explore),
-                label: 'Discover',
+                icon: const Icon(Icons.travel_explore_outlined),
+                selectedIcon: const Icon(Icons.travel_explore),
+                label: l10n.navDiscover,
               ),
               NavigationDestination(
-                icon: Icon(Icons.toll_outlined),
-                selectedIcon: Icon(Icons.toll),
-                label: 'Credits',
+                icon: const Icon(Icons.toll_outlined),
+                selectedIcon: const Icon(Icons.toll),
+                label: l10n.navCredits,
               ),
               NavigationDestination(
-                icon: Icon(Icons.person_outline),
-                selectedIcon: Icon(Icons.person),
-                label: 'Profile',
+                icon: const Icon(Icons.person_outline),
+                selectedIcon: const Icon(Icons.person),
+                label: l10n.navProfile,
               ),
             ],
           ),

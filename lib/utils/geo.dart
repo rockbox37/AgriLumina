@@ -5,9 +5,6 @@ import 'dart:math' as math;
 const double bugobeLatitude = -2.150;
 const double bugobeLongitude = 28.850;
 
-/// Generic label for the seed listing area (not a product home geography).
-const String sampleAreaLabel = 'Sample area';
-
 /// Great-circle distance between two WGS84 points in kilometers.
 double haversineKm(
   double lat1,
@@ -30,10 +27,20 @@ double haversineKm(
 /// Rounds to one decimal place for display (e.g. `3.2`).
 double roundKm(double km) => (km * 10).roundToDouble() / 10;
 
+/// Legacy English formatter; prefer [formatDistanceKmLocalized] in UI.
 String formatDistanceKm(double km) => '${roundKm(km)} km';
 
-/// Short label for the user's position without reverse geocoding.
-String approximateLocationLabel(double latitude, double longitude) {
+/// Kind of approximate place label without reverse geocoding.
+enum ApproximateLocationKind {
+  nearSampleArea,
+  currentLocation,
+}
+
+/// Short label kind for the user's position without reverse geocoding.
+ApproximateLocationKind approximateLocationKind(
+  double latitude,
+  double longitude,
+) {
   final distanceFromSeedCenter = haversineKm(
     latitude,
     longitude,
@@ -41,9 +48,9 @@ String approximateLocationLabel(double latitude, double longitude) {
     bugobeLongitude,
   );
   if (distanceFromSeedCenter < 50) {
-    return 'Near sample area';
+    return ApproximateLocationKind.nearSampleArea;
   }
-  return 'Your current location';
+  return ApproximateLocationKind.currentLocation;
 }
 
 double _radians(double degrees) => degrees * math.pi / 180;

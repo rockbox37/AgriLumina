@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:agrilumina/l10n/app_localizations.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/utils/crop_filter.dart';
@@ -96,14 +98,16 @@ void main() {
 
   group('interestFilterHelperText', () {
     test('matches role', () {
+      final l10n = lookupAppLocalizations(const Locale('en'));
       expect(
-        interestFilterHelperText(UserRole.seller),
+        interestFilterHelperText(l10n, UserRole.seller),
         'Showing crops you sell',
       );
       expect(
-        interestFilterHelperText(UserRole.buyer),
+        interestFilterHelperText(l10n, UserRole.buyer),
         'Showing crops you buy',
       );
     });
   });
 }
+
