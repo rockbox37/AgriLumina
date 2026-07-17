@@ -25,7 +25,6 @@ class LocationFetchResult {
   const LocationFetchResult._({
     required this.status,
     this.position,
-    this.message,
   });
 
   const LocationFetchResult.success(UserLocation position)
@@ -34,29 +33,20 @@ class LocationFetchResult {
           position: position,
         );
 
-  const LocationFetchResult.denied([
-    String message =
-        'Location permission denied. Showing distances from sample listings.',
-  ]) : this._(status: LocationFetchStatus.denied, message: message);
+  const LocationFetchResult.denied()
+      : this._(status: LocationFetchStatus.denied);
 
-  const LocationFetchResult.serviceDisabled([
-    String message =
-        'Location services are off. Showing distances from sample listings.',
-  ]) : this._(status: LocationFetchStatus.serviceDisabled, message: message);
+  const LocationFetchResult.serviceDisabled()
+      : this._(status: LocationFetchStatus.serviceDisabled);
 
-  const LocationFetchResult.unsupported([
-    String message =
-        'GPS is not available on this device. Showing distances from sample listings.',
-  ]) : this._(status: LocationFetchStatus.unsupported, message: message);
+  const LocationFetchResult.unsupported()
+      : this._(status: LocationFetchStatus.unsupported);
 
-  const LocationFetchResult.error([
-    String message =
-        'Could not read location. Showing distances from sample listings.',
-  ]) : this._(status: LocationFetchStatus.error, message: message);
+  const LocationFetchResult.error()
+      : this._(status: LocationFetchStatus.error);
 
   final LocationFetchStatus status;
   final UserLocation? position;
-  final String? message;
 
   bool get isSuccess => status == LocationFetchStatus.success;
 }

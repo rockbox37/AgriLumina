@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/data/crop_vocabulary.dart';
+import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/screens/listing_detail_screen.dart';
 import 'package:agrilumina/utils/crop_filter.dart';
 import 'package:agrilumina/utils/geo.dart';
 import 'package:agrilumina/utils/listing_search.dart';
+import 'package:agrilumina/utils/locale_format.dart';
 import 'package:agrilumina/widgets/brand_mark.dart';
 
 export 'package:agrilumina/data/crop_vocabulary.dart' show discoverCropFilters;
@@ -40,13 +42,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   void _onCropSelected(String? crop) {
     setState(() {
       if (crop == null) {
-        // Explicit All — unfiltered counterparts.
         _cropMode = DiscoverCropMode.showAll;
         _manualCrop = null;
         return;
       }
       if (_cropMode == DiscoverCropMode.manualCrop && _manualCrop == crop) {
-        // Deselect chip → return to interest soft-filter.
         _cropMode = DiscoverCropMode.softInterest;
         _manualCrop = null;
         return;
@@ -63,6 +63,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     return ListenableBuilder(
       listenable: state,
       builder: (context, _) {
+        final l10n = context.l10n;
         _syncRole(state.role);
 
         final list = state.nearbyCounterparts;
@@ -81,9 +82,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           relevantInterests: interests,
         );
         final title = state.role == UserRole.seller
-            ? 'Find Buyers'
-            : 'Find Sellers';
-        final counterpart = state.role.counterpart.label.toLowerCase();
+            ? l10n.findBuyers
+            : l10n.findSellers;
+        final counterpart = l10n.counterpartPlural(state.role);
 
         return Scaffold(
           appBar: AppBar(
@@ -103,7 +104,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 )
               else
                 IconButton(
-                  tooltip: 'Refresh location',
+                  tooltip: l10n.refreshLocation,
                   onPressed: state.refreshLocation,
                   icon: const Icon(Icons.my_location),
                 ),
@@ -111,7 +112,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 padding: const EdgeInsets.only(right: 12),
                 child: Center(
                   child: Text(
-                    '${state.credits} credits',
+                    l10n.creditsCount(state.credits),
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
@@ -134,9 +135,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
                     child: Text(
-                      interestFilterHelperText(state.role),
+                      interestFilterHelperText(l10n, state.role),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                   ),
@@ -181,18 +183,21 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     required String counterpart,
     required AppState state,
   }) {
+    final l10n = context.l10n;
+
     if (list.isEmpty) {
       return Center(
-        child: Text('No ${counterpart}s nearby yet.'),
+        child: Text(l10n.noCounterpartsNearbyYet(counterpart)),
       );
     }
 
     if (cropFiltered.isEmpty) {
-      final message = cropMode == DiscoverCropMode.manualCrop && manualCrop != null
-          ? 'No $manualCrop ${counterpart}s nearby.'
-          : interestSoftActive
-              ? 'No ${counterpart}s nearby for your interests.'
-              : 'No ${counterpart}s nearby.';
+      final message =
+          cropMode == DiscoverCropMode.manualCrop && manualCrop != null
+              ? l10n.noCropCounterpartsNearby(manualCrop, counterpart)
+              : interestSoftActive
+                  ? l10n.noCounterpartsForInterests(counterpart)
+                  : l10n.noCounterpartsNearby(counterpart);
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -206,15 +211,15 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
     final trimmedQuery = searchQuery.trim();
     if (filtered.isEmpty) {
-      final cropPart = cropMode == DiscoverCropMode.manualCrop &&
+      final scope = cropMode == DiscoverCropMode.manualCrop &&
               manualCrop != null
-          ? '$manualCrop '
-          : '';
+          ? '$manualCrop $counterpart'
+          : counterpart;
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            'No matches for "$trimmedQuery" among $cropPart${counterpart}s.',
+            l10n.noSearchMatches(trimmedQuery, scope),
             textAlign: TextAlign.center,
           ),
         ),
@@ -260,6 +265,7 @@ class _DiscoverSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
       child: TextField(
@@ -268,12 +274,12 @@ class _DiscoverSearchField extends StatelessWidget {
         onChanged: onChanged,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
-          hintText: 'Search ${counterpart}s',
+          hintText: l10n.searchCounterparts(counterpart),
           prefixIcon: const Icon(Icons.search),
           suffixIcon: controller.text.trim().isEmpty
               ? null
               : IconButton(
-                  tooltip: 'Clear search',
+                  tooltip: l10n.clearSearch,
                   onPressed: onClear,
                   icon: const Icon(Icons.clear),
                 ),
@@ -302,8 +308,8 @@ class _CropFilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final allSelected =
-        mode == DiscoverCropMode.showAll ||
+    final l10n = context.l10n;
+    final allSelected = mode == DiscoverCropMode.showAll ||
         (mode == DiscoverCropMode.softInterest && !interestSoftActive);
 
     return SingleChildScrollView(
@@ -314,7 +320,7 @@ class _CropFilterBar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
-              label: const Text('All'),
+              label: Text(l10n.filterAll),
               selected: allSelected,
               onSelected: (_) => onSelected(null),
             ),
@@ -344,14 +350,26 @@ class _LocationBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final usingGps = state.usingGps;
-    final message = state.locationBannerMessage;
+    final status = state.locationBannerStatus;
     final background = usingGps
         ? theme.colorScheme.primaryContainer
         : theme.colorScheme.surfaceContainerHighest;
     final foreground = usingGps
         ? theme.colorScheme.onPrimaryContainer
         : theme.colorScheme.onSurfaceVariant;
+
+    final placeLabel = switch (state.deviceLocationKind) {
+      ApproximateLocationKind.nearSampleArea => l10n.nearSampleArea,
+      ApproximateLocationKind.currentLocation => l10n.yourCurrentLocation,
+    };
+
+    final bannerText = usingGps
+        ? l10n.nearYouBanner(placeLabel)
+        : (status != null
+            ? l10n.locationBannerForStatus(status)
+            : l10n.sampleListingsEnableLocation);
 
     return Material(
       color: background,
@@ -367,10 +385,7 @@ class _LocationBanner extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                usingGps
-                    ? 'Near you · ${state.deviceLocationLabel}'
-                    : (message ??
-                        'Sample listings · enable location for nearby distances'),
+                bannerText,
                 style: theme.textTheme.bodySmall?.copyWith(color: foreground),
               ),
             ),
@@ -394,6 +409,7 @@ class _ListingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return ListTile(
       leading: CircleAvatar(
         child: Text(
@@ -402,8 +418,12 @@ class _ListingTile extends StatelessWidget {
       ),
       title: Text(listing.name),
       subtitle: Text(
-        '${listing.crop} · ${listing.quantityHint}\n'
-        '${formatDistanceKm(listing.distanceKm)} · ${listing.lastActiveLabel}',
+        l10n.listingSubtitle(
+          listing.crop,
+          listing.quantityHint,
+          formatDistanceKmLocalized(l10n, listing.distanceKm),
+          listing.lastActiveLabel,
+        ),
       ),
       isThreeLine: true,
       trailing: Icon(

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
+import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/models/user_role.dart';
-import 'package:agrilumina/utils/geo.dart';
+import 'package:agrilumina/utils/locale_format.dart';
 import 'package:agrilumina/widgets/brand_mark.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -14,9 +15,9 @@ class HomeScreen extends StatelessWidget {
     return ListenableBuilder(
       listenable: state,
       builder: (context, _) {
+        final l10n = context.l10n;
         final counterparts = state.nearbyCounterparts;
-        final counterpartLabel =
-            state.role.counterpart == UserRole.buyer ? 'buyers' : 'sellers';
+        final counterpartLabel = l10n.counterpartPlural(state.role);
 
         return Scaffold(
           appBar: AppBar(
@@ -28,7 +29,7 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 12),
                 child: Center(
                   child: Text(
-                    '${state.credits} credits',
+                    l10n.creditsCount(state.credits),
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
@@ -44,28 +45,28 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'Welcome, ${state.displayName}',
+                l10n.welcomeUser(state.displayName),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
               Text(
-                'Find nearby $counterpartLabel by distance.',
+                l10n.findNearbyByDistance(counterpartLabel),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 24),
-              Text('I am a…', style: Theme.of(context).textTheme.titleMedium),
+              Text(l10n.iAmA, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               SegmentedButton<UserRole>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: UserRole.seller,
-                    label: Text('Seller'),
-                    icon: Icon(Icons.agriculture),
+                    label: Text(l10n.roleSeller),
+                    icon: const Icon(Icons.agriculture),
                   ),
                   ButtonSegment(
                     value: UserRole.buyer,
-                    label: Text('Buyer'),
-                    icon: Icon(Icons.storefront),
+                    label: Text(l10n.roleBuyer),
+                    icon: const Icon(Icons.storefront),
                   ),
                 ],
                 selected: {state.role},
@@ -79,12 +80,19 @@ class HomeScreen extends StatelessWidget {
                         Theme.of(context).colorScheme.primaryContainer,
                     child: Text('${counterparts.length}'),
                   ),
-                  title: Text('${counterparts.length} nearby $counterpartLabel'),
+                  title: Text(
+                    l10n.nearbyCount(counterparts.length, counterpartLabel),
+                  ),
                   subtitle: Text(
                     counterparts.isEmpty
-                        ? 'No matches in seed data yet'
-                        : 'Closest: ${counterparts.first.name} · '
-                            '${formatDistanceKm(counterparts.first.distanceKm)}',
+                        ? l10n.noMatchesInSeedData
+                        : l10n.closestListing(
+                            counterparts.first.name,
+                            formatDistanceKmLocalized(
+                              l10n,
+                              counterparts.first.distanceKm,
+                            ),
+                          ),
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => state.goToTab(1),
@@ -92,7 +100,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Spend ${AppState.unlockContactCost} credit to unlock a phone number.',
+                l10n.spendCreditToUnlock(AppState.unlockContactCost),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),

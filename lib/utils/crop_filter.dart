@@ -1,3 +1,4 @@
+import 'package:agrilumina/l10n/app_localizations.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 
@@ -46,8 +47,8 @@ bool isInterestSoftFilterActive({
 }
 
 /// Helper copy when the interest soft-filter is active.
-String interestFilterHelperText(UserRole role) {
+String interestFilterHelperText(AppLocalizations l10n, UserRole role) {
   return role == UserRole.seller
-      ? 'Showing crops you sell'
-      : 'Showing crops you buy';
+      ? l10n.showingCropsYouSell
+      : l10n.showingCropsYouBuy;
 }

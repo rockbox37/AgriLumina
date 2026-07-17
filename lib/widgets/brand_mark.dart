@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
+import 'package:agrilumina/l10n/l10n_extensions.dart';
 
 /// Shared AgriLumina brand assets for app chrome.
 class BrandAssets {
@@ -86,11 +87,12 @@ class BrandHomeLeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final brand = IconButton(
       key: buttonKey,
-      tooltip: 'Home',
+      tooltip: l10n.brandHomeTooltip,
       onPressed: () => navigateToAppHome(context),
-      icon: BrandIcon(size: iconSize, semanticLabel: 'AgriLumina home'),
+      icon: BrandIcon(size: iconSize, semanticLabel: l10n.brandHomeSemantics),
     );
 
     final showBack =

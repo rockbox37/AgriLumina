@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
+import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/widgets/brand_mark.dart';
 
 class CreditsScreen extends StatelessWidget {
@@ -12,10 +13,11 @@ class CreditsScreen extends StatelessWidget {
     return ListenableBuilder(
       listenable: state,
       builder: (context, _) {
+        final l10n = context.l10n;
         return Scaffold(
           appBar: AppBar(
             leading: const BrandHomeLeading(),
-            title: const Text('Credits'),
+            title: Text(l10n.navCredits),
           ),
           body: Padding(
             padding: const EdgeInsets.all(20),
@@ -23,7 +25,7 @@ class CreditsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Your balance',
+                  l10n.yourBalance,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
@@ -33,8 +35,7 @@ class CreditsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Unlocking a contact costs ${AppState.unlockContactCost} credit. '
-                  'Real payments come later — for now you can add demo credits.',
+                  l10n.creditsExplainer(AppState.unlockContactCost),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -44,20 +45,20 @@ class CreditsScreen extends StatelessWidget {
                   onPressed: () {
                     state.addCredits(5);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Added 5 demo credits.')),
+                      SnackBar(content: Text(l10n.addedDemoCredits(5))),
                     );
                   },
-                  child: const Text('Add 5 demo credits'),
+                  child: Text(l10n.addDemoCredits(5)),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton(
                   onPressed: () {
                     state.addCredits(1);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Added 1 demo credit.')),
+                      SnackBar(content: Text(l10n.addedDemoCredit(1))),
                     );
                   },
-                  child: const Text('Add 1 demo credit'),
+                  child: Text(l10n.addDemoCredit(1)),
                 ),
               ],
             ),

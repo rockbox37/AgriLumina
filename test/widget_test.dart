@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:agrilumina/app_state.dart';
+import 'package:agrilumina/l10n/app_localizations.dart';
 import 'package:agrilumina/main.dart';
 import 'package:agrilumina/screens/listing_detail_screen.dart';
 import 'package:agrilumina/services/location_service.dart';
@@ -237,6 +238,8 @@ void main() {
       AppStateScope(
         state: state,
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: ListingDetailScreen(
             listingId: 'b1',
             contactLauncher: launcher,

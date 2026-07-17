@@ -1,0 +1,211 @@
+{
+  "@@locale": "en",
+  "appTitle": "AgriLumina",
+  "@appTitle": {
+    "description": "Brand name; keep consistent across locales unless brand localization is decided."
+  },
+  "navHome": "Home",
+  "navDiscover": "Discover",
+  "navCredits": "Credits",
+  "navProfile": "Profile",
+  "brandHomeTooltip": "Home",
+  "brandHomeSemantics": "AgriLumina home",
+  "creditsCount": "{count} credits",
+  "@creditsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "welcomeUser": "Welcome, {name}",
+  "@welcomeUser": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "findNearbyByDistance": "Find nearby {counterpart} by distance.",
+  "@findNearbyByDistance": {
+    "placeholders": {
+      "counterpart": {"type": "String"}
+    }
+  },
+  "buyers": "buyers",
+  "sellers": "sellers",
+  "iAmA": "I am a…",
+  "roleSeller": "Seller",
+  "roleBuyer": "Buyer",
+  "nearbyCount": "{count} nearby {counterpart}",
+  "@nearbyCount": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "counterpart": {"type": "String"}
+    }
+  },
+  "noMatchesInSeedData": "No matches in seed data yet",
+  "closestListing": "Closest: {name} · {distance}",
+  "@closestListing": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "distance": {"type": "String"}
+    }
+  },
+  "spendCreditToUnlock": "Spend {cost} credit to unlock a phone number.",
+  "@spendCreditToUnlock": {
+    "placeholders": {
+      "cost": {"type": "int"}
+    }
+  },
+  "findBuyers": "Find Buyers",
+  "findSellers": "Find Sellers",
+  "refreshLocation": "Refresh location",
+  "filterAll": "All",
+  "showingCropsYouSell": "Showing crops you sell",
+  "showingCropsYouBuy": "Showing crops you buy",
+  "searchCounterparts": "Search {counterpart}",
+  "@searchCounterparts": {
+    "placeholders": {
+      "counterpart": {"type": "String"}
+    }
+  },
+  "clearSearch": "Clear search",
+  "noCounterpartsNearbyYet": "No {counterpart} nearby yet.",
+  "@noCounterpartsNearbyYet": {
+    "placeholders": {
+      "counterpart": {"type": "String"}
+    }
+  },
+  "noCropCounterpartsNearby": "No {crop} {counterpart} nearby.",
+  "@noCropCounterpartsNearby": {
+    "placeholders": {
+      "crop": {"type": "String"},
+      "counterpart": {"type": "String"}
+    }
+  },
+  "noCounterpartsForInterests": "No {counterpart} nearby for your interests.",
+  "@noCounterpartsForInterests": {
+    "placeholders": {
+      "counterpart": {"type": "String"}
+    }
+  },
+  "noCounterpartsNearby": "No {counterpart} nearby.",
+  "@noCounterpartsNearby": {
+    "placeholders": {
+      "counterpart": {"type": "String"}
+    }
+  },
+  "noSearchMatches": "No matches for \"{query}\" among {scope}.",
+  "@noSearchMatches": {
+    "placeholders": {
+      "query": {"type": "String"},
+      "scope": {"type": "String"}
+    }
+  },
+  "nearYouBanner": "Near you · {label}",
+  "@nearYouBanner": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
+  "sampleListingsEnableLocation": "Sample listings · enable location for nearby distances",
+  "locationPermissionDenied": "Location permission denied. Showing distances from sample listings.",
+  "locationServicesOff": "Location services are off. Showing distances from sample listings.",
+  "locationUnsupported": "GPS is not available on this device. Showing distances from sample listings.",
+  "locationReadError": "Could not read location. Showing distances from sample listings.",
+  "sampleArea": "Sample area",
+  "nearSampleArea": "Near sample area",
+  "yourCurrentLocation": "Your current location",
+  "distanceKm": "{value} km",
+  "@distanceKm": {
+    "description": "Metric distance. Units strategy: km for all locales in MVP; mi can follow later.",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "listingTitle": "Listing",
+  "listingNotFound": "Listing not found.",
+  "labelRole": "Role",
+  "labelLocation": "Location",
+  "labelDistance": "Distance",
+  "labelLastActive": "Last active",
+  "contact": "Contact",
+  "call": "Call",
+  "whatsApp": "WhatsApp",
+  "opensDialerOrWhatsApp": "Opens your phone dialer or WhatsApp. No in-app chat.",
+  "phoneLockedSpendCredit": "Phone number is locked. Spend {cost} credit to unlock.",
+  "@phoneLockedSpendCredit": {
+    "placeholders": {
+      "cost": {"type": "int"}
+    }
+  },
+  "contactUnlocked": "Contact unlocked.",
+  "notEnoughCredits": "Not enough credits. Add some on the Credits tab.",
+  "unlockForCredit": "Unlock for {cost} credit",
+  "@unlockForCredit": {
+    "placeholders": {
+      "cost": {"type": "int"}
+    }
+  },
+  "youHaveCredits": "You have {count} credits.",
+  "@youHaveCredits": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "couldNotOpenDialer": "Could not open the phone dialer on this device.",
+  "couldNotOpenWhatsApp": "Could not open WhatsApp. Install WhatsApp or try Call instead.",
+  "yourBalance": "Your balance",
+  "creditsExplainer": "Unlocking a contact costs {cost} credit. Real payments come later — for now you can add demo credits.",
+  "@creditsExplainer": {
+    "placeholders": {
+      "cost": {"type": "int"}
+    }
+  },
+  "addedDemoCredits": "Added {count} demo credits.",
+  "@addedDemoCredits": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "addDemoCredits": "Add {count} demo credits",
+  "@addDemoCredits": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "addedDemoCredit": "Added {count} demo credit.",
+  "@addedDemoCredit": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "addDemoCredit": "Add {count} demo credit",
+  "@addDemoCredit": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "displayName": "Display name",
+  "buyingInterests": "Buying interests",
+  "sellingInterests": "Selling interests",
+  "buyingInterestsEmpty": "None yet — add crops you want to buy",
+  "sellingInterestsEmpty": "None yet — add crops you want to sell",
+  "profileSaved": "Profile saved.",
+  "saveProfile": "Save profile",
+  "profileStats": "Credits: {credits} · Unlocked contacts: {unlocked}",
+  "@profileStats": {
+    "placeholders": {
+      "credits": {"type": "int"},
+      "unlocked": {"type": "int"}
+    }
+  },
+  "defaultDisplayName": "You",
+  "defaultLocation": "Not set",
+  "listingSubtitle": "{crop} · {quantity}\n{distance} · {lastActive}",
+  "@listingSubtitle": {
+    "placeholders": {
+      "crop": {"type": "String"},
+      "quantity": {"type": "String"},
+      "distance": {"type": "String"},
+      "lastActive": {"type": "String"}
+    }
+  }
+}

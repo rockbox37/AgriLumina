@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
+import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/services/contact_launcher.dart';
-import 'package:agrilumina/utils/geo.dart';
+import 'package:agrilumina/utils/locale_format.dart';
 import 'package:agrilumina/widgets/brand_mark.dart';
 
 class ListingDetailScreen extends StatelessWidget {
@@ -22,19 +23,18 @@ class ListingDetailScreen extends StatelessWidget {
     return ListenableBuilder(
       listenable: state,
       builder: (context, _) {
-        final matches =
-            state.listings.where((l) => l.id == listingId);
-        final Listing? listing =
-            matches.isEmpty ? null : matches.first;
+        final l10n = context.l10n;
+        final matches = state.listings.where((l) => l.id == listingId);
+        final Listing? listing = matches.isEmpty ? null : matches.first;
 
         if (listing == null) {
           return Scaffold(
             appBar: AppBar(
               leadingWidth: BrandHomeLeading.backAndBrandLeadingWidth,
               leading: const BrandHomeLeading(includeBackWhenCanPop: true),
-              title: const Text('Listing'),
+              title: Text(l10n.listingTitle),
             ),
-            body: const Center(child: Text('Listing not found.')),
+            body: Center(child: Text(l10n.listingNotFound)),
           );
         }
 
@@ -56,16 +56,25 @@ class ListingDetailScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(listing.quantityHint),
               const SizedBox(height: 16),
-              _InfoRow(label: 'Role', value: listing.role.label),
-              _InfoRow(label: 'Location', value: listing.location),
               _InfoRow(
-                label: 'Distance',
-                value: formatDistanceKm(state.distanceKmFor(listing)),
+                label: l10n.labelRole,
+                value: listing.role.label(l10n),
               ),
-              _InfoRow(label: 'Last active', value: listing.lastActiveLabel),
+              _InfoRow(label: l10n.labelLocation, value: listing.location),
+              _InfoRow(
+                label: l10n.labelDistance,
+                value: formatDistanceKmLocalized(
+                  l10n,
+                  state.distanceKmFor(listing),
+                ),
+              ),
+              _InfoRow(
+                label: l10n.labelLastActive,
+                value: listing.lastActiveLabel,
+              ),
               const SizedBox(height: 24),
               Text(
-                'Contact',
+                l10n.contact,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
@@ -81,7 +90,7 @@ class ListingDetailScreen extends StatelessWidget {
                       child: FilledButton.icon(
                         onPressed: () => _launchCall(context, listing.phone),
                         icon: const Icon(Icons.call),
-                        label: const Text('Call'),
+                        label: Text(l10n.call),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -90,22 +99,21 @@ class ListingDetailScreen extends StatelessWidget {
                         onPressed: () =>
                             _launchWhatsApp(context, listing.phone),
                         icon: const Icon(Icons.chat),
-                        label: const Text('WhatsApp'),
+                        label: Text(l10n.whatsApp),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Opens your phone dialer or WhatsApp. No in-app chat.',
+                  l10n.opensDialerOrWhatsApp,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ] else ...[
                 Text(
-                  'Phone number is locked. Spend '
-                  '${AppState.unlockContactCost} credit to unlock.',
+                  l10n.phoneLockedSpendCredit(AppState.unlockContactCost),
                 ),
                 const SizedBox(height: 16),
                 FilledButton.icon(
@@ -114,26 +122,22 @@ class ListingDetailScreen extends StatelessWidget {
                     final messenger = ScaffoldMessenger.of(context);
                     if (ok) {
                       messenger.showSnackBar(
-                        const SnackBar(content: Text('Contact unlocked.')),
+                        SnackBar(content: Text(l10n.contactUnlocked)),
                       );
                     } else {
                       messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Not enough credits. Add some on the Credits tab.',
-                          ),
-                        ),
+                        SnackBar(content: Text(l10n.notEnoughCredits)),
                       );
                     }
                   },
                   icon: const Icon(Icons.lock_open),
                   label: Text(
-                    'Unlock for ${AppState.unlockContactCost} credit',
+                    l10n.unlockForCredit(AppState.unlockContactCost),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'You have ${state.credits} credits.',
+                  l10n.youHaveCredits(state.credits),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -149,9 +153,7 @@ class ListingDetailScreen extends StatelessWidget {
     if (!context.mounted) return;
     if (!ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not open the phone dialer on this device.'),
-        ),
+        SnackBar(content: Text(context.l10n.couldNotOpenDialer)),
       );
     }
   }
@@ -161,11 +163,7 @@ class ListingDetailScreen extends StatelessWidget {
     if (!context.mounted) return;
     if (!ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Could not open WhatsApp. Install WhatsApp or try Call instead.',
-          ),
-        ),
+        SnackBar(content: Text(context.l10n.couldNotOpenWhatsApp)),
       );
     }
   }
