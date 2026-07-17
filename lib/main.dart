@@ -5,18 +5,21 @@ import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/l10n/app_localizations.dart';
 import 'package:agrilumina/screens/app_shell.dart';
 import 'package:agrilumina/screens/splash_screen.dart';
+import 'package:agrilumina/services/local_state_store.dart';
 import 'package:agrilumina/services/location_service.dart';
 
-void main() {
+Future<void> main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  runApp(const AgriluminaApp());
+  final store = await LocalStateStore.open();
+  runApp(AgriluminaApp(stateStore: store));
 }
 
 class AgriluminaApp extends StatefulWidget {
   const AgriluminaApp({
     super.key,
     this.locationService,
+    this.stateStore,
     this.locale,
     this.showSplash = true,
     this.removeNativeSplash = true,
@@ -24,6 +27,9 @@ class AgriluminaApp extends StatefulWidget {
 
   /// Optional override for tests (avoids real GPS / platform channels).
   final LocationService? locationService;
+
+  /// When set, MVP fields load from / save to this store.
+  final LocalStateStore? stateStore;
 
   /// Optional locale override for tests.
   final Locale? locale;
@@ -44,7 +50,10 @@ class _AgriluminaAppState extends State<AgriluminaApp> {
   @override
   void initState() {
     super.initState();
-    _state = AppState(locationService: widget.locationService);
+    final store = widget.stateStore;
+    _state = store != null
+        ? AppState.fromStore(store, locationService: widget.locationService)
+        : AppState(locationService: widget.locationService);
   }
 
   @override
@@ -93,12 +102,14 @@ class MyApp extends StatelessWidget {
   const MyApp({
     super.key,
     this.locationService,
+    this.stateStore,
     this.locale,
     this.showSplash = false,
     this.removeNativeSplash = false,
   });
 
   final LocationService? locationService;
+  final LocalStateStore? stateStore;
   final Locale? locale;
 
   /// Tests default to skipping the timed splash for speed / stability.
@@ -109,6 +120,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AgriluminaApp(
         locationService: locationService,
+        stateStore: stateStore,
         locale: locale,
         showSplash: showSplash,
         removeNativeSplash: removeNativeSplash,
