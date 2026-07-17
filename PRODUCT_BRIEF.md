@@ -1,7 +1,7 @@
-# Agrilumina — Product Brief (MVP)
+# AgriLumina — Product Brief (MVP)
 
 **Status:** Draft · Jul 2026  
-**Brand:** Agrilumina (app/package/UI). Official logo/icon live under `assets/branding/`.  
+**Brand:** AgriLumina (app/UI display name; Dart package remains `agrilumina`). Official logo/icon live under `assets/branding/`.  
 **Design focus:** Usable anywhere; built for rural farmers with poor or intermittent phone networks (low bandwidth, phone-first). MVP seed data uses Bugobe and nearby rural markets (DRC) as sample context.
 
 ---
@@ -21,7 +21,7 @@ Small agricultural sellers and buyers nearby each other have no simple, trustwor
 
 ## One-sentence product
 
-Agrilumina helps a seller discover nearby crop buyers, spend credits to unlock contact details, and request an intro — offline-friendly and phone-first.
+AgriLumina helps a seller discover nearby crop buyers, spend credits to unlock contact details, and request an intro — offline-friendly and phone-first.
 
 ## Core loop (MVP)
 
@@ -56,7 +56,7 @@ Agrilumina helps a seller discover nearby crop buyers, spend credits to unlock c
 
 ## Brand decision (locked)
 
-Ship as **Agrilumina**. Use `assets/branding/agrilumina_logo.png` (wordmark + emblem) and `assets/branding/agrilumina_icon.png` (emblem) for UI and launcher icons.
+Ship as **AgriLumina**. Use `assets/branding/agrilumina_logo.png` (wordmark + emblem) and `assets/branding/agrilumina_icon.png` (emblem) for UI and launcher icons.
 
 ## Non-goals this quarter
 

@@ -37,7 +37,7 @@ class _AgriluminaAppState extends State<AgriluminaApp> {
     return AppStateScope(
       state: _state,
       child: MaterialApp(
-        title: 'Agrilumina',
+        title: 'AgriLumina',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
           useMaterial3: true,

@@ -13,7 +13,7 @@ class BrandLogo extends StatelessWidget {
   const BrandLogo({
     super.key,
     this.height = 36,
-    this.semanticLabel = 'Agrilumina',
+    this.semanticLabel = 'AgriLumina',
   });
 
   final double height;
@@ -39,7 +39,7 @@ class BrandIcon extends StatelessWidget {
   const BrandIcon({
     super.key,
     this.size = 40,
-    this.semanticLabel = 'Agrilumina',
+    this.semanticLabel = 'AgriLumina',
   });
 
   final double size;
