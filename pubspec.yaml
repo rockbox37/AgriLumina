@@ -39,6 +39,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   location: ^8.0.1
   url_launcher: ^6.3.2
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
@@ -59,6 +60,19 @@ flutter_launcher_icons:
   adaptive_icon_background: "#14532D"
   adaptive_icon_foreground: "assets/branding/agrilumina_icon.png"
   remove_alpha_ios: true
+
+# Native splash (Android / iOS). Regenerate with:
+#   dart run flutter_native_splash:create
+# Light background so the dark-green wordmark in agrilumina_logo.png stays readable.
+# Android 12+ uses the circular emblem; older Android + iOS show the full logo.
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/branding/agrilumina_logo.png
+  android_12:
+    color: "#FFFFFF"
+    image: assets/branding/agrilumina_icon.png
+    icon_background_color: "#14532D"
+  web: false
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
