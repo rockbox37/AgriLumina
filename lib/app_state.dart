@@ -5,6 +5,7 @@ import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/data/mock_listings.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
+import 'package:agrilumina/services/local_state_store.dart';
 import 'package:agrilumina/services/location_service.dart';
 import 'package:agrilumina/utils/geo.dart';
 
@@ -17,13 +18,38 @@ class AppState extends ChangeNotifier {
     this.location = '',
     List<String>? buyingInterests,
     List<String>? sellingInterests,
+    Set<String>? unlockedListingIds,
     List<Listing>? listings,
     LocationService? locationService,
+    LocalStateStore? store,
   })  : buyingInterests = List<String>.from(buyingInterests ?? const []),
         sellingInterests =
             List<String>.from(sellingInterests ?? const ['Maize']),
+        unlockedListingIds = {...?unlockedListingIds},
         listings = List.unmodifiable(listings ?? mockListings),
-        _locationService = locationService ?? PluginLocationService();
+        _locationService = locationService ?? PluginLocationService(),
+        _store = store;
+
+  /// Builds [AppState] from persisted MVP fields (and keeps saving mutations).
+  factory AppState.fromStore(
+    LocalStateStore store, {
+    LocationService? locationService,
+    List<Listing>? listings,
+  }) {
+    final snap = store.load();
+    return AppState(
+      credits: snap.credits,
+      role: snap.role,
+      displayName: snap.displayName,
+      location: snap.location,
+      buyingInterests: snap.buyingInterests,
+      sellingInterests: snap.sellingInterests,
+      unlockedListingIds: snap.unlockedListingIds,
+      listings: listings,
+      locationService: locationService,
+      store: store,
+    );
+  }
 
   static const int unlockContactCost = 1;
   static const int homeTabIndex = 0;
@@ -44,9 +70,11 @@ class AppState extends ChangeNotifier {
   List<String> sellingInterests;
 
   final List<Listing> listings;
-  final Set<String> unlockedListingIds = {};
+  final Set<String> unlockedListingIds;
 
   final LocationService _locationService;
+  final LocalStateStore? _store;
+  Future<void>? _persistFuture;
 
   UserLocation? userPosition;
   bool locationLoading = false;
@@ -93,6 +121,27 @@ class AppState extends ChangeNotifier {
 
   bool isUnlocked(String listingId) => unlockedListingIds.contains(listingId);
 
+  LocalStateSnapshot get persistedSnapshot => LocalStateSnapshot(
+        credits: credits,
+        role: role,
+        displayName: displayName,
+        location: location,
+        buyingInterests: buyingInterests,
+        sellingInterests: sellingInterests,
+        unlockedListingIds: unlockedListingIds,
+      );
+
+  void _persist() {
+    final store = _store;
+    if (store == null) return;
+    _persistFuture = store.save(persistedSnapshot);
+  }
+
+  /// Awaits the latest persist write (for tests).
+  Future<void> waitForPersistence() async {
+    await _persistFuture;
+  }
+
   void goToTab(int index) {
     final changed = shellTabIndex != index;
     if (changed) {
@@ -129,12 +178,14 @@ class AppState extends ChangeNotifier {
     if (role == value) return;
     role = value;
     notifyListeners();
+    _persist();
   }
 
   void addCredits(int amount) {
     if (amount <= 0) return;
     credits += amount;
     notifyListeners();
+    _persist();
   }
 
   /// Spends [unlockContactCost] credit to reveal contact for [listingId].
@@ -147,6 +198,7 @@ class AppState extends ChangeNotifier {
     credits -= unlockContactCost;
     unlockedListingIds.add(listingId);
     notifyListeners();
+    _persist();
     return true;
   }
 
@@ -154,12 +206,14 @@ class AppState extends ChangeNotifier {
   void addBuyingInterest(String crop) {
     if (!_tryAddInterest(buyingInterests, crop)) return;
     notifyListeners();
+    _persist();
   }
 
   /// Removes [crop] from buying interests if present.
   void removeBuyingInterest(String crop) {
     if (!buyingInterests.remove(crop)) return;
     notifyListeners();
+    _persist();
   }
 
   /// Toggles [crop] on the buying list (vocabulary only).
@@ -171,18 +225,21 @@ class AppState extends ChangeNotifier {
       buyingInterests.add(crop);
     }
     notifyListeners();
+    _persist();
   }
 
   /// Adds [crop] to selling interests. Ignores unknown crops and duplicates.
   void addSellingInterest(String crop) {
     if (!_tryAddInterest(sellingInterests, crop)) return;
     notifyListeners();
+    _persist();
   }
 
   /// Removes [crop] from selling interests if present.
   void removeSellingInterest(String crop) {
     if (!sellingInterests.remove(crop)) return;
     notifyListeners();
+    _persist();
   }
 
   /// Toggles [crop] on the selling list (vocabulary only).
@@ -194,6 +251,7 @@ class AppState extends ChangeNotifier {
       sellingInterests.add(crop);
     }
     notifyListeners();
+    _persist();
   }
 
   bool _tryAddInterest(List<String> list, String crop) {
@@ -210,6 +268,7 @@ class AppState extends ChangeNotifier {
     if (displayName != null) this.displayName = displayName;
     if (location != null) this.location = location;
     notifyListeners();
+    _persist();
   }
 }
 
