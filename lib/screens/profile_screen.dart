@@ -26,7 +26,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nameController = TextEditingController(
       text: l10n.resolvedDisplayName(state.displayName),
     );
-    _locationController = TextEditingController(text: state.location);
+    _locationController = TextEditingController(
+      text: l10n.resolvedLocation(state.location),
+    );
     _initialized = true;
   }
 
@@ -111,11 +113,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           nameInput == l10n.defaultDisplayName
                       ? ''
                       : nameInput;
+                  final locationInput = _locationController.text.trim();
+                  final locationToStore = locationInput.isEmpty ||
+                          locationInput == l10n.defaultLocation
+                      ? ''
+                      : locationInput;
                   state.updateProfile(
                     displayName: nameToStore,
-                    location: _locationController.text.trim().isEmpty
-                        ? state.location
-                        : _locationController.text.trim(),
+                    location: locationToStore,
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.profileSaved)),

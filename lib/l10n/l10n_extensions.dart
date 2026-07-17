@@ -18,6 +18,18 @@ extension AppLocalizationsX on AppLocalizations {
     return trimmed;
   }
 
+  /// Profile location, or the localized seed default when unset.
+  ///
+  /// Treats legacy English seed `"Not set"` as unset so locales show
+  /// [defaultLocation] (e.g. French `"Non défini"`).
+  String resolvedLocation(String stored) {
+    final trimmed = stored.trim();
+    if (trimmed.isEmpty || trimmed == 'Not set') {
+      return defaultLocation;
+    }
+    return trimmed;
+  }
+
   String roleLabel(UserRole role) => switch (role) {
         UserRole.seller => roleSeller,
         UserRole.buyer => roleBuyer,
