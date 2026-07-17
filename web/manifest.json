@@ -1,11 +1,11 @@
 {
-    "name": "my_first_flutter_app",
-    "short_name": "my_first_flutter_app",
+    "name": "Agrilumina",
+    "short_name": "Agrilumina",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Agrilumina agri marketplace MVP.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

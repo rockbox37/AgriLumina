@@ -1,20 +1,18 @@
-# my_first_flutter_app
+# Agrilumina
 
-A new Flutter project.
+Flutter MVP for a phone-first agri marketplace: discover nearby buyers/sellers, spend credits to unlock contact, request an intro.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+- [Flutter docs](https://docs.flutter.dev/)
+- [Cookbook](https://docs.flutter.dev/cookbook)
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# my_first_flutter_app
+```bash
+flutter pub get
+flutter run
+flutter analyze
+flutter test
+```
 
 ## Using the Workspace Agent
 
@@ -24,8 +22,8 @@ samples, guidance on mobile development, and a full API reference.
 - **Permissions:** May run `flutter` commands and apply automatic formatting; will ask per action before creating files or running non-flutter commands.
 - **How to invoke:** Ask the agent in your editor's Copilot Chat or run your preferred workflow that loads workspace agents.
 - **Example prompts:**
-	- "Refactor `profilePage.dart` to extract a `ProfileHeader` widget and add tests." 
+	- "Refactor `profilePage.dart` to extract a `ProfileHeader` widget and add tests."
 	- "Implement login form with validation and unit tests."
-	- "Run `flutter analyze` and fix reported Dart lints." 
+	- "Run `flutter analyze` and fix reported Dart lints."
 
 See `.agent.md` for full configuration and preferences.

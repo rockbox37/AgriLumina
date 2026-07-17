@@ -1,7 +1,7 @@
 # Agrilumina — Product Brief (MVP)
 
 **Status:** Draft · Jul 2026  
-**Working name:** Agrilumina (app/package). **MarketHub** may remain as the in-app product label until brand is locked.  
+**Brand:** Agrilumina (app/package/UI). MarketHub logo/art may remain as visual assets until a final mark exists.  
 **Geography focus:** Bugobe and nearby rural markets (DRC) — design for low bandwidth and phone-first contact.
 
 ---
@@ -54,14 +54,9 @@ Agrilumina helps a seller discover nearby crop buyers, spend credits to unlock c
 - Credits balance stays consistent across screens
 - At least 10 seed listings feel local and believable for Bugobe
 
-## Brand decision (open)
+## Brand decision (locked)
 
-| Option | Pros |
-|--------|------|
-| **Agrilumina** | Matches package/iOS; distinctive |
-| **MarketHub** | Already in UI copy and logo assets |
-
-**Recommendation:** Ship as **Agrilumina**, keep MarketHub logo/art until a final mark exists. Align Android label, web manifest, and `MaterialApp` title in one pass.
+Ship as **Agrilumina**. Keep MarketHub logo/art until a final mark exists; do not rename logo asset files unless necessary.
 
 ## Non-goals this quarter
 
