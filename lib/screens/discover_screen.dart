@@ -4,6 +4,7 @@ import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/screens/listing_detail_screen.dart';
 import 'package:agrilumina/utils/geo.dart';
+import 'package:agrilumina/utils/listing_search.dart';
 
 /// Crop chips shown on Discover (includes crops with no seed matches).
 const List<String> discoverCropFilters = [
@@ -24,6 +25,13 @@ class DiscoverScreen extends StatefulWidget {
 class _DiscoverScreenState extends State<DiscoverScreen> {
   /// `null` means all crops.
   String? _cropFilter;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +41,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       listenable: state,
       builder: (context, _) {
         final list = state.nearbyCounterparts;
-        final filtered = _cropFilter == null
+        final cropFiltered = _cropFilter == null
             ? list
             : list.where((l) => l.crop == _cropFilter).toList();
+        final filtered =
+            filterListingsByQuery(cropFiltered, _searchController.text);
 
         final title = state.role == UserRole.seller
             ? 'Nearby buyers'
@@ -78,7 +88,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _LocationBanner(state: state),
-              if (list.isNotEmpty)
+              if (list.isNotEmpty) ...[
                 _CropFilterBar(
                   crops: discoverCropFilters,
                   selected: _cropFilter,
@@ -86,11 +96,23 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                     setState(() => _cropFilter = crop);
                   },
                 ),
+                _DiscoverSearchField(
+                  controller: _searchController,
+                  counterpart: counterpart,
+                  onChanged: (_) => setState(() {}),
+                  onClear: () {
+                    _searchController.clear();
+                    setState(() {});
+                  },
+                ),
+              ],
               Expanded(
                 child: _buildBody(
                   list: list,
+                  cropFiltered: cropFiltered,
                   filtered: filtered,
                   cropFilter: _cropFilter,
+                  searchQuery: _searchController.text,
                   counterpart: counterpart,
                   state: state,
                 ),
@@ -104,8 +126,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   Widget _buildBody({
     required List<Listing> list,
+    required List<Listing> cropFiltered,
     required List<Listing> filtered,
     required String? cropFilter,
+    required String searchQuery,
     required String counterpart,
     required AppState state,
   }) {
@@ -115,12 +139,27 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       );
     }
 
-    if (filtered.isEmpty) {
+    if (cropFiltered.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
             'No $cropFilter ${counterpart}s nearby.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    final trimmedQuery = searchQuery.trim();
+    if (filtered.isEmpty) {
+      final cropPart =
+          cropFilter == null ? '' : '$cropFilter ';
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            'No matches for "$trimmedQuery" among $cropPart${counterpart}s.',
             textAlign: TextAlign.center,
           ),
         ),
@@ -147,6 +186,46 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           },
         );
       },
+    );
+  }
+}
+
+class _DiscoverSearchField extends StatelessWidget {
+  const _DiscoverSearchField({
+    required this.controller,
+    required this.counterpart,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  final TextEditingController controller;
+  final String counterpart;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+      child: TextField(
+        key: const Key('discover_search_field'),
+        controller: controller,
+        onChanged: onChanged,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: 'Search ${counterpart}s',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: controller.text.trim().isEmpty
+              ? null
+              : IconButton(
+                  tooltip: 'Clear search',
+                  onPressed: onClear,
+                  icon: const Icon(Icons.clear),
+                ),
+          border: const OutlineInputBorder(),
+          isDense: true,
+        ),
+      ),
     );
   }
 }
