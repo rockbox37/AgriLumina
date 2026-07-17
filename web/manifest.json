@@ -1,11 +1,11 @@
 {
-    "name": "Agrilumina",
-    "short_name": "Agrilumina",
+    "name": "AgriLumina",
+    "short_name": "AgriLumina",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Agrilumina agri marketplace MVP.",
+    "description": "AgriLumina agri marketplace MVP.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
