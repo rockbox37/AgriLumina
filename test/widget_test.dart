@@ -5,6 +5,7 @@ import 'package:agrilumina/main.dart';
 import 'package:agrilumina/screens/listing_detail_screen.dart';
 import 'package:agrilumina/services/location_service.dart';
 import 'package:agrilumina/utils/geo.dart';
+import 'package:agrilumina/widgets/brand_mark.dart';
 
 import 'fake_contact_launcher.dart';
 import 'fake_location_service.dart';
@@ -49,10 +50,52 @@ void main() {
     expect(find.text('Call'), findsOneWidget);
     expect(find.text('WhatsApp'), findsOneWidget);
 
-    await tester.tap(find.byType(BackButton));
+    // Brand home leading replaces BackButton; pop the pushed route explicitly.
+    Navigator.of(tester.element(find.text('Call'))).pop();
     await tester.pumpAndSettle();
 
+    expect(find.text('Nearby buyers'), findsOneWidget);
     expect(find.text('4 credits'), findsWidgets);
+  });
+
+  testWidgets('App bar brand icon switches shell tab to Home', (tester) async {
+    await tester.pumpWidget(
+      MyApp(locationService: FakeLocationService()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+    expect(find.text('Nearby buyers'), findsOneWidget);
+
+    await tester.tap(find.byKey(BrandHomeLeading.buttonKey));
+    await tester.pumpAndSettle();
+
+    expect(find.text('I am a…'), findsOneWidget);
+    expect(find.text('Nearby buyers'), findsNothing);
+  });
+
+  testWidgets('App bar brand icon from listing detail returns to Home', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MyApp(locationService: FakeLocationService()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Jean-Pierre M.'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Unlock for 1 credit'), findsOneWidget);
+
+    await tester.tap(find.byKey(BrandHomeLeading.buttonKey));
+    await tester.pumpAndSettle();
+
+    expect(find.text('I am a…'), findsOneWidget);
+    expect(find.text('Nearby buyers'), findsNothing);
+    expect(find.textContaining('Unlock for 1 credit'), findsNothing);
   });
 
   testWidgets('Discover soft-filters by selling interests by default', (
@@ -144,7 +187,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Showing crops you buy'), findsOneWidget);
-    expect(find.text('Nearby sellers'), findsOneWidget);
+    expect(find.text('Find Sellers'), findsOneWidget);
     // Soft-filter to Beans sellers; Cassava chip override was cleared.
     expect(find.text('Esther W.'), findsOneWidget);
     expect(find.text('Marie L.'), findsNothing);
@@ -301,7 +344,7 @@ void main() {
     );
   });
 
-  testWidgets('Discover search works for buyer role (nearby sellers)', (
+  testWidgets('Discover search works for buyer role (Find Sellers)', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -315,7 +358,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Empty buyingInterests → all counterpart sellers (no soft crop filter).
-    expect(find.text('Nearby sellers'), findsOneWidget);
+    expect(find.text('Find Sellers'), findsOneWidget);
     expect(find.text('Marie L.'), findsOneWidget);
     expect(find.text('Samuel Growers'), findsOneWidget);
     expect(find.text('Showing crops you buy'), findsNothing);

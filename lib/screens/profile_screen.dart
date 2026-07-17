@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/models/user_role.dart';
+import 'package:agrilumina/widgets/brand_mark.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -42,7 +43,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       listenable: state,
       builder: (context, _) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Profile')),
+          appBar: AppBar(
+            leading: const BrandHomeLeading(),
+            title: const Text('Profile'),
+          ),
           body: ListView(
             padding: const EdgeInsets.all(20),
             children: [

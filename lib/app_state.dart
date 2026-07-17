@@ -26,6 +26,7 @@ class AppState extends ChangeNotifier {
         _locationService = locationService ?? PluginLocationService();
 
   static const int unlockContactCost = 1;
+  static const int homeTabIndex = 0;
   static const int discoverTabIndex = 1;
 
   /// Bottom-nav indices: 0 Home, 1 Discover, 2 Credits, 3 Profile.

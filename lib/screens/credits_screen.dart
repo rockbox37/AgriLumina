@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
+import 'package:agrilumina/widgets/brand_mark.dart';
 
 class CreditsScreen extends StatelessWidget {
   const CreditsScreen({super.key});
@@ -12,7 +13,10 @@ class CreditsScreen extends StatelessWidget {
       listenable: state,
       builder: (context, _) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Credits')),
+          appBar: AppBar(
+            leading: const BrandHomeLeading(),
+            title: const Text('Credits'),
+          ),
           body: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(

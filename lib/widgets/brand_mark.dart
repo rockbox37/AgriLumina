@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:agrilumina/app_state.dart';
 
 /// Shared AgriLumina brand assets for app chrome.
 class BrandAssets {
@@ -59,4 +60,36 @@ class BrandIcon extends StatelessWidget {
       ),
     );
   }
+}
+
+/// App-bar leading emblem that navigates to the Home tab (shell index 0).
+///
+/// On pushed routes (e.g. listing detail), pops to the shell root first, then
+/// selects Home. When already on Home with nothing to pop, the tap is a no-op.
+class BrandHomeLeading extends StatelessWidget {
+  const BrandHomeLeading({super.key, this.iconSize = 28});
+
+  static const Key buttonKey = Key('app_bar_home_brand');
+
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      key: buttonKey,
+      tooltip: 'Home',
+      onPressed: () => navigateToAppHome(context),
+      icon: BrandIcon(size: iconSize, semanticLabel: 'AgriLumina home'),
+    );
+  }
+}
+
+/// Pops nested routes to the shell, then selects the Home tab.
+void navigateToAppHome(BuildContext context) {
+  final state = AppStateScope.of(context);
+  final navigator = Navigator.of(context);
+  if (navigator.canPop()) {
+    navigator.popUntil((route) => route.isFirst);
+  }
+  state.goToTab(AppState.homeTabIndex);
 }
