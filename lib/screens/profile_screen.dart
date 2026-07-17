@@ -22,7 +22,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.didChangeDependencies();
     if (_initialized) return;
     final state = AppStateScope.of(context);
-    _nameController = TextEditingController(text: state.displayName);
+    final l10n = context.l10n;
+    _nameController = TextEditingController(
+      text: l10n.resolvedDisplayName(state.displayName),
+    );
     _locationController = TextEditingController(text: state.location);
     _initialized = true;
   }
@@ -101,10 +104,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 20),
               FilledButton(
                 onPressed: () {
+                  final nameInput = _nameController.text.trim();
+                  // Persist empty when the field matches the localized default
+                  // so the name stays locale-aware.
+                  final nameToStore = nameInput.isEmpty ||
+                          nameInput == l10n.defaultDisplayName
+                      ? ''
+                      : nameInput;
                   state.updateProfile(
-                    displayName: _nameController.text.trim().isEmpty
-                        ? state.displayName
-                        : _nameController.text.trim(),
+                    displayName: nameToStore,
                     location: _locationController.text.trim().isEmpty
                         ? state.location
                         : _locationController.text.trim(),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:agrilumina/l10n/app_localizations.dart';
+import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/main.dart';
 import 'package:agrilumina/utils/locale_format.dart';
 
@@ -17,6 +17,16 @@ void main() {
     expect(fr.findBuyers, 'Trouver des acheteurs');
     expect(fr.navHome, 'Accueil');
     expect(fr.appTitle, 'AgriLumina');
+  });
+
+  test('resolvedDisplayName localizes unset and legacy You seed', () {
+    final en = lookupAppLocalizations(const Locale('en'));
+    final fr = lookupAppLocalizations(const Locale('fr'));
+    expect(en.resolvedDisplayName(''), 'You');
+    expect(en.resolvedDisplayName('You'), 'You');
+    expect(fr.resolvedDisplayName(''), 'Vous');
+    expect(fr.resolvedDisplayName('You'), 'Vous');
+    expect(fr.resolvedDisplayName('Marie'), 'Marie');
   });
 
   test('formatDistanceKmLocalized uses locale decimal separators', () {
@@ -38,7 +48,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Accueil'), findsWidgets);
-    expect(find.text('Bienvenue, You'), findsOneWidget);
+    expect(find.text('Bienvenue, Vous'), findsOneWidget);
     expect(find.text('Je suis…'), findsOneWidget);
 
     await tester.tap(find.text('Découvrir'));
