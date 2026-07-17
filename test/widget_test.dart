@@ -31,7 +31,7 @@ void main() {
     expect(find.text('Nearby buyers'), findsOneWidget);
     expect(find.text('Jean-Pierre M.'), findsOneWidget);
     expect(
-      find.textContaining('Showing distances from Bugobe'),
+      find.textContaining('Showing distances from sample listings near Bugobe'),
       findsOneWidget,
     );
 

@@ -127,7 +127,7 @@ class _LocationBanner extends StatelessWidget {
                 usingGps
                     ? 'Near you · ${state.deviceLocationLabel}'
                     : (message ??
-                        'Using $bugobeLocationLabel · enable location for nearby distances'),
+                        'Sample listings near $bugobeLocationLabel · enable location for nearby distances'),
                 style: theme.textTheme.bodySmall?.copyWith(color: foreground),
               ),
             ),

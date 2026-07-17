@@ -101,7 +101,7 @@ class AppState extends ChangeNotifier {
     } else {
       userPosition = null;
       locationBannerMessage = result.message ??
-          'Could not read location. Showing distances from Bugobe.';
+          'Could not read location. Showing distances from sample listings near Bugobe.';
     }
     notifyListeners();
   }

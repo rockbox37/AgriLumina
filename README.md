@@ -1,6 +1,10 @@
 # Agrilumina
 
-Flutter MVP for a phone-first agri marketplace: discover nearby buyers/sellers, spend credits to unlock contact, request an intro.
+**Find a nearby buyer for this week’s crop — unlock their number, call or WhatsApp, done.**
+
+Agrilumina is a phone-first marketplace for crop sellers and local buyers — usable anywhere, designed for rural farmers on poor or intermittent phone networks. Pick a role, find counterparts by distance (GPS when you have it; seed listings around Bugobe when you don’t), open a listing, and spend a credit to unlock a phone number. Built for low bandwidth and word-of-mouth trade — not a chat-heavy app that assumes always-on data.
+
+Flutter app. Core tabs: Home · Discover · Credits · Profile.
 
 ## Getting Started
 

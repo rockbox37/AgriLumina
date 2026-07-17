@@ -2,7 +2,7 @@
 
 **Status:** Draft · Jul 2026  
 **Brand:** Agrilumina (app/package/UI). MarketHub logo/art may remain as visual assets until a final mark exists.  
-**Geography focus:** Bugobe and nearby rural markets (DRC) — design for low bandwidth and phone-first contact.
+**Design focus:** Usable anywhere; built for rural farmers with poor or intermittent phone networks (low bandwidth, phone-first). MVP seed data uses Bugobe and nearby rural markets (DRC) as sample context.
 
 ---
 

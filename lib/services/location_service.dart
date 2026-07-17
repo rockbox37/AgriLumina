@@ -36,22 +36,22 @@ class LocationFetchResult {
 
   const LocationFetchResult.denied([
     String message =
-        'Location permission denied. Showing distances from Bugobe.',
+        'Location permission denied. Showing distances from sample listings near Bugobe.',
   ]) : this._(status: LocationFetchStatus.denied, message: message);
 
   const LocationFetchResult.serviceDisabled([
     String message =
-        'Location services are off. Showing distances from Bugobe.',
+        'Location services are off. Showing distances from sample listings near Bugobe.',
   ]) : this._(status: LocationFetchStatus.serviceDisabled, message: message);
 
   const LocationFetchResult.unsupported([
     String message =
-        'GPS is not available on this device. Showing distances from Bugobe.',
+        'GPS is not available on this device. Showing distances from sample listings near Bugobe.',
   ]) : this._(status: LocationFetchStatus.unsupported, message: message);
 
   const LocationFetchResult.error([
     String message =
-        'Could not read location. Showing distances from Bugobe.',
+        'Could not read location. Showing distances from sample listings near Bugobe.',
   ]) : this._(status: LocationFetchStatus.error, message: message);
 
   final LocationFetchStatus status;

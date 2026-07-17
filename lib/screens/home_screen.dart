@@ -41,7 +41,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Find nearby $counterpartLabel around ${state.location}.',
+                'Find nearby $counterpartLabel by distance.',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 24),
