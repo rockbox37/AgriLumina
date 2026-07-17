@@ -45,7 +45,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                l10n.welcomeUser(state.displayName),
+                l10n.welcomeUser(l10n.resolvedDisplayName(state.displayName)),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),

@@ -6,6 +6,18 @@ import 'package:flutter/widgets.dart';
 export 'package:agrilumina/l10n/app_localizations.dart';
 
 extension AppLocalizationsX on AppLocalizations {
+  /// Profile display name, or the localized seed default when unset.
+  ///
+  /// Treats legacy English seed `"You"` as unset so locales show
+  /// [defaultDisplayName] (e.g. French `"Vous"`).
+  String resolvedDisplayName(String stored) {
+    final trimmed = stored.trim();
+    if (trimmed.isEmpty || trimmed == 'You') {
+      return defaultDisplayName;
+    }
+    return trimmed;
+  }
+
   String roleLabel(UserRole role) => switch (role) {
         UserRole.seller => roleSeller,
         UserRole.buyer => roleBuyer,
