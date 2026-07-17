@@ -297,4 +297,82 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return '$crop · $quantity\n$distance · $lastActive';
   }
+
+  @override
+  String get cropMaize => 'Maize';
+
+  @override
+  String get cropCassava => 'Cassava';
+
+  @override
+  String get cropBeans => 'Beans';
+
+  @override
+  String get cropGroundnuts => 'Groundnuts';
+
+  @override
+  String get cropRice => 'Rice';
+
+  @override
+  String get qtyBuyingUpTo2Tonnes => 'Buying up to 2 tonnes';
+
+  @override
+  String get qtyWeeklyBuyerBags => 'Weekly buyer · bags';
+
+  @override
+  String get qtyAggregatorFairPrice => 'Aggregator · fair price';
+
+  @override
+  String get qtyNeeds500KgThisWeek => 'Needs 500 kg this week';
+
+  @override
+  String get qtySmallLotsWelcome => 'Small lots welcome';
+
+  @override
+  String get qty800KgReady => '~800 kg ready';
+
+  @override
+  String get qtyFreshHarvest => 'Fresh harvest';
+
+  @override
+  String get qty10Bags => '10 bags';
+
+  @override
+  String get qty1_5Tonnes => '1.5 tonnes';
+
+  @override
+  String get qtySmallSurplus => 'Small surplus';
+
+  @override
+  String get placeVillageMarket => 'Village market';
+
+  @override
+  String get placeNearVillage => 'Near village';
+
+  @override
+  String get placeKaleheRoad => 'Kalehe road';
+
+  @override
+  String get placeVillage => 'Village';
+
+  @override
+  String get placeNearbyHills => 'Nearby hills';
+
+  @override
+  String get placeNearKalehe => 'Near Kalehe';
+
+  @override
+  String get activeToday => 'Active today';
+
+  @override
+  String get activeYesterday => 'Active yesterday';
+
+  @override
+  String get active2DaysAgo => 'Active 2 days ago';
+
+  @override
+  String get active3DaysAgo => 'Active 3 days ago';
+
+  @override
+  String get activeThisWeek => 'Active this week';
 }

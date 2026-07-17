@@ -300,4 +300,82 @@ class AppLocalizationsFr extends AppLocalizations {
   ) {
     return '$crop · $quantity\n$distance · $lastActive';
   }
+
+  @override
+  String get cropMaize => 'Maïs';
+
+  @override
+  String get cropCassava => 'Manioc';
+
+  @override
+  String get cropBeans => 'Haricots';
+
+  @override
+  String get cropGroundnuts => 'Arachides';
+
+  @override
+  String get cropRice => 'Riz';
+
+  @override
+  String get qtyBuyingUpTo2Tonnes => 'Achète jusqu’à 2 tonnes';
+
+  @override
+  String get qtyWeeklyBuyerBags => 'Acheteur hebdomadaire · sacs';
+
+  @override
+  String get qtyAggregatorFairPrice => 'Agrégateur · prix équitable';
+
+  @override
+  String get qtyNeeds500KgThisWeek => 'Besoin de 500 kg cette semaine';
+
+  @override
+  String get qtySmallLotsWelcome => 'Petits lots bienvenus';
+
+  @override
+  String get qty800KgReady => '~800 kg prêts';
+
+  @override
+  String get qtyFreshHarvest => 'Récolte fraîche';
+
+  @override
+  String get qty10Bags => '10 sacs';
+
+  @override
+  String get qty1_5Tonnes => '1,5 tonnes';
+
+  @override
+  String get qtySmallSurplus => 'Petit surplus';
+
+  @override
+  String get placeVillageMarket => 'Marché du village';
+
+  @override
+  String get placeNearVillage => 'Près du village';
+
+  @override
+  String get placeKaleheRoad => 'Route de Kalehe';
+
+  @override
+  String get placeVillage => 'Village';
+
+  @override
+  String get placeNearbyHills => 'Collines proches';
+
+  @override
+  String get placeNearKalehe => 'Près de Kalehe';
+
+  @override
+  String get activeToday => 'Actif aujourd’hui';
+
+  @override
+  String get activeYesterday => 'Actif hier';
+
+  @override
+  String get active2DaysAgo => 'Actif il y a 2 jours';
+
+  @override
+  String get active3DaysAgo => 'Actif il y a 3 jours';
+
+  @override
+  String get activeThisWeek => 'Actif cette semaine';
 }

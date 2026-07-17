@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/utils/listing_search.dart';
@@ -56,6 +58,14 @@ void main() {
       final listing = _listing(phone: '+243 970 111 201');
       expect(listingMatchesQuery(listing, '970'), isFalse);
       expect(listingMatchesQuery(listing, '+243'), isFalse);
+    });
+
+    test('matches localized French crop/quantity labels', () {
+      final fr = lookupAppLocalizations(const Locale('fr'));
+      final listing = _listing();
+      expect(listingMatchesQuery(listing, 'maïs', l10n: fr), isTrue);
+      expect(listingMatchesQuery(listing, 'achète', l10n: fr), isTrue);
+      expect(listingMatchesQuery(listing, 'marché', l10n: fr), isTrue);
     });
   });
 

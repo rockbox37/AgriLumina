@@ -181,7 +181,7 @@ class _InterestSection extends StatelessWidget {
           children: [
             for (final crop in discoverCropFilters)
               FilterChip(
-                label: Text(crop),
+                label: Text(context.l10n.localizedCrop(crop)),
                 selected: selected.contains(crop),
                 onSelected: (_) => onToggle(crop),
               ),
