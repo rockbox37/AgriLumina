@@ -199,6 +199,26 @@
   },
   "defaultDisplayName": "You",
   "defaultLocation": "Not set",
+  "myListing": "My listing",
+  "publishMyListing": "Publish my listing",
+  "editMyListing": "Edit my listing",
+  "clearMyListing": "Clear listing",
+  "listingPublished": "Listing published.",
+  "listingCleared": "Listing cleared.",
+  "labelCrop": "Crop",
+  "labelQuantity": "Quantity",
+  "labelPhone": "Phone",
+  "quantityHintField": "e.g. ~800 kg ready",
+  "phoneHintField": "Number for Call / WhatsApp",
+  "saveListing": "Save listing",
+  "myListingEmpty": "No listing yet for this role.",
+  "myListingSummary": "{crop} · {quantity}",
+  "@myListingSummary": {
+    "placeholders": {
+      "crop": {"type": "String"},
+      "quantity": {"type": "String"}
+    }
+  },
   "listingSubtitle": "{crop} · {quantity}\n{distance} · {lastActive}",
   "@listingSubtitle": {
     "placeholders": {

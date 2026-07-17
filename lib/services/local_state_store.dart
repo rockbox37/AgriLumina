@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 
 /// Snapshot of MVP fields persisted across cold starts.
@@ -11,6 +14,8 @@ class LocalStateSnapshot {
     required this.buyingInterests,
     required this.sellingInterests,
     required this.unlockedListingIds,
+    this.mySellerListing,
+    this.myBuyerListing,
   });
 
   /// Defaults used when no prefs have been written yet.
@@ -31,6 +36,8 @@ class LocalStateSnapshot {
   final List<String> buyingInterests;
   final List<String> sellingInterests;
   final Set<String> unlockedListingIds;
+  final Listing? mySellerListing;
+  final Listing? myBuyerListing;
 }
 
 /// Reads/writes local MVP state via [SharedPreferences].
@@ -46,6 +53,8 @@ class LocalStateStore {
   static const _kBuyingInterests = 'mvp.buyingInterests';
   static const _kSellingInterests = 'mvp.sellingInterests';
   static const _kUnlockedListingIds = 'mvp.unlockedListingIds';
+  static const _kMySellerListing = 'mvp.mySellerListing';
+  static const _kMyBuyerListing = 'mvp.myBuyerListing';
 
   static Future<LocalStateStore> open() async {
     return LocalStateStore(await SharedPreferences.getInstance());
@@ -74,6 +83,8 @@ class LocalStateStore {
           : defaults.sellingInterests,
       unlockedListingIds:
           (_prefs.getStringList(_kUnlockedListingIds) ?? const []).toSet(),
+      mySellerListing: _readListing(_kMySellerListing),
+      myBuyerListing: _readListing(_kMyBuyerListing),
     );
   }
 
@@ -94,5 +105,27 @@ class LocalStateStore {
       _kUnlockedListingIds,
       snapshot.unlockedListingIds.toList(),
     );
+    await _writeListing(_kMySellerListing, snapshot.mySellerListing);
+    await _writeListing(_kMyBuyerListing, snapshot.myBuyerListing);
+  }
+
+  Listing? _readListing(String key) {
+    final raw = _prefs.getString(key);
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return null;
+      return Listing.fromJson(Map<String, Object?>.from(decoded));
+    } on FormatException {
+      return null;
+    }
+  }
+
+  Future<void> _writeListing(String key, Listing? listing) async {
+    if (listing == null) {
+      await _prefs.remove(key);
+      return;
+    }
+    await _prefs.setString(key, jsonEncode(listing.toJson()));
   }
 }

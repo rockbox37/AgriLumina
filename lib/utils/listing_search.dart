@@ -24,7 +24,8 @@ bool listingMatchesQuery(
 
   if (l10n == null) return false;
 
-  return hit(l10n.localizedCrop(listing.crop)) ||
+  return hit(l10n.listingDisplayName(listing)) ||
+      hit(l10n.localizedCrop(listing.crop)) ||
       hit(l10n.localizedPlace(listing.location)) ||
       hit(l10n.localizedQuantity(listing.quantityHint)) ||
       hit(l10n.localizedLastActive(listing.lastActiveLabel));

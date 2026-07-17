@@ -548,6 +548,90 @@ abstract class AppLocalizations {
   /// **'Not set'**
   String get defaultLocation;
 
+  /// No description provided for @myListing.
+  ///
+  /// In en, this message translates to:
+  /// **'My listing'**
+  String get myListing;
+
+  /// No description provided for @publishMyListing.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish my listing'**
+  String get publishMyListing;
+
+  /// No description provided for @editMyListing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit my listing'**
+  String get editMyListing;
+
+  /// No description provided for @clearMyListing.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear listing'**
+  String get clearMyListing;
+
+  /// No description provided for @listingPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing published.'**
+  String get listingPublished;
+
+  /// No description provided for @listingCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing cleared.'**
+  String get listingCleared;
+
+  /// No description provided for @labelCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop'**
+  String get labelCrop;
+
+  /// No description provided for @labelQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get labelQuantity;
+
+  /// No description provided for @labelPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get labelPhone;
+
+  /// No description provided for @quantityHintField.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. ~800 kg ready'**
+  String get quantityHintField;
+
+  /// No description provided for @phoneHintField.
+  ///
+  /// In en, this message translates to:
+  /// **'Number for Call / WhatsApp'**
+  String get phoneHintField;
+
+  /// No description provided for @saveListing.
+  ///
+  /// In en, this message translates to:
+  /// **'Save listing'**
+  String get saveListing;
+
+  /// No description provided for @myListingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No listing yet for this role.'**
+  String get myListingEmpty;
+
+  /// No description provided for @myListingSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{crop} · {quantity}'**
+  String myListingSummary(String crop, String quantity);
+
   /// No description provided for @listingSubtitle.
   ///
   /// In en, this message translates to:

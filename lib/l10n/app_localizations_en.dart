@@ -289,6 +289,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defaultLocation => 'Not set';
 
   @override
+  String get myListing => 'My listing';
+
+  @override
+  String get publishMyListing => 'Publish my listing';
+
+  @override
+  String get editMyListing => 'Edit my listing';
+
+  @override
+  String get clearMyListing => 'Clear listing';
+
+  @override
+  String get listingPublished => 'Listing published.';
+
+  @override
+  String get listingCleared => 'Listing cleared.';
+
+  @override
+  String get labelCrop => 'Crop';
+
+  @override
+  String get labelQuantity => 'Quantity';
+
+  @override
+  String get labelPhone => 'Phone';
+
+  @override
+  String get quantityHintField => 'e.g. ~800 kg ready';
+
+  @override
+  String get phoneHintField => 'Number for Call / WhatsApp';
+
+  @override
+  String get saveListing => 'Save listing';
+
+  @override
+  String get myListingEmpty => 'No listing yet for this role.';
+
+  @override
+  String myListingSummary(String crop, String quantity) {
+    return '$crop · $quantity';
+  }
+
+  @override
   String listingSubtitle(
     String crop,
     String quantity,

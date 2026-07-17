@@ -44,7 +44,7 @@ class ListingDetailScreen extends StatelessWidget {
           appBar: AppBar(
             leadingWidth: BrandHomeLeading.backAndBrandLeadingWidth,
             leading: const BrandHomeLeading(includeBackWhenCanPop: true),
-            title: Text(listing.name),
+            title: Text(l10n.listingDisplayName(listing)),
           ),
           body: ListView(
             padding: const EdgeInsets.all(20),
