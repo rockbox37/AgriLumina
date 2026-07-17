@@ -292,6 +292,50 @@ class AppLocalizationsFr extends AppLocalizations {
   String get defaultLocation => 'Non défini';
 
   @override
+  String get myListing => 'Mon annonce';
+
+  @override
+  String get publishMyListing => 'Publier mon annonce';
+
+  @override
+  String get editMyListing => 'Modifier mon annonce';
+
+  @override
+  String get clearMyListing => 'Supprimer l’annonce';
+
+  @override
+  String get listingPublished => 'Annonce publiée.';
+
+  @override
+  String get listingCleared => 'Annonce supprimée.';
+
+  @override
+  String get labelCrop => 'Culture';
+
+  @override
+  String get labelQuantity => 'Quantité';
+
+  @override
+  String get labelPhone => 'Téléphone';
+
+  @override
+  String get quantityHintField => 'ex. ~800 kg prêts';
+
+  @override
+  String get phoneHintField => 'Numéro pour Appeler / WhatsApp';
+
+  @override
+  String get saveListing => 'Enregistrer l’annonce';
+
+  @override
+  String get myListingEmpty => 'Aucune annonce pour ce rôle.';
+
+  @override
+  String myListingSummary(String crop, String quantity) {
+    return '$crop · $quantity';
+  }
+
+  @override
   String listingSubtitle(
     String crop,
     String quantity,

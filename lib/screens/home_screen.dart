@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/models/user_role.dart';
+import 'package:agrilumina/screens/publish_listing_screen.dart';
 import 'package:agrilumina/utils/locale_format.dart';
 import 'package:agrilumina/widgets/brand_mark.dart';
 
@@ -87,7 +88,7 @@ class HomeScreen extends StatelessWidget {
                     counterparts.isEmpty
                         ? l10n.noMatchesInSeedData
                         : l10n.closestListing(
-                            counterparts.first.name,
+                            l10n.listingDisplayName(counterparts.first),
                             formatDistanceKmLocalized(
                               l10n,
                               counterparts.first.distanceKm,
@@ -96,6 +97,32 @@ class HomeScreen extends StatelessWidget {
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => state.goToTab(1),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                child: ListTile(
+                  leading: Icon(
+                    Icons.campaign_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  title: Text(l10n.myListing),
+                  subtitle: Text(
+                    state.myListing == null
+                        ? l10n.myListingEmpty
+                        : l10n.myListingSummary(
+                            l10n.localizedCrop(state.myListing!.crop),
+                            l10n.localizedListingQuantity(state.myListing!),
+                          ),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const PublishListingScreen(),
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 16),

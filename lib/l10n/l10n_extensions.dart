@@ -79,10 +79,18 @@ extension AppLocalizationsX on AppLocalizations {
       localizedQuantity(listing.quantityHint);
 
   String localizedListingPlace(Listing listing) =>
-      localizedPlace(listing.location);
+      listing.location.trim().isEmpty
+          ? defaultLocation
+          : localizedPlace(listing.location);
 
   String localizedListingLastActive(Listing listing) =>
       localizedLastActive(listing.lastActiveLabel);
+
+  /// Display name for a listing; resolves locale default for empty/mine names.
+  String listingDisplayName(Listing listing) {
+    if (listing.isMine) return resolvedDisplayName(listing.name);
+    return listing.name;
+  }
 
   String roleLabel(UserRole role) => switch (role) {
         UserRole.seller => roleSeller,

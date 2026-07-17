@@ -3,6 +3,7 @@ import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/models/user_role.dart';
+import 'package:agrilumina/screens/publish_listing_screen.dart';
 import 'package:agrilumina/widgets/brand_mark.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -103,6 +104,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 selected: state.sellingInterests,
                 onToggle: state.toggleSellingInterest,
               ),
+              const SizedBox(height: 20),
+              Text(
+                l10n.myListing,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Card(
+                child: ListTile(
+                  title: Text(
+                    state.myListing == null
+                        ? l10n.myListingEmpty
+                        : l10n.myListingSummary(
+                            l10n.localizedCrop(state.myListing!.crop),
+                            l10n.localizedListingQuantity(state.myListing!),
+                          ),
+                  ),
+                  subtitle: Text(
+                    state.myListing == null
+                        ? l10n.publishMyListing
+                        : l10n.editMyListing,
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const PublishListingScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              if (state.myListing != null) ...[
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () {
+                    state.clearMyListing();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.listingCleared)),
+                    );
+                  },
+                  child: Text(l10n.clearMyListing),
+                ),
+              ],
               const SizedBox(height: 20),
               FilledButton(
                 onPressed: () {

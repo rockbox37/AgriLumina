@@ -423,7 +423,7 @@ class _ListingTile extends StatelessWidget {
           cropLabel.isEmpty ? '?' : cropLabel[0].toUpperCase(),
         ),
       ),
-      title: Text(listing.name),
+      title: Text(context.l10n.listingDisplayName(listing)),
       subtitle: Text(
         l10n.listingSubtitle(
           cropLabel,

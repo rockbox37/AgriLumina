@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:agrilumina/data/crop_vocabulary.dart';
+import 'package:agrilumina/data/listing_copy_keys.dart';
 import 'package:agrilumina/data/mock_listings.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
@@ -19,6 +20,8 @@ class AppState extends ChangeNotifier {
     List<String>? buyingInterests,
     List<String>? sellingInterests,
     Set<String>? unlockedListingIds,
+    this.mySellerListing,
+    this.myBuyerListing,
     List<Listing>? listings,
     LocationService? locationService,
     LocalStateStore? store,
@@ -26,7 +29,7 @@ class AppState extends ChangeNotifier {
         sellingInterests =
             List<String>.from(sellingInterests ?? const ['Maize']),
         unlockedListingIds = {...?unlockedListingIds},
-        listings = List.unmodifiable(listings ?? mockListings),
+        _seedListings = List.unmodifiable(listings ?? mockListings),
         _locationService = locationService ?? PluginLocationService(),
         _store = store;
 
@@ -45,6 +48,8 @@ class AppState extends ChangeNotifier {
       buyingInterests: snap.buyingInterests,
       sellingInterests: snap.sellingInterests,
       unlockedListingIds: snap.unlockedListingIds,
+      mySellerListing: snap.mySellerListing,
+      myBuyerListing: snap.myBuyerListing,
       listings: listings,
       locationService: locationService,
       store: store,
@@ -69,7 +74,13 @@ class AppState extends ChangeNotifier {
   /// Crops the user wants to sell (shared Discover vocabulary).
   List<String> sellingInterests;
 
-  final List<Listing> listings;
+  /// One published listing for the seller role (null = unpublished).
+  Listing? mySellerListing;
+
+  /// One published listing for the buyer role (null = unpublished).
+  Listing? myBuyerListing;
+
+  final List<Listing> _seedListings;
   final Set<String> unlockedListingIds;
 
   final LocationService _locationService;
@@ -85,6 +96,17 @@ class AppState extends ChangeNotifier {
   /// Interest list used for Discover soft-filter for the active role.
   List<String> get relevantInterests =>
       role == UserRole.seller ? sellingInterests : buyingInterests;
+
+  /// Active-role listing (one per role for MVP).
+  Listing? get myListing =>
+      role == UserRole.seller ? mySellerListing : myBuyerListing;
+
+  /// Seed mocks plus any published local listings.
+  List<Listing> get listings => [
+        ..._seedListings,
+        ?mySellerListing,
+        ?myBuyerListing,
+      ];
 
   /// True when Discover should show live GPS-based distances.
   bool get usingGps => userPosition != null;
@@ -129,6 +151,8 @@ class AppState extends ChangeNotifier {
         buyingInterests: buyingInterests,
         sellingInterests: sellingInterests,
         unlockedListingIds: unlockedListingIds,
+        mySellerListing: mySellerListing,
+        myBuyerListing: myBuyerListing,
       );
 
   void _persist() {
@@ -267,6 +291,58 @@ class AppState extends ChangeNotifier {
   }) {
     if (displayName != null) this.displayName = displayName;
     if (location != null) this.location = location;
+    notifyListeners();
+    _persist();
+  }
+
+  /// Creates or replaces the active-role listing. Returns false if invalid.
+  bool publishMyListing({
+    required String crop,
+    required String quantityHint,
+    required String phone,
+    String? name,
+    String? location,
+  }) {
+    if (!isKnownCrop(crop)) return false;
+    final trimmedQty = quantityHint.trim();
+    final trimmedPhone = phone.trim();
+    if (trimmedQty.isEmpty || trimmedPhone.isEmpty) return false;
+
+    final lat = userPosition?.latitude ?? bugobeLatitude;
+    final lon = userPosition?.longitude ?? bugobeLongitude;
+    final listing = Listing(
+      id: Listing.myIdFor(role),
+      name: (name ?? displayName).trim(),
+      role: role,
+      crop: crop,
+      quantityHint: trimmedQty,
+      distanceKm: 0,
+      latitude: lat,
+      longitude: lon,
+      location: (location ?? this.location).trim(),
+      lastActiveLabel: ListingCopyKeys.activeToday,
+      phone: trimmedPhone,
+    );
+
+    if (role == UserRole.seller) {
+      mySellerListing = listing;
+    } else {
+      myBuyerListing = listing;
+    }
+    notifyListeners();
+    _persist();
+    return true;
+  }
+
+  /// Clears the active-role listing if present.
+  void clearMyListing() {
+    if (role == UserRole.seller) {
+      if (mySellerListing == null) return;
+      mySellerListing = null;
+    } else {
+      if (myBuyerListing == null) return;
+      myBuyerListing = null;
+    }
     notifyListeners();
     _persist();
   }
