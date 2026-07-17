@@ -207,5 +207,35 @@
       "distance": {"type": "String"},
       "lastActive": {"type": "String"}
     }
-  }
+  },
+
+  "cropMaize": "Maize",
+  "cropCassava": "Cassava",
+  "cropBeans": "Beans",
+  "cropGroundnuts": "Groundnuts",
+  "cropRice": "Rice",
+
+  "qtyBuyingUpTo2Tonnes": "Buying up to 2 tonnes",
+  "qtyWeeklyBuyerBags": "Weekly buyer · bags",
+  "qtyAggregatorFairPrice": "Aggregator · fair price",
+  "qtyNeeds500KgThisWeek": "Needs 500 kg this week",
+  "qtySmallLotsWelcome": "Small lots welcome",
+  "qty800KgReady": "~800 kg ready",
+  "qtyFreshHarvest": "Fresh harvest",
+  "qty10Bags": "10 bags",
+  "qty1_5Tonnes": "1.5 tonnes",
+  "qtySmallSurplus": "Small surplus",
+
+  "placeVillageMarket": "Village market",
+  "placeNearVillage": "Near village",
+  "placeKaleheRoad": "Kalehe road",
+  "placeVillage": "Village",
+  "placeNearbyHills": "Nearby hills",
+  "placeNearKalehe": "Near Kalehe",
+
+  "activeToday": "Active today",
+  "activeYesterday": "Active yesterday",
+  "active2DaysAgo": "Active 2 days ago",
+  "active3DaysAgo": "Active 3 days ago",
+  "activeThisWeek": "Active this week"
 }

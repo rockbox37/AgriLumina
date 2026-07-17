@@ -39,6 +39,16 @@ void main() {
     expect(fr.resolvedLocation('Kabare'), 'Kabare');
   });
 
+  test('crop and listing seed copy localize for French', () {
+    final fr = lookupAppLocalizations(const Locale('fr'));
+    expect(fr.localizedCrop('Maize'), 'Maïs');
+    expect(fr.localizedCrop('Cassava'), 'Manioc');
+    expect(fr.localizedQuantity('Buying up to 2 tonnes'), 'Achète jusqu’à 2 tonnes');
+    expect(fr.localizedPlace('Village market'), 'Marché du village');
+    expect(fr.localizedLastActive('Active today'), 'Actif aujourd’hui');
+    expect(fr.localizedPlace('Kabare'), 'Kabare');
+  });
+
   test('formatDistanceKmLocalized uses locale decimal separators', () {
     final en = lookupAppLocalizations(const Locale('en'));
     final fr = lookupAppLocalizations(const Locale('fr'));
@@ -69,10 +79,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Trouver des acheteurs'), findsOneWidget);
+    expect(find.widgetWithText(FilterChip, 'Maïs'), findsOneWidget);
+    expect(find.textContaining('Achète jusqu’à 2 tonnes'), findsOneWidget);
+    expect(find.textContaining('Actif aujourd’hui'), findsWidgets);
 
     await tester.tap(find.text('Jean-Pierre M.'));
     await tester.pumpAndSettle();
 
+    expect(find.text('Maïs'), findsOneWidget);
+    expect(find.text('Marché du village'), findsOneWidget);
     expect(find.textContaining('crédit'), findsWidgets);
   });
 }

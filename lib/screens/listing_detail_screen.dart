@@ -50,17 +50,20 @@ class ListingDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             children: [
               Text(
-                listing.crop,
+                l10n.localizedCrop(listing.crop),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
-              Text(listing.quantityHint),
+              Text(l10n.localizedListingQuantity(listing)),
               const SizedBox(height: 16),
               _InfoRow(
                 label: l10n.labelRole,
                 value: listing.role.label(l10n),
               ),
-              _InfoRow(label: l10n.labelLocation, value: listing.location),
+              _InfoRow(
+                label: l10n.labelLocation,
+                value: l10n.localizedListingPlace(listing),
+              ),
               _InfoRow(
                 label: l10n.labelDistance,
                 value: formatDistanceKmLocalized(
@@ -70,7 +73,7 @@ class ListingDetailScreen extends StatelessWidget {
               ),
               _InfoRow(
                 label: l10n.labelLastActive,
-                value: listing.lastActiveLabel,
+                value: l10n.localizedListingLastActive(listing),
               ),
               const SizedBox(height: 24),
               Text(

@@ -74,8 +74,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           manualCrop: _manualCrop,
           relevantInterests: interests,
         );
-        final filtered =
-            filterListingsByQuery(cropFiltered, _searchController.text);
+        final filtered = filterListingsByQuery(
+          cropFiltered,
+          _searchController.text,
+          l10n: l10n,
+        );
 
         final interestSoftActive = isInterestSoftFilterActive(
           mode: _cropMode,
@@ -194,7 +197,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     if (cropFiltered.isEmpty) {
       final message =
           cropMode == DiscoverCropMode.manualCrop && manualCrop != null
-              ? l10n.noCropCounterpartsNearby(manualCrop, counterpart)
+              ? l10n.noCropCounterpartsNearby(
+                  l10n.localizedCrop(manualCrop),
+                  counterpart,
+                )
               : interestSoftActive
                   ? l10n.noCounterpartsForInterests(counterpart)
                   : l10n.noCounterpartsNearby(counterpart);
@@ -213,7 +219,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     if (filtered.isEmpty) {
       final scope = cropMode == DiscoverCropMode.manualCrop &&
               manualCrop != null
-          ? '$manualCrop $counterpart'
+          ? '${l10n.localizedCrop(manualCrop)} $counterpart'
           : counterpart;
       return Center(
         child: Padding(
@@ -329,7 +335,7 @@ class _CropFilterBar extends StatelessWidget {
             (crop) => Padding(
               padding: const EdgeInsets.only(right: 8),
               child: FilterChip(
-                label: Text(crop),
+                label: Text(l10n.localizedCrop(crop)),
                 selected:
                     mode == DiscoverCropMode.manualCrop && selectedCrop == crop,
                 onSelected: (_) => onSelected(crop),
@@ -410,19 +416,20 @@ class _ListingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final cropLabel = l10n.localizedCrop(listing.crop);
     return ListTile(
       leading: CircleAvatar(
         child: Text(
-          listing.crop.isEmpty ? '?' : listing.crop[0].toUpperCase(),
+          cropLabel.isEmpty ? '?' : cropLabel[0].toUpperCase(),
         ),
       ),
       title: Text(listing.name),
       subtitle: Text(
         l10n.listingSubtitle(
-          listing.crop,
-          listing.quantityHint,
+          cropLabel,
+          l10n.localizedListingQuantity(listing),
           formatDistanceKmLocalized(l10n, listing.distanceKm),
-          listing.lastActiveLabel,
+          l10n.localizedListingLastActive(listing),
         ),
       ),
       isThreeLine: true,

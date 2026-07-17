@@ -558,6 +558,162 @@ abstract class AppLocalizations {
     String distance,
     String lastActive,
   );
+
+  /// No description provided for @cropMaize.
+  ///
+  /// In en, this message translates to:
+  /// **'Maize'**
+  String get cropMaize;
+
+  /// No description provided for @cropCassava.
+  ///
+  /// In en, this message translates to:
+  /// **'Cassava'**
+  String get cropCassava;
+
+  /// No description provided for @cropBeans.
+  ///
+  /// In en, this message translates to:
+  /// **'Beans'**
+  String get cropBeans;
+
+  /// No description provided for @cropGroundnuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Groundnuts'**
+  String get cropGroundnuts;
+
+  /// No description provided for @cropRice.
+  ///
+  /// In en, this message translates to:
+  /// **'Rice'**
+  String get cropRice;
+
+  /// No description provided for @qtyBuyingUpTo2Tonnes.
+  ///
+  /// In en, this message translates to:
+  /// **'Buying up to 2 tonnes'**
+  String get qtyBuyingUpTo2Tonnes;
+
+  /// No description provided for @qtyWeeklyBuyerBags.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly buyer · bags'**
+  String get qtyWeeklyBuyerBags;
+
+  /// No description provided for @qtyAggregatorFairPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Aggregator · fair price'**
+  String get qtyAggregatorFairPrice;
+
+  /// No description provided for @qtyNeeds500KgThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs 500 kg this week'**
+  String get qtyNeeds500KgThisWeek;
+
+  /// No description provided for @qtySmallLotsWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Small lots welcome'**
+  String get qtySmallLotsWelcome;
+
+  /// No description provided for @qty800KgReady.
+  ///
+  /// In en, this message translates to:
+  /// **'~800 kg ready'**
+  String get qty800KgReady;
+
+  /// No description provided for @qtyFreshHarvest.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh harvest'**
+  String get qtyFreshHarvest;
+
+  /// No description provided for @qty10Bags.
+  ///
+  /// In en, this message translates to:
+  /// **'10 bags'**
+  String get qty10Bags;
+
+  /// No description provided for @qty1_5Tonnes.
+  ///
+  /// In en, this message translates to:
+  /// **'1.5 tonnes'**
+  String get qty1_5Tonnes;
+
+  /// No description provided for @qtySmallSurplus.
+  ///
+  /// In en, this message translates to:
+  /// **'Small surplus'**
+  String get qtySmallSurplus;
+
+  /// No description provided for @placeVillageMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Village market'**
+  String get placeVillageMarket;
+
+  /// No description provided for @placeNearVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Near village'**
+  String get placeNearVillage;
+
+  /// No description provided for @placeKaleheRoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Kalehe road'**
+  String get placeKaleheRoad;
+
+  /// No description provided for @placeVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Village'**
+  String get placeVillage;
+
+  /// No description provided for @placeNearbyHills.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby hills'**
+  String get placeNearbyHills;
+
+  /// No description provided for @placeNearKalehe.
+  ///
+  /// In en, this message translates to:
+  /// **'Near Kalehe'**
+  String get placeNearKalehe;
+
+  /// No description provided for @activeToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Active today'**
+  String get activeToday;
+
+  /// No description provided for @activeYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Active yesterday'**
+  String get activeYesterday;
+
+  /// No description provided for @active2DaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'Active 2 days ago'**
+  String get active2DaysAgo;
+
+  /// No description provided for @active3DaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'Active 3 days ago'**
+  String get active3DaysAgo;
+
+  /// No description provided for @activeThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Active this week'**
+  String get activeThisWeek;
 }
 
 class _AppLocalizationsDelegate

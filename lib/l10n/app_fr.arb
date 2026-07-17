@@ -75,5 +75,35 @@
   "profileStats": "Crédits : {credits} · Contacts déverrouillés : {unlocked}",
   "defaultDisplayName": "Vous",
   "defaultLocation": "Non défini",
-  "listingSubtitle": "{crop} · {quantity}\n{distance} · {lastActive}"
+  "listingSubtitle": "{crop} · {quantity}\n{distance} · {lastActive}",
+
+  "cropMaize": "Maïs",
+  "cropCassava": "Manioc",
+  "cropBeans": "Haricots",
+  "cropGroundnuts": "Arachides",
+  "cropRice": "Riz",
+
+  "qtyBuyingUpTo2Tonnes": "Achète jusqu’à 2 tonnes",
+  "qtyWeeklyBuyerBags": "Acheteur hebdomadaire · sacs",
+  "qtyAggregatorFairPrice": "Agrégateur · prix équitable",
+  "qtyNeeds500KgThisWeek": "Besoin de 500 kg cette semaine",
+  "qtySmallLotsWelcome": "Petits lots bienvenus",
+  "qty800KgReady": "~800 kg prêts",
+  "qtyFreshHarvest": "Récolte fraîche",
+  "qty10Bags": "10 sacs",
+  "qty1_5Tonnes": "1,5 tonnes",
+  "qtySmallSurplus": "Petit surplus",
+
+  "placeVillageMarket": "Marché du village",
+  "placeNearVillage": "Près du village",
+  "placeKaleheRoad": "Route de Kalehe",
+  "placeVillage": "Village",
+  "placeNearbyHills": "Collines proches",
+  "placeNearKalehe": "Près de Kalehe",
+
+  "activeToday": "Actif aujourd’hui",
+  "activeYesterday": "Actif hier",
+  "active2DaysAgo": "Actif il y a 2 jours",
+  "active3DaysAgo": "Actif il y a 3 jours",
+  "activeThisWeek": "Actif cette semaine"
 }
