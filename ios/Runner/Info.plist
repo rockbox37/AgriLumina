@@ -47,5 +47,11 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Agrilumina uses your location to show nearby buyers and sellers around you.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>whatsapp</string>
+		<string>https</string>
+	</array>
 </dict>
 </plist>
