@@ -81,7 +81,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           relevantInterests: interests,
         );
         final title = state.role == UserRole.seller
-            ? 'Nearby buyers'
+            ? 'Find Buyers'
             : 'Find Sellers';
         final counterpart = state.role.counterpart.label.toLowerCase();
 

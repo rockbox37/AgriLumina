@@ -32,7 +32,7 @@ void main() {
     await tester.tap(find.text('Discover'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Nearby buyers'), findsOneWidget);
+    expect(find.text('Find Buyers'), findsOneWidget);
     expect(find.text('Jean-Pierre M.'), findsOneWidget);
     expect(
       find.textContaining('Showing distances from sample listings'),
@@ -53,7 +53,7 @@ void main() {
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
 
-    expect(find.text('Nearby buyers'), findsOneWidget);
+    expect(find.text('Find Buyers'), findsOneWidget);
     expect(find.text('4 credits'), findsWidgets);
   });
 
@@ -65,13 +65,13 @@ void main() {
 
     await tester.tap(find.text('Discover'));
     await tester.pumpAndSettle();
-    expect(find.text('Nearby buyers'), findsOneWidget);
+    expect(find.text('Find Buyers'), findsOneWidget);
 
     await tester.tap(find.byKey(BrandHomeLeading.buttonKey));
     await tester.pumpAndSettle();
 
     expect(find.text('I am a…'), findsOneWidget);
-    expect(find.text('Nearby buyers'), findsNothing);
+    expect(find.text('Find Buyers'), findsNothing);
   });
 
   testWidgets('App bar brand icon from listing detail returns to Home', (
@@ -96,7 +96,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('I am a…'), findsOneWidget);
-    expect(find.text('Nearby buyers'), findsNothing);
+    expect(find.text('Find Buyers'), findsNothing);
     expect(find.textContaining('Unlock for 1 credit'), findsNothing);
   });
 
