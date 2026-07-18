@@ -126,6 +126,14 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _LocationBanner(state: state),
+              // Looking-for switcher only when both roles are enabled.
+              // With a single capability, activeRole follows that role and
+              // the AppBar title already says Find Buyers / Find Sellers.
+              if (state.enabledRoles.length > 1)
+                _LookingForSwitcher(
+                  activeRole: state.activeRole,
+                  onChanged: state.setActiveRole,
+                ),
               if (list.isNotEmpty) ...[
                 _CropFilterBar(
                   crops: discoverCropFilters,
@@ -252,6 +260,55 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           },
         );
       },
+    );
+  }
+}
+
+/// Discover browse lens: choose counterparts (Buyers vs Sellers).
+///
+/// Selecting Buyers sets [UserRole.seller] (you sell → find buyers);
+/// selecting Sellers sets [UserRole.buyer].
+class _LookingForSwitcher extends StatelessWidget {
+  const _LookingForSwitcher({
+    required this.activeRole,
+    required this.onChanged,
+  });
+
+  final UserRole activeRole;
+  final ValueChanged<UserRole> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      key: const Key('discover_looking_for'),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l10n.lookingFor,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          SegmentedButton<UserRole>(
+            segments: [
+              ButtonSegment<UserRole>(
+                value: UserRole.seller,
+                label: Text(l10n.lookingForBuyers),
+                icon: const Icon(Icons.storefront),
+              ),
+              ButtonSegment<UserRole>(
+                value: UserRole.buyer,
+                label: Text(l10n.lookingForSellers),
+                icon: const Icon(Icons.agriculture),
+              ),
+            ],
+            selected: {activeRole},
+            onSelectionChanged: (roles) => onChanged(roles.first),
+          ),
+        ],
+      ),
     );
   }
 }

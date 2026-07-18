@@ -15,7 +15,7 @@ import 'package:agrilumina/utils/geo.dart';
 /// Role model:
 /// - [enabledRoles]: capabilities (buy and/or sell; interest lists; my listing
 ///   per role). At least one role is always required.
-/// - [activeRole]: lightweight browsing mode for Discover/Home counterparts
+/// - [activeRole]: lightweight browsing lens for Discover counterparts
 ///   (must be one of [enabledRoles]).
 class AppState extends ChangeNotifier {
   AppState({

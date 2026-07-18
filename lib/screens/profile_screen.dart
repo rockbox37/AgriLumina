@@ -97,27 +97,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
-              if (state.enabledRoles.length > 1) ...[
-                const SizedBox(height: 20),
-                Text(
-                  l10n.browsingAs,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                SegmentedButton<UserRole>(
-                  segments: [
-                    for (final role in UserRole.values)
-                      if (state.isRoleEnabled(role))
-                        ButtonSegment(
-                          value: role,
-                          label: Text(role.label(l10n)),
-                        ),
-                  ],
-                  selected: {state.activeRole},
-                  onSelectionChanged: (roles) =>
-                      state.setActiveRole(roles.first),
-                ),
-              ],
               const SizedBox(height: 24),
               TextField(
                 controller: _nameController,

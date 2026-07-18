@@ -17,7 +17,9 @@ void main() {
     expect(fr.findBuyers, 'Trouver des acheteurs');
     expect(fr.navHome, 'Accueil');
     expect(fr.appTitle, 'AgriLumina');
-    expect(fr.browsingAs, 'Je parcours en tant que…');
+    expect(fr.lookingFor, 'Je cherche…');
+    expect(fr.lookingForBuyers, 'Acheteurs');
+    expect(fr.lookingForSellers, 'Vendeurs');
     expect(fr.enabledRolesLabel, 'Je peux…');
     expect(fr.publicTagline, 'Slogan public');
     expect(fr.taglineTooLong(100), contains('100'));
@@ -73,16 +75,18 @@ void main() {
 
     expect(find.text('Accueil'), findsWidgets);
     expect(find.text('Bienvenue, Vous'), findsOneWidget);
-    expect(find.text('Je parcours en tant que…'), findsOneWidget);
+    expect(find.text('Je cherche…'), findsNothing);
 
     await tester.tap(find.text('Profil'));
     await tester.pumpAndSettle();
     expect(find.text('Non défini'), findsOneWidget);
+    expect(find.text('Je cherche…'), findsNothing);
 
     await tester.tap(find.text('Découvrir'));
     await tester.pumpAndSettle();
 
     expect(find.text('Trouver des acheteurs'), findsOneWidget);
+    expect(find.text('Je cherche…'), findsOneWidget);
     expect(find.widgetWithText(FilterChip, 'Maïs'), findsOneWidget);
     expect(find.textContaining('Achète jusqu’à 2 tonnes'), findsOneWidget);
     expect(find.textContaining('Actif aujourd’hui'), findsWidgets);
