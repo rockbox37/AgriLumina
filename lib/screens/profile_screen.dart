@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/l10n/l10n_extensions.dart';
+import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/screens/publish_listing_screen.dart';
 import 'package:agrilumina/widgets/brand_mark.dart';
@@ -16,7 +17,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _locationController;
+  late final TextEditingController _taglineController;
   bool _initialized = false;
+  String? _taglineError;
 
   @override
   void didChangeDependencies() {
@@ -30,6 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _locationController = TextEditingController(
       text: l10n.resolvedLocation(state.location),
     );
+    _taglineController = TextEditingController(text: state.tagline);
     _initialized = true;
   }
 
@@ -38,8 +42,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_initialized) {
       _nameController.dispose();
       _locationController.dispose();
+      _taglineController.dispose();
     }
     super.dispose();
+  }
+
+  void _onEnabledRoleToggled(AppState state, UserRole role, bool selected) {
+    final ok = state.setRoleEnabled(role, enabled: selected);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.rolesRequired)),
+      );
+    }
   }
 
   @override
@@ -58,22 +72,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
           body: ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              Text(l10n.labelRole, style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.enabledRolesLabel,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 8),
-              SegmentedButton<UserRole>(
-                segments: [
-                  ButtonSegment(
-                    value: UserRole.seller,
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FilterChip(
+                    key: const Key('profile_role_seller'),
                     label: Text(l10n.roleSeller),
+                    selected: state.isRoleEnabled(UserRole.seller),
+                    onSelected: (selected) =>
+                        _onEnabledRoleToggled(state, UserRole.seller, selected),
                   ),
-                  ButtonSegment(
-                    value: UserRole.buyer,
+                  FilterChip(
+                    key: const Key('profile_role_buyer'),
                     label: Text(l10n.roleBuyer),
+                    selected: state.isRoleEnabled(UserRole.buyer),
+                    onSelected: (selected) =>
+                        _onEnabledRoleToggled(state, UserRole.buyer, selected),
                   ),
                 ],
-                selected: {state.role},
-                onSelectionChanged: (roles) => state.setRole(roles.first),
               ),
+              if (state.enabledRoles.length > 1) ...[
+                const SizedBox(height: 20),
+                Text(
+                  l10n.browsingAs,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                SegmentedButton<UserRole>(
+                  segments: [
+                    for (final role in UserRole.values)
+                      if (state.isRoleEnabled(role))
+                        ButtonSegment(
+                          value: role,
+                          label: Text(role.label(l10n)),
+                        ),
+                  ],
+                  selected: {state.activeRole},
+                  onSelectionChanged: (roles) =>
+                      state.setActiveRole(roles.first),
+                ),
+              ],
               const SizedBox(height: 24),
               TextField(
                 controller: _nameController,
@@ -89,6 +133,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   labelText: l10n.labelLocation,
                   border: const OutlineInputBorder(),
                 ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                key: const Key('profile_tagline_field'),
+                controller: _taglineController,
+                maxLength: Listing.maxTaglineLength,
+                decoration: InputDecoration(
+                  labelText: l10n.publicTagline,
+                  hintText: l10n.taglineHint,
+                  border: const OutlineInputBorder(),
+                  errorText: _taglineError,
+                ),
+                onChanged: (_) {
+                  if (_taglineError != null) {
+                    setState(() => _taglineError = null);
+                  }
+                },
               ),
               const SizedBox(height: 24),
               _InterestSection(
@@ -162,9 +223,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           locationInput == l10n.defaultLocation
                       ? ''
                       : locationInput;
+                  final taglineInput = _taglineController.text.trim();
+                  if (taglineInput.length > Listing.maxTaglineLength) {
+                    setState(() {
+                      _taglineError =
+                          l10n.taglineTooLong(Listing.maxTaglineLength);
+                    });
+                    return;
+                  }
                   state.updateProfile(
                     displayName: nameToStore,
                     location: locationToStore,
+                    tagline: taglineInput,
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.profileSaved)),

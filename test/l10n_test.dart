@@ -17,6 +17,10 @@ void main() {
     expect(fr.findBuyers, 'Trouver des acheteurs');
     expect(fr.navHome, 'Accueil');
     expect(fr.appTitle, 'AgriLumina');
+    expect(fr.browsingAs, 'Je parcours en tant que…');
+    expect(fr.enabledRolesLabel, 'Je peux…');
+    expect(fr.publicTagline, 'Slogan public');
+    expect(fr.taglineTooLong(100), contains('100'));
   });
 
   test('resolvedDisplayName localizes unset and legacy You seed', () {
@@ -69,7 +73,7 @@ void main() {
 
     expect(find.text('Accueil'), findsWidgets);
     expect(find.text('Bienvenue, Vous'), findsOneWidget);
-    expect(find.text('Je suis…'), findsOneWidget);
+    expect(find.text('Je parcours en tant que…'), findsOneWidget);
 
     await tester.tap(find.text('Profil'));
     await tester.pumpAndSettle();

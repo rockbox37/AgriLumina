@@ -31,6 +31,9 @@
   "buyers": "buyers",
   "sellers": "sellers",
   "iAmA": "I am a…",
+  "browsingAs": "Browsing as…",
+  "enabledRolesLabel": "I can…",
+  "rolesRequired": "Select at least one role.",
   "roleSeller": "Seller",
   "roleBuyer": "Buyer",
   "nearbyCount": "{count} nearby {counterpart}",
@@ -184,6 +187,15 @@
     }
   },
   "displayName": "Display name",
+  "publicTagline": "Public tagline",
+  "taglineHint": "e.g. 100% organic farm",
+  "taglineTooLong": "Tagline must be {max} characters or fewer.",
+  "@taglineTooLong": {
+    "placeholders": {
+      "max": {"type": "int"}
+    }
+  },
+  "labelTagline": "Tagline",
   "buyingInterests": "Buying interests",
   "sellingInterests": "Selling interests",
   "buyingInterestsEmpty": "None yet — add crops you want to buy",

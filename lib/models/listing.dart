@@ -13,6 +13,7 @@ class Listing {
     required this.location,
     required this.lastActiveLabel,
     required this.phone,
+    this.tagline = '',
   });
 
   /// Stable local id for the user's seller listing (one per device MVP).
@@ -20,6 +21,9 @@ class Listing {
 
   /// Stable local id for the user's buyer listing (one per device MVP).
   static const myBuyerId = 'me-buyer';
+
+  /// Max length for public tagline (profile + listing).
+  static const maxTaglineLength = 100;
 
   final String id;
   final String name;
@@ -34,6 +38,9 @@ class Listing {
   final String location;
   final String lastActiveLabel;
   final String phone;
+
+  /// Short public blurb (optional).
+  final String tagline;
 
   bool get isMine => id == mySellerId || id == myBuyerId;
 
@@ -52,6 +59,7 @@ class Listing {
     String? location,
     String? lastActiveLabel,
     String? phone,
+    String? tagline,
   }) {
     return Listing(
       id: id ?? this.id,
@@ -65,6 +73,7 @@ class Listing {
       location: location ?? this.location,
       lastActiveLabel: lastActiveLabel ?? this.lastActiveLabel,
       phone: phone ?? this.phone,
+      tagline: tagline ?? this.tagline,
     );
   }
 
@@ -80,6 +89,7 @@ class Listing {
         'location': location,
         'lastActiveLabel': lastActiveLabel,
         'phone': phone,
+        'tagline': tagline,
       };
 
   static Listing? fromJson(Map<String, Object?>? json) {
@@ -100,6 +110,7 @@ class Listing {
     final location = json['location'] as String?;
     final lastActiveLabel = json['lastActiveLabel'] as String?;
     final phone = json['phone'] as String?;
+    final tagline = json['tagline'] as String? ?? '';
     if (role == null ||
         id == null ||
         name == null ||
@@ -125,6 +136,7 @@ class Listing {
       location: location,
       lastActiveLabel: lastActiveLabel,
       phone: phone,
+      tagline: tagline,
     );
   }
 }

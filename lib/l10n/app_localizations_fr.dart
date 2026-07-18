@@ -54,6 +54,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get iAmA => 'Je suis…';
 
   @override
+  String get browsingAs => 'Je parcours en tant que…';
+
+  @override
+  String get enabledRolesLabel => 'Je peux…';
+
+  @override
+  String get rolesRequired => 'Sélectionnez au moins un rôle.';
+
+  @override
   String get roleSeller => 'Vendeur';
 
   @override
@@ -259,6 +268,20 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get displayName => 'Nom affiché';
+
+  @override
+  String get publicTagline => 'Slogan public';
+
+  @override
+  String get taglineHint => 'ex. Ferme 100 % bio';
+
+  @override
+  String taglineTooLong(int max) {
+    return 'Le slogan doit comporter au plus $max caractères.';
+  }
+
+  @override
+  String get labelTagline => 'Slogan';
 
   @override
   String get buyingInterests => 'Intérêts d’achat';

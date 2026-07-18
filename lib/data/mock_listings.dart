@@ -20,6 +20,7 @@ const List<Listing> mockListings = [
     location: ListingCopyKeys.placeVillageMarket,
     lastActiveLabel: ListingCopyKeys.activeToday,
     phone: '+243 970 111 201',
+    tagline: 'Fair prices for village maize',
   ),
   Listing(
     id: 'b2',
@@ -46,6 +47,7 @@ const List<Listing> mockListings = [
     location: ListingCopyKeys.placeKaleheRoad,
     lastActiveLabel: ListingCopyKeys.active2DaysAgo,
     phone: '+243 970 111 203',
+    tagline: 'Co-op aggregator · beans weekly',
   ),
   Listing(
     id: 'b4',
@@ -85,6 +87,7 @@ const List<Listing> mockListings = [
     location: ListingCopyKeys.placeVillage,
     lastActiveLabel: ListingCopyKeys.activeToday,
     phone: '+243 970 222 101',
+    tagline: '100% organic farm',
   ),
   Listing(
     id: 's2',
@@ -111,6 +114,7 @@ const List<Listing> mockListings = [
     location: ListingCopyKeys.placeNearKalehe,
     lastActiveLabel: ListingCopyKeys.activeToday,
     phone: '+243 970 222 103',
+    tagline: 'Heirloom bean varieties',
   ),
   Listing(
     id: 's4',

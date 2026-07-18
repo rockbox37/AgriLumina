@@ -3,6 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/l10n/app_localizations.dart';
 import 'package:agrilumina/main.dart';
+import 'package:agrilumina/models/user_role.dart';
+import 'package:agrilumina/screens/app_shell.dart';
+import 'package:agrilumina/screens/home_screen.dart';
 import 'package:agrilumina/screens/listing_detail_screen.dart';
 import 'package:agrilumina/services/location_service.dart';
 import 'package:agrilumina/utils/geo.dart';
@@ -20,7 +23,7 @@ void main() {
 
     expect(find.bySemanticsLabel('AgriLumina'), findsWidgets);
     expect(find.text('5 credits'), findsWidgets);
-    expect(find.text('I am a…'), findsOneWidget);
+    expect(find.text('Browsing as…'), findsOneWidget);
     expect(find.text('5 nearby buyers'), findsOneWidget);
   });
 
@@ -71,7 +74,7 @@ void main() {
     await tester.tap(find.byKey(BrandHomeLeading.buttonKey));
     await tester.pumpAndSettle();
 
-    expect(find.text('I am a…'), findsOneWidget);
+    expect(find.text('Browsing as…'), findsOneWidget);
     expect(find.text('Find Buyers'), findsNothing);
   });
 
@@ -96,7 +99,7 @@ void main() {
     await tester.tap(find.byKey(BrandHomeLeading.buttonKey));
     await tester.pumpAndSettle();
 
-    expect(find.text('I am a…'), findsOneWidget);
+    expect(find.text('Browsing as…'), findsOneWidget);
     expect(find.text('Find Buyers'), findsNothing);
     expect(find.textContaining('Unlock for 1 credit'), findsNothing);
   });
@@ -162,11 +165,21 @@ void main() {
     expect(find.text('Amina K.'), findsOneWidget);
   });
 
-  testWidgets('Role change clears chip and applies buying interests', (
+  testWidgets('Browse-as change clears chip and applies buying interests', (
     tester,
   ) async {
+    final state = AppState(locationService: FakeLocationService());
+    state.toggleBuyingInterest('Beans');
+
     await tester.pumpWidget(
-      MyApp(locationService: FakeLocationService()),
+      AppStateScope(
+        state: state,
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const AppShell(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -177,14 +190,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Amina K.'), findsOneWidget);
 
-    await tester.tap(find.text('Profile'));
+    await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
-
-    // Add Beans to buying interests, then switch role to Buyer.
-    await tester.tap(find.widgetWithText(FilterChip, 'Beans').first);
-    await tester.pumpAndSettle();
+    expect(find.text('Browsing as…'), findsOneWidget);
     await tester.tap(find.text('Buyer'));
     await tester.pumpAndSettle();
+    expect(state.activeRole, UserRole.buyer);
 
     await tester.tap(find.text('Discover'));
     await tester.pumpAndSettle();
@@ -197,9 +208,7 @@ void main() {
     expect(find.text('Joseph Farm'), findsNothing);
   });
 
-  testWidgets('Profile shows buying and selling interest sections', (
-    tester,
-  ) async {
+  testWidgets('Profile enables dual roles and browse-as', (tester) async {
     await tester.pumpWidget(
       MyApp(locationService: FakeLocationService()),
     );
@@ -208,25 +217,22 @@ void main() {
     await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Buying interests'), findsOneWidget);
-    expect(find.text('Selling interests'), findsOneWidget);
-    expect(
-      find.text('None yet — add crops you want to buy'),
-      findsOneWidget,
-    );
-    expect(find.text('Crop interest'), findsNothing);
-    expect(find.widgetWithText(FilterChip, 'Maize'), findsWidgets);
+    expect(find.text('I can…'), findsOneWidget);
+    expect(find.text('Browsing as…'), findsOneWidget);
+    expect(find.byKey(const Key('profile_role_seller')), findsOneWidget);
+    expect(find.byKey(const Key('profile_role_buyer')), findsOneWidget);
+    expect(find.text('Public tagline'), findsOneWidget);
 
-    await tester.tap(find.text('Buyer'));
+    // Disable buyer capability → browse-as switcher hides; active follows seller.
+    await tester.tap(find.byKey(const Key('profile_role_buyer')));
     await tester.pumpAndSettle();
-    // Both sections remain editable regardless of role.
-    expect(find.text('Buying interests'), findsOneWidget);
-    expect(find.text('Selling interests'), findsOneWidget);
+    expect(find.text('Browsing as…'), findsNothing);
+    expect(find.text('rolesRequired'), findsNothing);
 
-    // First Beans chip is under Buying interests.
-    await tester.tap(find.widgetWithText(FilterChip, 'Beans').first);
+    // Re-enable buyer.
+    await tester.tap(find.byKey(const Key('profile_role_buyer')));
     await tester.pumpAndSettle();
-    expect(find.text('None yet — add crops you want to buy'), findsNothing);
+    expect(find.text('Browsing as…'), findsOneWidget);
   });
 
   testWidgets('Unlocked contact Call and WhatsApp use launcher', (tester) async {
@@ -365,7 +371,10 @@ void main() {
     // Empty buyingInterests → all counterpart sellers (no soft crop filter).
     expect(find.text('Find Sellers'), findsOneWidget);
     expect(find.text('Marie L.'), findsOneWidget);
-    expect(find.text('Samuel Growers'), findsOneWidget);
+    expect(
+      find.text('Samuel Growers', skipOffstage: false),
+      findsOneWidget,
+    );
     expect(find.text('Showing crops you buy'), findsNothing);
 
     await tester.enterText(
@@ -387,6 +396,50 @@ void main() {
       find.text('No matches for "nope" among sellers.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('Discover cards show listing taglines', (tester) async {
+    await tester.pumpWidget(
+      MyApp(locationService: FakeLocationService()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Fair prices for village maize'), findsOneWidget);
+    expect(find.text('Jean-Pierre M.'), findsOneWidget);
+
+    await tester.tap(find.text('Jean-Pierre M.'));
+    await tester.pumpAndSettle();
+    expect(find.text('Fair prices for village maize'), findsOneWidget);
+  });
+
+  testWidgets('Browse-as switcher hides when only one role enabled', (
+    tester,
+  ) async {
+    final state = AppState(
+      enabledRoles: {UserRole.seller},
+      activeRole: UserRole.seller,
+      locationService: FakeLocationService(),
+    );
+
+    await tester.pumpWidget(
+      AppStateScope(
+        state: state,
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const HomeScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Browsing as…'), findsNothing);
+    expect(find.text('I am a…'), findsNothing);
+    expect(find.text('Buyer'), findsNothing);
+    expect(find.text('5 nearby buyers'), findsOneWidget);
   });
 }
 

@@ -18,7 +18,20 @@ class HomeScreen extends StatelessWidget {
       builder: (context, _) {
         final l10n = context.l10n;
         final counterparts = state.nearbyCounterparts;
-        final counterpartLabel = l10n.counterpartPlural(state.role);
+        final counterpartLabel = l10n.counterpartPlural(state.activeRole);
+        final browsingSegments = [
+          for (final role in UserRole.values)
+            if (state.isRoleEnabled(role))
+              ButtonSegment<UserRole>(
+                value: role,
+                label: Text(role.label(l10n)),
+                icon: Icon(
+                  role == UserRole.seller
+                      ? Icons.agriculture
+                      : Icons.storefront,
+                ),
+              ),
+        ];
 
         return Scaffold(
           appBar: AppBar(
@@ -54,25 +67,22 @@ class HomeScreen extends StatelessWidget {
                 l10n.findNearbyByDistance(counterpartLabel),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              const SizedBox(height: 24),
-              Text(l10n.iAmA, style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              SegmentedButton<UserRole>(
-                segments: [
-                  ButtonSegment(
-                    value: UserRole.seller,
-                    label: Text(l10n.roleSeller),
-                    icon: const Icon(Icons.agriculture),
-                  ),
-                  ButtonSegment(
-                    value: UserRole.buyer,
-                    label: Text(l10n.roleBuyer),
-                    icon: const Icon(Icons.storefront),
-                  ),
-                ],
-                selected: {state.role},
-                onSelectionChanged: (roles) => state.setRole(roles.first),
-              ),
+              // Browse-as switcher only when both roles are enabled.
+              // With a single capability, activeRole follows that role.
+              if (browsingSegments.length > 1) ...[
+                const SizedBox(height: 24),
+                Text(
+                  l10n.browsingAs,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                SegmentedButton<UserRole>(
+                  segments: browsingSegments,
+                  selected: {state.activeRole},
+                  onSelectionChanged: (roles) =>
+                      state.setActiveRole(roles.first),
+                ),
+              ],
               const SizedBox(height: 28),
               Card(
                 child: ListTile(
