@@ -572,6 +572,42 @@ abstract class AppLocalizations {
   /// **'None yet — add crops you want to sell'**
   String get sellingInterestsEmpty;
 
+  /// No description provided for @addCropInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a crop'**
+  String get addCropInterest;
+
+  /// No description provided for @addCropInterestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a name or pick a suggestion'**
+  String get addCropInterestHint;
+
+  /// No description provided for @didYouMeanCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Did you mean {crop}?'**
+  String didYouMeanCrop(String crop);
+
+  /// No description provided for @useSuggestedCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {crop}'**
+  String useSuggestedCrop(String crop);
+
+  /// No description provided for @addCropAsTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Add \"{crop}\" anyway'**
+  String addCropAsTyped(String crop);
+
+  /// No description provided for @addedCanonicalCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Added as {crop}.'**
+  String addedCanonicalCrop(String crop);
+
   /// No description provided for @profileSaved.
   ///
   /// In en, this message translates to:

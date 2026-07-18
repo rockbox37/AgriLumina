@@ -79,6 +79,32 @@
   "sellingInterests": "Intérêts de vente",
   "buyingInterestsEmpty": "Aucun pour l’instant — ajoutez des cultures à acheter",
   "sellingInterestsEmpty": "Aucun pour l’instant — ajoutez des cultures à vendre",
+  "addCropInterest": "Ajouter une culture",
+  "addCropInterestHint": "Saisissez un nom ou choisissez une suggestion",
+  "didYouMeanCrop": "Vouliez-vous dire {crop} ?",
+  "@didYouMeanCrop": {
+    "placeholders": {
+      "crop": {"type": "String"}
+    }
+  },
+  "useSuggestedCrop": "Utiliser {crop}",
+  "@useSuggestedCrop": {
+    "placeholders": {
+      "crop": {"type": "String"}
+    }
+  },
+  "addCropAsTyped": "Ajouter « {crop} » quand même",
+  "@addCropAsTyped": {
+    "placeholders": {
+      "crop": {"type": "String"}
+    }
+  },
+  "addedCanonicalCrop": "Ajouté sous {crop}.",
+  "@addedCanonicalCrop": {
+    "placeholders": {
+      "crop": {"type": "String"}
+    }
+  },
   "profileSaved": "Profil enregistré.",
   "saveProfile": "Enregistrer le profil",
   "profileStats": "Crédits : {credits} · Contacts déverrouillés : {unlocked}",

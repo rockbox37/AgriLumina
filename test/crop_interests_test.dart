@@ -14,12 +14,25 @@ void main() {
       expect(state.relevantInterests, ['Maize']);
     });
 
-    test('add is idempotent and ignores unknown crops', () {
+    test('add is idempotent and prefers canonical aliases', () {
       final state = AppState(locationService: FakeLocationService());
       state.addBuyingInterest('Beans');
       state.addBuyingInterest('Beans');
-      state.addBuyingInterest('NotACrop');
+      state.addBuyingInterest('bean');
       expect(state.buyingInterests, ['Beans']);
+    });
+
+    test('add accepts custom crops with normalized display id', () {
+      final state = AppState(locationService: FakeLocationService());
+      state.addBuyingInterest('heirloom tomato');
+      state.addBuyingInterest('Heirloom Tomato');
+      expect(state.buyingInterests, ['Heirloom Tomato']);
+    });
+
+    test('add maps near-alias free text to canonical id', () {
+      final state = AppState(locationService: FakeLocationService());
+      state.addSellingInterest('corn');
+      expect(state.sellingInterests, ['Maize']);
     });
 
     test('remove is safe when absent', () {
@@ -28,6 +41,13 @@ void main() {
       expect(state.buyingInterests, isEmpty);
       state.removeSellingInterest('Cassava');
       expect(state.sellingInterests, ['Maize']);
+    });
+
+    test('remove drops custom crops', () {
+      final state = AppState(locationService: FakeLocationService());
+      state.addBuyingInterest('Sorghum');
+      state.removeBuyingInterest('sorghum');
+      expect(state.buyingInterests, isEmpty);
     });
 
     test('toggle add/remove on selling list', () {

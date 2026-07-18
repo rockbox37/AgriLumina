@@ -23,6 +23,9 @@ void main() {
     expect(fr.enabledRolesLabel, 'Je peux…');
     expect(fr.publicTagline, 'Slogan public');
     expect(fr.taglineTooLong(100), contains('100'));
+    expect(fr.addCropInterest, 'Ajouter une culture');
+    expect(fr.didYouMeanCrop('Maïs'), contains('Maïs'));
+    expect(fr.addCropAsTyped('Tomate'), contains('Tomate'));
   });
 
   test('resolvedDisplayName localizes unset and legacy You seed', () {

@@ -301,6 +301,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sellingInterestsEmpty => 'None yet — add crops you want to sell';
 
   @override
+  String get addCropInterest => 'Add a crop';
+
+  @override
+  String get addCropInterestHint => 'Type a name or pick a suggestion';
+
+  @override
+  String didYouMeanCrop(String crop) {
+    return 'Did you mean $crop?';
+  }
+
+  @override
+  String useSuggestedCrop(String crop) {
+    return 'Use $crop';
+  }
+
+  @override
+  String addCropAsTyped(String crop) {
+    return 'Add \"$crop\" anyway';
+  }
+
+  @override
+  String addedCanonicalCrop(String crop) {
+    return 'Added as $crop.';
+  }
+
+  @override
   String get profileSaved => 'Profile saved.';
 
   @override

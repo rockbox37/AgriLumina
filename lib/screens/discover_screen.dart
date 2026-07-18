@@ -136,7 +136,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 ),
               if (list.isNotEmpty) ...[
                 _CropFilterBar(
-                  crops: discoverCropFilters,
+                  crops: cropFilterChipsFor(interests),
                   mode: _cropMode,
                   selectedCrop: _manualCrop,
                   interestSoftActive: interestSoftActive,
