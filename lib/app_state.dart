@@ -11,12 +11,21 @@ import 'package:agrilumina/services/location_service.dart';
 import 'package:agrilumina/utils/geo.dart';
 
 /// Shared app state for the MVP vertical slice.
+///
+/// Role model:
+/// - [enabledRoles]: capabilities (buy and/or sell; interest lists; my listing
+///   per role). At least one role is always required.
+/// - [activeRole]: lightweight browsing mode for Discover/Home counterparts
+///   (must be one of [enabledRoles]).
 class AppState extends ChangeNotifier {
   AppState({
     this.credits = 5,
-    this.role = UserRole.seller,
+    Set<UserRole>? enabledRoles,
+    UserRole? activeRole,
+    UserRole? role,
     this.displayName = '',
     this.location = '',
+    this.tagline = '',
     List<String>? buyingInterests,
     List<String>? sellingInterests,
     Set<String>? unlockedListingIds,
@@ -25,7 +34,9 @@ class AppState extends ChangeNotifier {
     List<Listing>? listings,
     LocationService? locationService,
     LocalStateStore? store,
-  })  : buyingInterests = List<String>.from(buyingInterests ?? const []),
+  })  : enabledRoles = _initEnabledRoles(enabledRoles, activeRole, role),
+        activeRole = _initActiveRole(enabledRoles, activeRole, role),
+        buyingInterests = List<String>.from(buyingInterests ?? const []),
         sellingInterests =
             List<String>.from(sellingInterests ?? const ['Maize']),
         unlockedListingIds = {...?unlockedListingIds},
@@ -42,9 +53,11 @@ class AppState extends ChangeNotifier {
     final snap = store.load();
     return AppState(
       credits: snap.credits,
-      role: snap.role,
+      enabledRoles: snap.enabledRoles,
+      activeRole: snap.activeRole,
       displayName: snap.displayName,
       location: snap.location,
+      tagline: snap.tagline,
       buyingInterests: snap.buyingInterests,
       sellingInterests: snap.sellingInterests,
       unlockedListingIds: snap.unlockedListingIds,
@@ -64,9 +77,21 @@ class AppState extends ChangeNotifier {
   int shellTabIndex = 0;
 
   int credits;
-  UserRole role;
+
+  /// Roles the user has enabled as capabilities. Always non-empty.
+  Set<UserRole> enabledRoles;
+
+  /// Role used for Discover/Home browsing. Always ∈ [enabledRoles].
+  UserRole activeRole;
+
+  /// Alias for [activeRole] (legacy call sites / tests).
+  UserRole get role => activeRole;
+
   String displayName;
   String location;
+
+  /// Public short blurb shown on Discover cards / listing detail.
+  String tagline;
 
   /// Crops the user wants to buy (shared Discover vocabulary).
   List<String> buyingInterests;
@@ -95,11 +120,11 @@ class AppState extends ChangeNotifier {
 
   /// Interest list used for Discover soft-filter for the active role.
   List<String> get relevantInterests =>
-      role == UserRole.seller ? sellingInterests : buyingInterests;
+      activeRole == UserRole.seller ? sellingInterests : buyingInterests;
 
   /// Active-role listing (one per role for MVP).
   Listing? get myListing =>
-      role == UserRole.seller ? mySellerListing : myBuyerListing;
+      activeRole == UserRole.seller ? mySellerListing : myBuyerListing;
 
   /// Seed mocks plus any published local listings.
   List<Listing> get listings => [
@@ -132,7 +157,7 @@ class AppState extends ChangeNotifier {
   }
 
   List<Listing> get nearbyCounterparts {
-    final want = role.counterpart;
+    final want = activeRole.counterpart;
     final nearby = listings
         .where((l) => l.role == want)
         .map((l) => l.copyWith(distanceKm: distanceKmFor(l)))
@@ -143,11 +168,15 @@ class AppState extends ChangeNotifier {
 
   bool isUnlocked(String listingId) => unlockedListingIds.contains(listingId);
 
+  bool isRoleEnabled(UserRole value) => enabledRoles.contains(value);
+
   LocalStateSnapshot get persistedSnapshot => LocalStateSnapshot(
         credits: credits,
-        role: role,
+        enabledRoles: enabledRoles,
+        activeRole: activeRole,
         displayName: displayName,
         location: location,
+        tagline: tagline,
         buyingInterests: buyingInterests,
         sellingInterests: sellingInterests,
         unlockedListingIds: unlockedListingIds,
@@ -198,11 +227,53 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setRole(UserRole value) {
-    if (role == value) return;
-    role = value;
+  /// Sets the browsing role. No-op if [value] is not enabled.
+  void setActiveRole(UserRole value) {
+    if (!enabledRoles.contains(value)) return;
+    if (activeRole == value) return;
+    activeRole = value;
     notifyListeners();
     _persist();
+  }
+
+  /// Legacy alias for [setActiveRole].
+  void setRole(UserRole value) => setActiveRole(value);
+
+  /// Enables or disables a capability role.
+  ///
+  /// Returns false when disabling would leave zero roles (at least one required).
+  /// When the active role is disabled, [activeRole] moves to another enabled role.
+  bool setRoleEnabled(UserRole value, {required bool enabled}) {
+    if (enabled) {
+      if (enabledRoles.contains(value)) return true;
+      enabledRoles = {...enabledRoles, value};
+    } else {
+      if (!enabledRoles.contains(value)) return true;
+      if (enabledRoles.length <= 1) return false;
+      enabledRoles = {...enabledRoles}..remove(value);
+      if (activeRole == value) {
+        activeRole = enabledRoles.contains(UserRole.seller)
+            ? UserRole.seller
+            : enabledRoles.first;
+      }
+    }
+    notifyListeners();
+    _persist();
+    return true;
+  }
+
+  /// Replaces [enabledRoles]. Returns false if [roles] is empty.
+  bool setEnabledRoles(Set<UserRole> roles) {
+    if (roles.isEmpty) return false;
+    enabledRoles = {...roles};
+    if (!enabledRoles.contains(activeRole)) {
+      activeRole = enabledRoles.contains(UserRole.seller)
+          ? UserRole.seller
+          : enabledRoles.first;
+    }
+    notifyListeners();
+    _persist();
+    return true;
   }
 
   void addCredits(int amount) {
@@ -288,9 +359,20 @@ class AppState extends ChangeNotifier {
   void updateProfile({
     String? displayName,
     String? location,
+    String? tagline,
   }) {
     if (displayName != null) this.displayName = displayName;
     if (location != null) this.location = location;
+    if (tagline != null) {
+      this.tagline = tagline;
+      // Keep published listings in sync with the public blurb.
+      if (mySellerListing != null) {
+        mySellerListing = mySellerListing!.copyWith(tagline: tagline);
+      }
+      if (myBuyerListing != null) {
+        myBuyerListing = myBuyerListing!.copyWith(tagline: tagline);
+      }
+    }
     notifyListeners();
     _persist();
   }
@@ -311,9 +393,9 @@ class AppState extends ChangeNotifier {
     final lat = userPosition?.latitude ?? bugobeLatitude;
     final lon = userPosition?.longitude ?? bugobeLongitude;
     final listing = Listing(
-      id: Listing.myIdFor(role),
+      id: Listing.myIdFor(activeRole),
       name: (name ?? displayName).trim(),
-      role: role,
+      role: activeRole,
       crop: crop,
       quantityHint: trimmedQty,
       distanceKm: 0,
@@ -322,9 +404,10 @@ class AppState extends ChangeNotifier {
       location: (location ?? this.location).trim(),
       lastActiveLabel: ListingCopyKeys.activeToday,
       phone: trimmedPhone,
+      tagline: tagline.trim(),
     );
 
-    if (role == UserRole.seller) {
+    if (activeRole == UserRole.seller) {
       mySellerListing = listing;
     } else {
       myBuyerListing = listing;
@@ -336,7 +419,7 @@ class AppState extends ChangeNotifier {
 
   /// Clears the active-role listing if present.
   void clearMyListing() {
-    if (role == UserRole.seller) {
+    if (activeRole == UserRole.seller) {
       if (mySellerListing == null) return;
       mySellerListing = null;
     } else {
@@ -345,6 +428,35 @@ class AppState extends ChangeNotifier {
     }
     notifyListeners();
     _persist();
+  }
+
+  static Set<UserRole> _initEnabledRoles(
+    Set<UserRole>? enabledRoles,
+    UserRole? activeRole,
+    UserRole? role,
+  ) {
+    if (enabledRoles != null && enabledRoles.isNotEmpty) {
+      return {...enabledRoles};
+    }
+    // Explicit legacy `role:` / `activeRole:` alone → that single capability.
+    if (role != null || activeRole != null) {
+      return {activeRole ?? role!};
+    }
+    // Fresh in-memory default: both capabilities.
+    return {UserRole.seller, UserRole.buyer};
+  }
+
+  static UserRole _initActiveRole(
+    Set<UserRole>? enabledRoles,
+    UserRole? activeRole,
+    UserRole? role,
+  ) {
+    final enabled = _initEnabledRoles(enabledRoles, activeRole, role);
+    final preferred = activeRole ?? role;
+    if (preferred != null && enabled.contains(preferred)) return preferred;
+    return enabled.contains(UserRole.seller)
+        ? UserRole.seller
+        : enabled.first;
   }
 }
 

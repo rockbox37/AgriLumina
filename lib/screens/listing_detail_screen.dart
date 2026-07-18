@@ -53,6 +53,16 @@ class ListingDetailScreen extends StatelessWidget {
                 l10n.localizedCrop(listing.crop),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
+              if (listing.tagline.trim().isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  listing.tagline.trim(),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ],
               const SizedBox(height: 8),
               Text(l10n.localizedListingQuantity(listing)),
               const SizedBox(height: 16),

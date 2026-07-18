@@ -8,9 +8,11 @@ import 'package:agrilumina/models/user_role.dart';
 class LocalStateSnapshot {
   const LocalStateSnapshot({
     required this.credits,
-    required this.role,
+    required this.enabledRoles,
+    required this.activeRole,
     required this.displayName,
     required this.location,
+    required this.tagline,
     required this.buyingInterests,
     required this.sellingInterests,
     required this.unlockedListingIds,
@@ -21,18 +23,31 @@ class LocalStateSnapshot {
   /// Defaults used when no prefs have been written yet.
   factory LocalStateSnapshot.defaults() => LocalStateSnapshot(
         credits: 5,
-        role: UserRole.seller,
+        // New installs can buy and sell; browsing starts as seller.
+        enabledRoles: const {UserRole.seller, UserRole.buyer},
+        activeRole: UserRole.seller,
         displayName: '',
         location: '',
+        tagline: '',
         buyingInterests: const [],
         sellingInterests: const ['Maize'],
         unlockedListingIds: <String>{},
       );
 
   final int credits;
-  final UserRole role;
+
+  /// Roles the user has enabled (capabilities). Always non-empty.
+  final Set<UserRole> enabledRoles;
+
+  /// Role used for Discover/Home browsing (must be in [enabledRoles]).
+  final UserRole activeRole;
+
   final String displayName;
   final String location;
+
+  /// Short public blurb shown on Discover cards.
+  final String tagline;
+
   final List<String> buyingInterests;
   final List<String> sellingInterests;
   final Set<String> unlockedListingIds;
@@ -47,9 +62,13 @@ class LocalStateStore {
   final SharedPreferences _prefs;
 
   static const _kCredits = 'mvp.credits';
+  /// Legacy single-role key; still written as [activeRole] for older builds.
   static const _kRole = 'mvp.role';
+  static const _kEnabledRoles = 'mvp.enabledRoles';
+  static const _kActiveRole = 'mvp.activeRole';
   static const _kDisplayName = 'mvp.displayName';
   static const _kLocation = 'mvp.location';
+  static const _kTagline = 'mvp.tagline';
   static const _kBuyingInterests = 'mvp.buyingInterests';
   static const _kSellingInterests = 'mvp.sellingInterests';
   static const _kUnlockedListingIds = 'mvp.unlockedListingIds';
@@ -63,18 +82,23 @@ class LocalStateStore {
   /// Loads persisted fields; uses [LocalStateSnapshot.defaults] when keys are absent.
   LocalStateSnapshot load() {
     final defaults = LocalStateSnapshot.defaults();
-    final roleName = _prefs.getString(_kRole);
-    final role = roleName == UserRole.buyer.name
-        ? UserRole.buyer
-        : roleName == UserRole.seller.name
+    final legacyRole = _parseRole(_prefs.getString(_kRole)) ?? defaults.activeRole;
+    final enabledRoles = _loadEnabledRoles(legacyRole, defaults.enabledRoles);
+    final activePreferred = _parseRole(_prefs.getString(_kActiveRole)) ??
+        legacyRole;
+    final activeRole = enabledRoles.contains(activePreferred)
+        ? activePreferred
+        : (enabledRoles.contains(UserRole.seller)
             ? UserRole.seller
-            : defaults.role;
+            : enabledRoles.first);
 
     return LocalStateSnapshot(
       credits: _prefs.getInt(_kCredits) ?? defaults.credits,
-      role: role,
+      enabledRoles: enabledRoles,
+      activeRole: activeRole,
       displayName: _prefs.getString(_kDisplayName) ?? defaults.displayName,
       location: _prefs.getString(_kLocation) ?? defaults.location,
+      tagline: _prefs.getString(_kTagline) ?? defaults.tagline,
       buyingInterests:
           _prefs.getStringList(_kBuyingInterests) ?? defaults.buyingInterests,
       // Only seed Maize when the key has never been written.
@@ -89,10 +113,24 @@ class LocalStateStore {
   }
 
   Future<void> save(LocalStateSnapshot snapshot) async {
+    final enabled = snapshot.enabledRoles.isEmpty
+        ? {snapshot.activeRole}
+        : snapshot.enabledRoles;
+    final active = enabled.contains(snapshot.activeRole)
+        ? snapshot.activeRole
+        : enabled.first;
+
     await _prefs.setInt(_kCredits, snapshot.credits);
-    await _prefs.setString(_kRole, snapshot.role.name);
+    await _prefs.setStringList(
+      _kEnabledRoles,
+      enabled.map((r) => r.name).toList()..sort(),
+    );
+    await _prefs.setString(_kActiveRole, active.name);
+    // Keep legacy key in sync so older builds still see a single role.
+    await _prefs.setString(_kRole, active.name);
     await _prefs.setString(_kDisplayName, snapshot.displayName);
     await _prefs.setString(_kLocation, snapshot.location);
+    await _prefs.setString(_kTagline, snapshot.tagline);
     await _prefs.setStringList(
       _kBuyingInterests,
       List<String>.from(snapshot.buyingInterests),
@@ -107,6 +145,30 @@ class LocalStateStore {
     );
     await _writeListing(_kMySellerListing, snapshot.mySellerListing);
     await _writeListing(_kMyBuyerListing, snapshot.myBuyerListing);
+  }
+
+  Set<UserRole> _loadEnabledRoles(
+    UserRole legacyRole,
+    Set<UserRole> defaults,
+  ) {
+    final raw = _prefs.getStringList(_kEnabledRoles);
+    if (raw == null) {
+      // New install: no role keys yet → both capabilities.
+      // Legacy exclusive role: only mvp.role was written.
+      if (!_prefs.containsKey(_kRole)) {
+        return {...defaults};
+      }
+      return {legacyRole};
+    }
+    final parsed = raw.map(_parseRole).whereType<UserRole>().toSet();
+    if (parsed.isEmpty) return {...defaults};
+    return parsed;
+  }
+
+  UserRole? _parseRole(String? name) {
+    if (name == UserRole.buyer.name) return UserRole.buyer;
+    if (name == UserRole.seller.name) return UserRole.seller;
+    return null;
   }
 
   Listing? _readListing(String key) {

@@ -18,13 +18,13 @@ void main() {
     await tester.pump();
     expect(find.byKey(SplashScreen.logoKey), findsOneWidget);
     expect(find.byType(BrandLogo), findsOneWidget);
-    expect(find.text('I am a…'), findsNothing);
+    expect(find.text('Browsing as…'), findsNothing);
 
     await tester.pump(const Duration(milliseconds: 1200));
     await tester.pumpAndSettle();
 
     expect(find.byKey(SplashScreen.logoKey), findsNothing);
-    expect(find.text('I am a…'), findsOneWidget);
+    expect(find.text('Browsing as…'), findsOneWidget);
     expect(find.bySemanticsLabel('AgriLumina'), findsWidgets);
   });
 
@@ -35,6 +35,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(SplashScreen.logoKey), findsNothing);
-    expect(find.text('I am a…'), findsOneWidget);
+    expect(find.text('Browsing as…'), findsOneWidget);
   });
 }

@@ -54,6 +54,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iAmA => 'I am a…';
 
   @override
+  String get browsingAs => 'Browsing as…';
+
+  @override
+  String get enabledRolesLabel => 'I can…';
+
+  @override
+  String get rolesRequired => 'Select at least one role.';
+
+  @override
   String get roleSeller => 'Seller';
 
   @override
@@ -258,6 +267,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get displayName => 'Display name';
+
+  @override
+  String get publicTagline => 'Public tagline';
+
+  @override
+  String get taglineHint => 'e.g. 100% organic farm';
+
+  @override
+  String taglineTooLong(int max) {
+    return 'Tagline must be $max characters or fewer.';
+  }
+
+  @override
+  String get labelTagline => 'Tagline';
 
   @override
   String get buyingInterests => 'Buying interests';

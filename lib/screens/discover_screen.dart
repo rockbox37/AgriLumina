@@ -64,7 +64,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       listenable: state,
       builder: (context, _) {
         final l10n = context.l10n;
-        _syncRole(state.role);
+        _syncRole(state.activeRole);
 
         final list = state.nearbyCounterparts;
         final interests = state.relevantInterests;
@@ -84,10 +84,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           mode: _cropMode,
           relevantInterests: interests,
         );
-        final title = state.role == UserRole.seller
+        final title = state.activeRole == UserRole.seller
             ? l10n.findBuyers
             : l10n.findSellers;
-        final counterpart = l10n.counterpartPlural(state.role);
+        final counterpart = l10n.counterpartPlural(state.activeRole);
 
         return Scaffold(
           appBar: AppBar(
@@ -138,7 +138,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
                     child: Text(
-                      interestFilterHelperText(l10n, state.role),
+                      interestFilterHelperText(l10n, state.activeRole),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color:
                                 Theme.of(context).colorScheme.onSurfaceVariant,
@@ -416,7 +416,15 @@ class _ListingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
     final cropLabel = l10n.localizedCrop(listing.crop);
+    final tagline = listing.tagline.trim();
+    final details = l10n.listingSubtitle(
+      cropLabel,
+      l10n.localizedListingQuantity(listing),
+      formatDistanceKmLocalized(l10n, listing.distanceKm),
+      l10n.localizedListingLastActive(listing),
+    );
     return ListTile(
       leading: CircleAvatar(
         child: Text(
@@ -424,14 +432,22 @@ class _ListingTile extends StatelessWidget {
         ),
       ),
       title: Text(context.l10n.listingDisplayName(listing)),
-      subtitle: Text(
-        l10n.listingSubtitle(
-          cropLabel,
-          l10n.localizedListingQuantity(listing),
-          formatDistanceKmLocalized(l10n, listing.distanceKm),
-          l10n.localizedListingLastActive(listing),
-        ),
-      ),
+      subtitle: tagline.isEmpty
+          ? Text(details)
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tagline,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(details),
+              ],
+            ),
       isThreeLine: true,
       trailing: Icon(
         unlocked ? Icons.lock_open : Icons.lock_outline,

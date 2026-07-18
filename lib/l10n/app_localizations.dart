@@ -176,6 +176,24 @@ abstract class AppLocalizations {
   /// **'I am a…'**
   String get iAmA;
 
+  /// No description provided for @browsingAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Browsing as…'**
+  String get browsingAs;
+
+  /// No description provided for @enabledRolesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'I can…'**
+  String get enabledRolesLabel;
+
+  /// No description provided for @rolesRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one role.'**
+  String get rolesRequired;
+
   /// No description provided for @roleSeller.
   ///
   /// In en, this message translates to:
@@ -493,6 +511,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Display name'**
   String get displayName;
+
+  /// No description provided for @publicTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Public tagline'**
+  String get publicTagline;
+
+  /// No description provided for @taglineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 100% organic farm'**
+  String get taglineHint;
+
+  /// No description provided for @taglineTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Tagline must be {max} characters or fewer.'**
+  String taglineTooLong(int max);
+
+  /// No description provided for @labelTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Tagline'**
+  String get labelTagline;
 
   /// No description provided for @buyingInterests.
   ///
