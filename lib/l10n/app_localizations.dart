@@ -176,11 +176,23 @@ abstract class AppLocalizations {
   /// **'I am a…'**
   String get iAmA;
 
-  /// No description provided for @browsingAs.
+  /// No description provided for @lookingFor.
   ///
   /// In en, this message translates to:
-  /// **'Browsing as…'**
-  String get browsingAs;
+  /// **'Looking for…'**
+  String get lookingFor;
+
+  /// No description provided for @lookingForBuyers.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyers'**
+  String get lookingForBuyers;
+
+  /// No description provided for @lookingForSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sellers'**
+  String get lookingForSellers;
 
   /// No description provided for @enabledRolesLabel.
   ///

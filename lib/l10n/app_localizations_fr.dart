@@ -54,7 +54,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get iAmA => 'Je suis…';
 
   @override
-  String get browsingAs => 'Je parcours en tant que…';
+  String get lookingFor => 'Je cherche…';
+
+  @override
+  String get lookingForBuyers => 'Acheteurs';
+
+  @override
+  String get lookingForSellers => 'Vendeurs';
 
   @override
   String get enabledRolesLabel => 'Je peux…';

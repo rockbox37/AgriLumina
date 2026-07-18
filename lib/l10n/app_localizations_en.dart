@@ -54,7 +54,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iAmA => 'I am a…';
 
   @override
-  String get browsingAs => 'Browsing as…';
+  String get lookingFor => 'Looking for…';
+
+  @override
+  String get lookingForBuyers => 'Buyers';
+
+  @override
+  String get lookingForSellers => 'Sellers';
 
   @override
   String get enabledRolesLabel => 'I can…';

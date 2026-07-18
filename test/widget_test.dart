@@ -5,7 +5,7 @@ import 'package:agrilumina/l10n/app_localizations.dart';
 import 'package:agrilumina/main.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/screens/app_shell.dart';
-import 'package:agrilumina/screens/home_screen.dart';
+import 'package:agrilumina/screens/discover_screen.dart';
 import 'package:agrilumina/screens/listing_detail_screen.dart';
 import 'package:agrilumina/services/location_service.dart';
 import 'package:agrilumina/utils/geo.dart';
@@ -15,7 +15,9 @@ import 'fake_contact_launcher.dart';
 import 'fake_location_service.dart';
 
 void main() {
-  testWidgets('Home shows shared credits and role control', (tester) async {
+  testWidgets('Home shows shared credits without looking-for control', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MyApp(locationService: FakeLocationService()),
     );
@@ -23,7 +25,7 @@ void main() {
 
     expect(find.bySemanticsLabel('AgriLumina'), findsWidgets);
     expect(find.text('5 credits'), findsWidgets);
-    expect(find.text('Browsing as…'), findsOneWidget);
+    expect(find.text('Looking for…'), findsNothing);
     expect(find.text('5 nearby buyers'), findsOneWidget);
   });
 
@@ -37,6 +39,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Find Buyers'), findsOneWidget);
+    expect(find.text('Looking for…'), findsOneWidget);
     expect(find.text('Jean-Pierre M.'), findsOneWidget);
     expect(
       find.textContaining('Showing distances from sample listings'),
@@ -70,11 +73,13 @@ void main() {
     await tester.tap(find.text('Discover'));
     await tester.pumpAndSettle();
     expect(find.text('Find Buyers'), findsOneWidget);
+    expect(find.text('Looking for…'), findsOneWidget);
 
     await tester.tap(find.byKey(BrandHomeLeading.buttonKey));
     await tester.pumpAndSettle();
 
-    expect(find.text('Browsing as…'), findsOneWidget);
+    expect(find.text('5 nearby buyers'), findsOneWidget);
+    expect(find.text('Looking for…'), findsNothing);
     expect(find.text('Find Buyers'), findsNothing);
   });
 
@@ -99,7 +104,8 @@ void main() {
     await tester.tap(find.byKey(BrandHomeLeading.buttonKey));
     await tester.pumpAndSettle();
 
-    expect(find.text('Browsing as…'), findsOneWidget);
+    expect(find.text('5 nearby buyers'), findsOneWidget);
+    expect(find.text('Looking for…'), findsNothing);
     expect(find.text('Find Buyers'), findsNothing);
     expect(find.textContaining('Unlock for 1 credit'), findsNothing);
   });
@@ -165,7 +171,7 @@ void main() {
     expect(find.text('Amina K.'), findsOneWidget);
   });
 
-  testWidgets('Browse-as change clears chip and applies buying interests', (
+  testWidgets('Looking-for change clears chip and applies buying interests', (
     tester,
   ) async {
     final state = AppState(locationService: FakeLocationService());
@@ -190,15 +196,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Amina K.'), findsOneWidget);
 
-    await tester.tap(find.text('Home'));
-    await tester.pumpAndSettle();
-    expect(find.text('Browsing as…'), findsOneWidget);
-    await tester.tap(find.text('Buyer'));
+    expect(find.byKey(const Key('discover_looking_for')), findsOneWidget);
+    await tester.tap(find.text('Sellers'));
     await tester.pumpAndSettle();
     expect(state.activeRole, UserRole.buyer);
-
-    await tester.tap(find.text('Discover'));
-    await tester.pumpAndSettle();
 
     expect(find.text('Showing crops you buy'), findsOneWidget);
     expect(find.text('Find Sellers'), findsOneWidget);
@@ -208,7 +209,9 @@ void main() {
     expect(find.text('Joseph Farm'), findsNothing);
   });
 
-  testWidgets('Profile enables dual roles and browse-as', (tester) async {
+  testWidgets('Profile enables dual roles; looking-for lives on Discover', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MyApp(locationService: FakeLocationService()),
     );
@@ -218,21 +221,30 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('I can…'), findsOneWidget);
-    expect(find.text('Browsing as…'), findsOneWidget);
+    expect(find.text('Looking for…'), findsNothing);
     expect(find.byKey(const Key('profile_role_seller')), findsOneWidget);
     expect(find.byKey(const Key('profile_role_buyer')), findsOneWidget);
     expect(find.text('Public tagline'), findsOneWidget);
 
-    // Disable buyer capability → browse-as switcher hides; active follows seller.
+    // Disable buyer capability → Discover looking-for hides; active follows seller.
     await tester.tap(find.byKey(const Key('profile_role_buyer')));
     await tester.pumpAndSettle();
-    expect(find.text('Browsing as…'), findsNothing);
     expect(find.text('rolesRequired'), findsNothing);
 
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+    expect(find.text('Looking for…'), findsNothing);
+    expect(find.text('Find Buyers'), findsOneWidget);
+
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
     // Re-enable buyer.
     await tester.tap(find.byKey(const Key('profile_role_buyer')));
     await tester.pumpAndSettle();
-    expect(find.text('Browsing as…'), findsOneWidget);
+
+    await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+    expect(find.text('Looking for…'), findsOneWidget);
   });
 
   testWidgets('Unlocked contact Call and WhatsApp use launcher', (tester) async {
@@ -363,9 +375,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Buyer'));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('Discover'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sellers'));
     await tester.pumpAndSettle();
 
     // Empty buyingInterests → all counterpart sellers (no soft crop filter).
@@ -415,7 +427,7 @@ void main() {
     expect(find.text('Fair prices for village maize'), findsOneWidget);
   });
 
-  testWidgets('Browse-as switcher hides when only one role enabled', (
+  testWidgets('Looking-for switcher hides when only one role enabled', (
     tester,
   ) async {
     final state = AppState(
@@ -430,16 +442,15 @@ void main() {
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const HomeScreen(),
+          home: const DiscoverScreen(),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Browsing as…'), findsNothing);
+    expect(find.text('Looking for…'), findsNothing);
+    expect(find.byKey(const Key('discover_looking_for')), findsNothing);
     expect(find.text('I am a…'), findsNothing);
-    expect(find.text('Buyer'), findsNothing);
-    expect(find.text('5 nearby buyers'), findsOneWidget);
+    expect(find.text('Find Buyers'), findsOneWidget);
   });
 }
-
