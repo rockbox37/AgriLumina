@@ -304,6 +304,33 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucun pour l’instant — ajoutez des cultures à vendre';
 
   @override
+  String get addCropInterest => 'Ajouter une culture';
+
+  @override
+  String get addCropInterestHint =>
+      'Saisissez un nom ou choisissez une suggestion';
+
+  @override
+  String didYouMeanCrop(String crop) {
+    return 'Vouliez-vous dire $crop ?';
+  }
+
+  @override
+  String useSuggestedCrop(String crop) {
+    return 'Utiliser $crop';
+  }
+
+  @override
+  String addCropAsTyped(String crop) {
+    return 'Ajouter « $crop » quand même';
+  }
+
+  @override
+  String addedCanonicalCrop(String crop) {
+    return 'Ajouté sous $crop.';
+  }
+
+  @override
   String get profileSaved => 'Profil enregistré.';
 
   @override

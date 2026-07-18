@@ -136,6 +136,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 emptyHint: l10n.buyingInterestsEmpty,
                 selected: state.buyingInterests,
                 onToggle: state.toggleBuyingInterest,
+                onAdd: state.addBuyingInterest,
+                onRemove: state.removeBuyingInterest,
               ),
               const SizedBox(height: 20),
               _InterestSection(
@@ -143,6 +145,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 emptyHint: l10n.sellingInterestsEmpty,
                 selected: state.sellingInterests,
                 onToggle: state.toggleSellingInterest,
+                onAdd: state.addSellingInterest,
+                onRemove: state.removeSellingInterest,
               ),
               const SizedBox(height: 20),
               Text(
@@ -237,32 +241,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-class _InterestSection extends StatelessWidget {
+class _InterestSection extends StatefulWidget {
   const _InterestSection({
     required this.title,
     required this.emptyHint,
     required this.selected,
     required this.onToggle,
+    required this.onAdd,
+    required this.onRemove,
   });
 
   final String title;
   final String emptyHint;
   final List<String> selected;
   final ValueChanged<String> onToggle;
+  final ValueChanged<String> onAdd;
+  final ValueChanged<String> onRemove;
+
+  @override
+  State<_InterestSection> createState() => _InterestSectionState();
+}
+
+class _InterestSectionState extends State<_InterestSection> {
+  TextEditingController? _fieldController;
+  String? _pendingCustom;
+  String? _suggestion;
+
+  void _clearPending() {
+    _pendingCustom = null;
+    _suggestion = null;
+  }
+
+  void _addResolved(
+    String crop, {
+    String? typedAs,
+  }) {
+    final id = resolveCropInterestId(crop);
+    if (id == null) return;
+    final already = interestContains(widget.selected, id);
+    widget.onAdd(crop);
+
+    if (!already &&
+        typedAs != null &&
+        isKnownCrop(id) &&
+        id.toLowerCase() != typedAs.trim().toLowerCase()) {
+      final l10n = context.l10n;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.addedCanonicalCrop(l10n.localizedCrop(id))),
+        ),
+      );
+    }
+
+    _fieldController?.clear();
+    setState(_clearPending);
+  }
+
+  void _submitTyped(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) return;
+
+    final canonical = matchCanonicalCrop(trimmed);
+    if (canonical != null) {
+      _addResolved(canonical, typedAs: trimmed);
+      return;
+    }
+
+    final suggestion = suggestCanonicalCrop(trimmed);
+    final custom = normalizeCropDisplayName(trimmed);
+    if (custom.isEmpty) return;
+
+    if (suggestion != null) {
+      setState(() {
+        _pendingCustom = custom;
+        _suggestion = suggestion;
+      });
+      return;
+    }
+
+    _addResolved(custom);
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final customSelected =
+        widget.selected.where((c) => !isKnownCrop(c)).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: theme.textTheme.titleMedium),
+        Text(widget.title, style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
-        if (selected.isEmpty)
+        if (widget.selected.isEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
-              emptyHint,
+              widget.emptyHint,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -274,12 +350,90 @@ class _InterestSection extends StatelessWidget {
           children: [
             for (final crop in discoverCropFilters)
               FilterChip(
-                label: Text(context.l10n.localizedCrop(crop)),
-                selected: selected.contains(crop),
-                onSelected: (_) => onToggle(crop),
+                label: Text(l10n.localizedCrop(crop)),
+                selected: interestContains(widget.selected, crop),
+                onSelected: (_) => widget.onToggle(crop),
+              ),
+            for (final crop in customSelected)
+              InputChip(
+                label: Text(l10n.localizedCrop(crop)),
+                onDeleted: () => widget.onRemove(crop),
               ),
           ],
         ),
+        const SizedBox(height: 12),
+        Autocomplete<String>(
+          optionsBuilder: (value) {
+            final q = value.text.trim().toLowerCase();
+            if (q.isEmpty) return const Iterable<String>.empty();
+            return discoverCropFilters.where((crop) {
+              final key = crop.toLowerCase();
+              final label = l10n.localizedCrop(crop).toLowerCase();
+              return key.contains(q) || label.contains(q);
+            });
+          },
+          displayStringForOption: l10n.localizedCrop,
+          onSelected: _addResolved,
+          fieldViewBuilder: (
+            context,
+            textEditingController,
+            focusNode,
+            onFieldSubmitted,
+          ) {
+            _fieldController = textEditingController;
+            return TextField(
+              controller: textEditingController,
+              focusNode: focusNode,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                labelText: l10n.addCropInterest,
+                hintText: l10n.addCropInterestHint,
+                border: const OutlineInputBorder(),
+                isDense: true,
+                suffixIcon: IconButton(
+                  tooltip: l10n.addCropInterest,
+                  onPressed: () => _submitTyped(textEditingController.text),
+                  icon: const Icon(Icons.add),
+                ),
+              ),
+              onChanged: (_) {
+                if (_pendingCustom != null || _suggestion != null) {
+                  setState(_clearPending);
+                }
+              },
+              onSubmitted: (value) {
+                _submitTyped(value);
+                onFieldSubmitted();
+              },
+            );
+          },
+        ),
+        if (_suggestion != null && _pendingCustom != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            l10n.didYouMeanCrop(l10n.localizedCrop(_suggestion!)),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              TextButton(
+                onPressed: () => _addResolved(_suggestion!),
+                child: Text(
+                  l10n.useSuggestedCrop(l10n.localizedCrop(_suggestion!)),
+                ),
+              ),
+              TextButton(
+                onPressed: () => _addResolved(_pendingCustom!),
+                child: Text(l10n.addCropAsTyped(_pendingCustom!)),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }

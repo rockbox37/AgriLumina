@@ -49,6 +49,34 @@ void main() {
       expect(filtered.map((l) => l.name), ['Jean', 'Patrick']);
     });
 
+    test('soft interest matches custom crop ids alongside canonical', () {
+      final withCustom = [
+        ...listings,
+        _listing('Grace', 'Heirloom Tomato'),
+      ];
+      final filtered = filterListingsByCrop(
+        listings: withCustom,
+        mode: DiscoverCropMode.softInterest,
+        manualCrop: null,
+        relevantInterests: const ['Maize', 'Heirloom Tomato'],
+      );
+      expect(filtered.map((l) => l.name), ['Jean', 'Grace']);
+    });
+
+    test('manual chip works for custom crop ids', () {
+      final withCustom = [
+        ...listings,
+        _listing('Grace', 'Heirloom Tomato'),
+      ];
+      final filtered = filterListingsByCrop(
+        listings: withCustom,
+        mode: DiscoverCropMode.manualCrop,
+        manualCrop: 'Heirloom Tomato',
+        relevantInterests: const ['Maize'],
+      );
+      expect(filtered.map((l) => l.name), ['Grace']);
+    });
+
     test('soft interest with empty list shows all', () {
       final filtered = filterListingsByCrop(
         listings: listings,

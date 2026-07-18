@@ -202,6 +202,32 @@
   "sellingInterests": "Selling interests",
   "buyingInterestsEmpty": "None yet — add crops you want to buy",
   "sellingInterestsEmpty": "None yet — add crops you want to sell",
+  "addCropInterest": "Add a crop",
+  "addCropInterestHint": "Type a name or pick a suggestion",
+  "didYouMeanCrop": "Did you mean {crop}?",
+  "@didYouMeanCrop": {
+    "placeholders": {
+      "crop": {"type": "String"}
+    }
+  },
+  "useSuggestedCrop": "Use {crop}",
+  "@useSuggestedCrop": {
+    "placeholders": {
+      "crop": {"type": "String"}
+    }
+  },
+  "addCropAsTyped": "Add \"{crop}\" anyway",
+  "@addCropAsTyped": {
+    "placeholders": {
+      "crop": {"type": "String"}
+    }
+  },
+  "addedCanonicalCrop": "Added as {crop}.",
+  "@addedCanonicalCrop": {
+    "placeholders": {
+      "crop": {"type": "String"}
+    }
+  },
   "profileSaved": "Profile saved.",
   "saveProfile": "Save profile",
   "profileStats": "Credits: {credits} · Unlocked contacts: {unlocked}",

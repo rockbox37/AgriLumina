@@ -38,7 +38,7 @@ void main() {
           displayName: 'Ada',
           location: 'Goma',
           tagline: '100% organic farm',
-          buyingInterests: const ['Beans', 'Rice'],
+          buyingInterests: const ['Beans', 'Rice', 'Heirloom Tomato'],
           sellingInterests: const ['Cassava'],
           unlockedListingIds: <String>{'b1', 's2'},
         ),
@@ -51,7 +51,7 @@ void main() {
       expect(reloaded.displayName, 'Ada');
       expect(reloaded.location, 'Goma');
       expect(reloaded.tagline, '100% organic farm');
-      expect(reloaded.buyingInterests, ['Beans', 'Rice']);
+      expect(reloaded.buyingInterests, ['Beans', 'Rice', 'Heirloom Tomato']);
       expect(reloaded.sellingInterests, ['Cassava']);
       expect(reloaded.unlockedListingIds, {'b1', 's2'});
     });

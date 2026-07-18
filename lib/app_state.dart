@@ -297,16 +297,20 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
-  /// Adds [crop] to buying interests. Ignores unknown crops and duplicates.
+  /// Adds [crop] to buying interests.
+  ///
+  /// Prefers a canonical vocabulary id when [crop] matches exactly or via
+  /// alias; otherwise stores a normalized custom name. Ignores empties and
+  /// case-insensitive duplicates.
   void addBuyingInterest(String crop) {
     if (!_tryAddInterest(buyingInterests, crop)) return;
     notifyListeners();
     _persist();
   }
 
-  /// Removes [crop] from buying interests if present.
+  /// Removes [crop] from buying interests if present (case-insensitive).
   void removeBuyingInterest(String crop) {
-    if (!buyingInterests.remove(crop)) return;
+    if (!_removeInterest(buyingInterests, crop)) return;
     notifyListeners();
     _persist();
   }
@@ -314,8 +318,8 @@ class AppState extends ChangeNotifier {
   /// Toggles [crop] on the buying list (vocabulary only).
   void toggleBuyingInterest(String crop) {
     if (!isKnownCrop(crop)) return;
-    if (buyingInterests.contains(crop)) {
-      buyingInterests.remove(crop);
+    if (interestContains(buyingInterests, crop)) {
+      buyingInterests.removeWhere((c) => c.toLowerCase() == crop.toLowerCase());
     } else {
       buyingInterests.add(crop);
     }
@@ -323,16 +327,16 @@ class AppState extends ChangeNotifier {
     _persist();
   }
 
-  /// Adds [crop] to selling interests. Ignores unknown crops and duplicates.
+  /// Adds [crop] to selling interests (canonical preferred; custom allowed).
   void addSellingInterest(String crop) {
     if (!_tryAddInterest(sellingInterests, crop)) return;
     notifyListeners();
     _persist();
   }
 
-  /// Removes [crop] from selling interests if present.
+  /// Removes [crop] from selling interests if present (case-insensitive).
   void removeSellingInterest(String crop) {
-    if (!sellingInterests.remove(crop)) return;
+    if (!_removeInterest(sellingInterests, crop)) return;
     notifyListeners();
     _persist();
   }
@@ -340,8 +344,9 @@ class AppState extends ChangeNotifier {
   /// Toggles [crop] on the selling list (vocabulary only).
   void toggleSellingInterest(String crop) {
     if (!isKnownCrop(crop)) return;
-    if (sellingInterests.contains(crop)) {
-      sellingInterests.remove(crop);
+    if (interestContains(sellingInterests, crop)) {
+      sellingInterests
+          .removeWhere((c) => c.toLowerCase() == crop.toLowerCase());
     } else {
       sellingInterests.add(crop);
     }
@@ -350,10 +355,17 @@ class AppState extends ChangeNotifier {
   }
 
   bool _tryAddInterest(List<String> list, String crop) {
-    if (!isKnownCrop(crop)) return false;
-    if (list.contains(crop)) return false;
-    list.add(crop);
+    final id = resolveCropInterestId(crop);
+    if (id == null) return false;
+    if (interestContains(list, id)) return false;
+    list.add(id);
     return true;
+  }
+
+  bool _removeInterest(List<String> list, String crop) {
+    final before = list.length;
+    list.removeWhere((c) => c.toLowerCase() == crop.toLowerCase());
+    return list.length < before;
   }
 
   void updateProfile({
