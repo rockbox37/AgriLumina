@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -11,6 +12,11 @@ class ForumConfig {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwamtxcWdpaWNzd3Byb3VteW5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Mjg1MzcsImV4cCI6MjEwMDMwNDUzN30.D62iA-kyF9bXApNtIIA4f4e8GHTQ4UBllEN66yl0wLI';
   static const threadsPageSize = 20;
   static const repliesPageSize = 50;
+
+  /// Requests with no response by these deadlines are treated as offline;
+  /// high-latency rural links often black-hole instead of refusing.
+  static const readTimeout = Duration(seconds: 10);
+  static const writeTimeout = Duration(seconds: 15);
 }
 
 /// The device is offline or the backend is unreachable.
@@ -63,14 +69,23 @@ abstract class ForumApi {
 }
 
 class HttpForumApi implements ForumApi {
-  HttpForumApi({http.Client? client, String? baseUrl, String? anonKey})
-      : _client = client ?? http.Client(),
+  HttpForumApi({
+    http.Client? client,
+    String? baseUrl,
+    String? anonKey,
+    Duration? readTimeout,
+    Duration? writeTimeout,
+  })  : _client = client ?? http.Client(),
         _baseUrl = baseUrl ?? ForumConfig.supabaseUrl,
-        _anonKey = anonKey ?? ForumConfig.anonKey;
+        _anonKey = anonKey ?? ForumConfig.anonKey,
+        _readTimeout = readTimeout ?? ForumConfig.readTimeout,
+        _writeTimeout = writeTimeout ?? ForumConfig.writeTimeout;
 
   final http.Client _client;
   final String _baseUrl;
   final String _anonKey;
+  final Duration _readTimeout;
+  final Duration _writeTimeout;
 
   Map<String, String> get _headers => {
         'apikey': _anonKey,
@@ -106,7 +121,10 @@ class HttpForumApi implements ForumApi {
   Future<List<ForumPost>> _fetchPosts(Map<String, String> params) async {
     final uri = Uri.parse('$_baseUrl/rest/v1/forum_public_posts')
         .replace(queryParameters: params);
-    final response = await _send(() => _client.get(uri, headers: _headers));
+    final response = await _send(
+      () => _client.get(uri, headers: _headers),
+      timeout: _readTimeout,
+    );
     if (response.statusCode != 200) {
       throw ForumApiException(response.statusCode);
     }
@@ -137,6 +155,7 @@ class HttpForumApi implements ForumApi {
           'parent_id': ?parentId,
         }),
       ),
+      timeout: _writeTimeout,
     );
     final payload = _decodeObject(response.body);
     switch (response.statusCode) {
@@ -178,6 +197,7 @@ class HttpForumApi implements ForumApi {
         headers: _headers,
         body: jsonEncode({'device_id': deviceId, 'post_id': postId}),
       ),
+      timeout: _writeTimeout,
     );
     if (response.statusCode != 200) {
       final payload = _decodeObject(response.body);
@@ -199,6 +219,7 @@ class HttpForumApi implements ForumApi {
         headers: _headers,
         body: jsonEncode({'device_id': deviceId}),
       ),
+      timeout: _writeTimeout,
     );
     if (response.statusCode != 200) {
       final payload = _decodeObject(response.body);
@@ -210,10 +231,13 @@ class HttpForumApi implements ForumApi {
   }
 
   Future<http.Response> _send(
-    Future<http.Response> Function() request,
-  ) async {
+    Future<http.Response> Function() request, {
+    required Duration timeout,
+  }) async {
     try {
-      return await request();
+      return await request().timeout(timeout);
+    } on TimeoutException {
+      throw ForumOfflineException();
     } on http.ClientException {
       throw ForumOfflineException();
     } catch (e) {

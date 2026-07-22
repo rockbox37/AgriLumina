@@ -186,6 +186,29 @@ void main() {
     );
   });
 
+  test('requests that hang past the timeout map to AdminOfflineException',
+      () async {
+    final api = AdminApi(
+      client: MockClient((request) async {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        return _tokenResponse('jwt', 'refresh');
+      }),
+      timeout: const Duration(milliseconds: 20),
+    );
+
+    await expectLater(
+      api.login('admin@test.local', 'pw'),
+      throwsA(isA<AdminOfflineException>()),
+    );
+
+    api.session = const AdminSession(
+      accessToken: 'jwt',
+      refreshToken: 'r',
+      email: 'a@b.c',
+    );
+    await expectLater(api.fetchPosts(), throwsA(isA<AdminOfflineException>()));
+  });
+
   test('logout clears and reports null session', () async {
     AdminSession? reported = const AdminSession(
       accessToken: 'x',
