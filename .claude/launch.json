@@ -6,6 +6,20 @@
       "runtimeExecutable": "flutter",
       "runtimeArgs": ["run", "-d", "web-server", "--web-port", "8087"],
       "port": 8087
+    },
+    {
+      "name": "agrilumina-admin",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": [
+        "run",
+        "-d",
+        "web-server",
+        "--web-port",
+        "8088",
+        "--target",
+        "lib/admin/main_admin.dart"
+      ],
+      "port": 8088
     }
   ]
 }

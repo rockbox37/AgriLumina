@@ -7,3 +7,4 @@
 .env.local
 .env.*.local
 .db-password.local
+.admin-credentials.local
