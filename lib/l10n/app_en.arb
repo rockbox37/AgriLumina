@@ -435,5 +435,15 @@
         "type": "int"
       }
     }
-  }
+  },
+  "listingSyncSynced": "Synced",
+  "listingSyncPending": "Waiting to sync",
+  "listingSyncFailed": "Sync failed — tap to retry",
+  "listingPublishedPendingSync": "Listing saved — it will sync when you're online.",
+  "discoverOfflineBanner": "You're offline — showing saved listings.",
+  "discoverSampleBanner": "Can't connect — showing sample listings.",
+  "unlockOffline": "You're offline. No credit was used — try again later.",
+  "unlockRateLimited": "Daily contact limit reached — try again tomorrow. No credit was used.",
+  "unlockListingGone": "This listing is no longer available. No credit was used.",
+  "unlockFailed": "Couldn't get the contact. No credit was used — try again."
 }

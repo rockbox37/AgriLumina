@@ -80,6 +80,9 @@ class LocalStateStore {
   static const _kForumThreadCache = 'mvp.forumThreadCache';
   static const _kForumReportedIds = 'mvp.forumReportedIds';
   static const _kForumMyPosts = 'mvp.forumMyPosts';
+  static const _kListingSyncState = 'mvp.listingSyncState';
+  static const _kDiscoverCachePrefix = 'mvp.discoverCache.';
+  static const _kUnlockedPhones = 'mvp.unlockedPhones';
 
   static Future<LocalStateStore> open() async {
     return LocalStateStore(await SharedPreferences.getInstance());
@@ -203,6 +206,69 @@ class LocalStateStore {
 
   Future<void> saveMyForumPosts(List<ForumPost> posts) =>
       _writeForumPosts(_kForumMyPosts, posts);
+
+  /// Per-role pending listing sync ops, e.g. {"seller": {"op": "upsert",
+  /// "failed": false}}. Absent role = synced.
+  Map<String, Map<String, Object?>> loadListingSyncState() {
+    final raw = _prefs.getString(_kListingSyncState);
+    if (raw == null || raw.isEmpty) return {};
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return {};
+      return decoded.map(
+        (k, v) => MapEntry(
+          k as String,
+          v is Map ? Map<String, Object?>.from(v) : <String, Object?>{},
+        ),
+      );
+    } on FormatException {
+      return {};
+    }
+  }
+
+  Future<void> saveListingSyncState(
+    Map<String, Map<String, Object?>> state,
+  ) =>
+      _prefs.setString(_kListingSyncState, jsonEncode(state));
+
+  /// Last successful Discover fetch for a counterpart role.
+  List<Listing> loadDiscoverCache(UserRole role) {
+    final raw = _prefs.getString('$_kDiscoverCachePrefix${role.name}');
+    if (raw == null || raw.isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return const [];
+      return decoded
+          .whereType<Map>()
+          .map((m) => Listing.fromJson(Map<String, Object?>.from(m)))
+          .whereType<Listing>()
+          .toList();
+    } on FormatException {
+      return const [];
+    }
+  }
+
+  Future<void> saveDiscoverCache(UserRole role, List<Listing> listings) =>
+      _prefs.setString(
+        '$_kDiscoverCachePrefix${role.name}',
+        jsonEncode(listings.map((l) => l.toJson()).toList()),
+      );
+
+  /// Phones released by the contact endpoint, keyed by remote listing id.
+  Map<String, String> loadUnlockedPhones() {
+    final raw = _prefs.getString(_kUnlockedPhones);
+    if (raw == null || raw.isEmpty) return {};
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return {};
+      return decoded.map((k, v) => MapEntry(k as String, v as String? ?? ''));
+    } on FormatException {
+      return {};
+    }
+  }
+
+  Future<void> saveUnlockedPhones(Map<String, String> phones) =>
+      _prefs.setString(_kUnlockedPhones, jsonEncode(phones));
 
   List<ForumPost> _readForumPosts(String key) {
     final raw = _prefs.getString(key);

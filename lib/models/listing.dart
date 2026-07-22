@@ -14,6 +14,7 @@ class Listing {
     required this.lastActiveLabel,
     required this.phone,
     this.tagline = '',
+    this.updatedAt,
   });
 
   /// Stable local id for the user's seller listing (one per device MVP).
@@ -42,6 +43,10 @@ class Listing {
   /// Short public blurb (optional).
   final String tagline;
 
+  /// Server-side last update time (remote listings only; null for seeds and
+  /// local listings). Used to re-derive [lastActiveLabel] on cache load.
+  final DateTime? updatedAt;
+
   bool get isMine => id == mySellerId || id == myBuyerId;
 
   static String myIdFor(UserRole role) =>
@@ -60,6 +65,7 @@ class Listing {
     String? lastActiveLabel,
     String? phone,
     String? tagline,
+    DateTime? updatedAt,
   }) {
     return Listing(
       id: id ?? this.id,
@@ -74,6 +80,7 @@ class Listing {
       lastActiveLabel: lastActiveLabel ?? this.lastActiveLabel,
       phone: phone ?? this.phone,
       tagline: tagline ?? this.tagline,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -90,6 +97,7 @@ class Listing {
         'lastActiveLabel': lastActiveLabel,
         'phone': phone,
         'tagline': tagline,
+        'updatedAt': updatedAt?.toIso8601String(),
       };
 
   static Listing? fromJson(Map<String, Object?>? json) {
@@ -137,6 +145,7 @@ class Listing {
       lastActiveLabel: lastActiveLabel,
       phone: phone,
       tagline: tagline,
+      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? ''),
     );
   }
 }

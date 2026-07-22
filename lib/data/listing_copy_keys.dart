@@ -27,3 +27,17 @@ abstract final class ListingCopyKeys {
   static const active3DaysAgo = 'Active 3 days ago';
   static const activeThisWeek = 'Active this week';
 }
+
+/// Buckets a remote listing's server-side update time into a last-active
+/// copy key, by calendar-day difference (so 23:50 yesterday is "yesterday"
+/// even if less than 24h ago).
+String lastActiveKeyFor(DateTime updatedAt, DateTime now) {
+  final updatedDay = DateTime(updatedAt.year, updatedAt.month, updatedAt.day);
+  final today = DateTime(now.year, now.month, now.day);
+  final days = today.difference(updatedDay).inDays;
+  if (days <= 0) return ListingCopyKeys.activeToday;
+  if (days == 1) return ListingCopyKeys.activeYesterday;
+  if (days == 2) return ListingCopyKeys.active2DaysAgo;
+  if (days == 3) return ListingCopyKeys.active3DaysAgo;
+  return ListingCopyKeys.activeThisWeek;
+}

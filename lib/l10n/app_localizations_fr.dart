@@ -589,4 +589,42 @@ class AppLocalizationsFr extends AppLocalizations {
   String forumDaysAgo(int days) {
     return 'il y a $days j';
   }
+
+  @override
+  String get listingSyncSynced => 'Synchronisé';
+
+  @override
+  String get listingSyncPending => 'En attente de synchronisation';
+
+  @override
+  String get listingSyncFailed =>
+      'Échec de la synchro — touchez pour réessayer';
+
+  @override
+  String get listingPublishedPendingSync =>
+      'Annonce enregistrée — elle sera synchronisée en ligne.';
+
+  @override
+  String get discoverOfflineBanner =>
+      'Vous êtes hors ligne — annonces enregistrées.';
+
+  @override
+  String get discoverSampleBanner =>
+      'Connexion impossible — annonces d\'exemple.';
+
+  @override
+  String get unlockOffline =>
+      'Vous êtes hors ligne. Aucun crédit utilisé — réessayez plus tard.';
+
+  @override
+  String get unlockRateLimited =>
+      'Limite quotidienne de contacts atteinte — réessayez demain. Aucun crédit utilisé.';
+
+  @override
+  String get unlockListingGone =>
+      'Cette annonce n\'est plus disponible. Aucun crédit utilisé.';
+
+  @override
+  String get unlockFailed =>
+      'Impossible d\'obtenir le contact. Aucun crédit utilisé — réessayez.';
 }

@@ -580,4 +580,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String forumDaysAgo(int days) {
     return '$days d ago';
   }
+
+  @override
+  String get listingSyncSynced => 'Synced';
+
+  @override
+  String get listingSyncPending => 'Waiting to sync';
+
+  @override
+  String get listingSyncFailed => 'Sync failed — tap to retry';
+
+  @override
+  String get listingPublishedPendingSync =>
+      'Listing saved — it will sync when you\'re online.';
+
+  @override
+  String get discoverOfflineBanner =>
+      'You\'re offline — showing saved listings.';
+
+  @override
+  String get discoverSampleBanner =>
+      'Can\'t connect — showing sample listings.';
+
+  @override
+  String get unlockOffline =>
+      'You\'re offline. No credit was used — try again later.';
+
+  @override
+  String get unlockRateLimited =>
+      'Daily contact limit reached — try again tomorrow. No credit was used.';
+
+  @override
+  String get unlockListingGone =>
+      'This listing is no longer available. No credit was used.';
+
+  @override
+  String get unlockFailed =>
+      'Couldn\'t get the contact. No credit was used — try again.';
 }

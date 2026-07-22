@@ -3,6 +3,7 @@ import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/models/listing.dart';
+import 'package:agrilumina/models/listing_sync.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/screens/publish_listing_screen.dart';
 import 'package:agrilumina/widgets/brand_mark.dart';
@@ -164,10 +165,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             l10n.localizedListingQuantity(state.myListing!),
                           ),
                   ),
-                  subtitle: Text(
-                    state.myListing == null
-                        ? l10n.publishMyListing
-                        : l10n.editMyListing,
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        state.myListing == null
+                            ? l10n.publishMyListing
+                            : l10n.editMyListing,
+                      ),
+                      if (state.myListing != null ||
+                          state.myListingSyncStatus !=
+                              ListingSyncStatus.synced) ...[
+                        const SizedBox(height: 4),
+                        _ListingSyncChip(state: state),
+                      ],
+                    ],
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
@@ -237,6 +249,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+/// Remote sync status for the active-role listing. Failed taps retry.
+class _ListingSyncChip extends StatelessWidget {
+  const _ListingSyncChip({required this.state});
+
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final status = state.myListingSyncStatus;
+    final (icon, label, color) = switch (status) {
+      ListingSyncStatus.synced => (
+          Icons.cloud_done_outlined,
+          l10n.listingSyncSynced,
+          theme.colorScheme.onSurfaceVariant,
+        ),
+      ListingSyncStatus.pending => (
+          Icons.schedule,
+          l10n.listingSyncPending,
+          theme.colorScheme.tertiary,
+        ),
+      ListingSyncStatus.failed => (
+          Icons.error_outline,
+          l10n.listingSyncFailed,
+          theme.colorScheme.error,
+        ),
+    };
+    return InkWell(
+      key: const Key('profile_listing_sync_chip'),
+      onTap: status == ListingSyncStatus.failed
+          ? state.syncPendingListings
+          : null,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(color: color),
+          ),
+        ],
+      ),
     );
   }
 }

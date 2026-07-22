@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -5,6 +7,7 @@ import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/l10n/app_localizations.dart';
 import 'package:agrilumina/screens/app_shell.dart';
 import 'package:agrilumina/screens/splash_screen.dart';
+import 'package:agrilumina/services/listings_api.dart';
 import 'package:agrilumina/services/local_state_store.dart';
 import 'package:agrilumina/services/location_service.dart';
 
@@ -20,6 +23,7 @@ class AgriluminaApp extends StatefulWidget {
     super.key,
     this.locationService,
     this.stateStore,
+    this.listingsApi,
     this.locale,
     this.showSplash = true,
     this.removeNativeSplash = true,
@@ -27,6 +31,9 @@ class AgriluminaApp extends StatefulWidget {
 
   /// Optional override for tests (avoids real GPS / platform channels).
   final LocationService? locationService;
+
+  /// Optional override for tests (avoids real network calls).
+  final ListingsApi? listingsApi;
 
   /// When set, MVP fields load from / save to this store.
   final LocalStateStore? stateStore;
@@ -52,8 +59,17 @@ class _AgriluminaAppState extends State<AgriluminaApp> {
     super.initState();
     final store = widget.stateStore;
     _state = store != null
-        ? AppState.fromStore(store, locationService: widget.locationService)
-        : AppState(locationService: widget.locationService);
+        ? AppState.fromStore(
+            store,
+            locationService: widget.locationService,
+            listingsApi: widget.listingsApi,
+          )
+        : AppState(
+            locationService: widget.locationService,
+            listingsApi: widget.listingsApi,
+          );
+    // Push any listing sync queued while offline in a previous session.
+    unawaited(_state.syncPendingListings());
   }
 
   @override
@@ -103,6 +119,7 @@ class MyApp extends StatelessWidget {
     super.key,
     this.locationService,
     this.stateStore,
+    this.listingsApi,
     this.locale,
     this.showSplash = false,
     this.removeNativeSplash = false,
@@ -110,6 +127,7 @@ class MyApp extends StatelessWidget {
 
   final LocationService? locationService;
   final LocalStateStore? stateStore;
+  final ListingsApi? listingsApi;
   final Locale? locale;
 
   /// Tests default to skipping the timed splash for speed / stability.
@@ -121,6 +139,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => AgriluminaApp(
         locationService: locationService,
         stateStore: stateStore,
+        listingsApi: listingsApi,
         locale: locale,
         showSplash: showSplash,
         removeNativeSplash: removeNativeSplash,

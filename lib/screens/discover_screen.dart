@@ -3,6 +3,7 @@ import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/models/listing.dart';
+import 'package:agrilumina/models/listing_sync.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/screens/listing_detail_screen.dart';
 import 'package:agrilumina/utils/crop_filter.dart';
@@ -94,7 +95,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             leading: const BrandHomeLeading(),
             title: Text(title),
             actions: [
-              if (state.locationLoading)
+              if (state.locationLoading || state.discoverLoading)
                 const Padding(
                   padding: EdgeInsets.only(right: 8),
                   child: Center(
@@ -108,7 +109,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               else
                 IconButton(
                   tooltip: l10n.refreshLocation,
-                  onPressed: state.refreshLocation,
+                  onPressed: state.refreshDiscover,
                   icon: const Icon(Icons.my_location),
                 ),
               Padding(
@@ -126,6 +127,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _LocationBanner(state: state),
+              if (state.discoverOffline) _FeedStatusBanner(state: state),
               // Looking-for switcher only when both roles are enabled.
               // With a single capability, activeRole follows that role and
               // the AppBar title already says Find Buyers / Find Sellers.
@@ -240,7 +242,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       );
     }
 
-    return ListView.separated(
+    return RefreshIndicator(
+      onRefresh: state.refreshDiscover,
+      child: ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: filtered.length,
       separatorBuilder: (_, _) => const Divider(height: 1),
@@ -260,6 +264,47 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           },
         );
       },
+      ),
+    );
+  }
+}
+
+/// Shown when the last remote refresh failed: cached or sample data on screen.
+class _FeedStatusBanner extends StatelessWidget {
+  const _FeedStatusBanner({required this.state});
+
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final text = state.discoverFeedSource == DiscoverFeedSource.seed
+        ? l10n.discoverSampleBanner
+        : l10n.discoverOfflineBanner;
+    return Material(
+      key: const Key('discover_feed_banner'),
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          children: [
+            Icon(
+              Icons.cloud_off_outlined,
+              size: 20,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                text,
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
