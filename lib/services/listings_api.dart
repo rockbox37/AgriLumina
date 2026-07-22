@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -10,6 +11,11 @@ import 'package:agrilumina/utils/geo.dart';
 class ListingsConfig {
   /// Radius sent with a GPS fix; without one the server filters by role only.
   static const radiusKm = 50.0;
+
+  /// Requests with no response by these deadlines are treated as offline;
+  /// high-latency rural links often black-hole instead of refusing.
+  static const readTimeout = Duration(seconds: 10);
+  static const writeTimeout = Duration(seconds: 15);
 }
 
 /// The device is offline or the backend is unreachable.
@@ -100,14 +106,23 @@ Listing? listingFromRemoteRow(Map<String, Object?> row, DateTime now) {
 }
 
 class HttpListingsApi implements ListingsApi {
-  HttpListingsApi({http.Client? client, String? baseUrl, String? anonKey})
-      : _client = client ?? http.Client(),
+  HttpListingsApi({
+    http.Client? client,
+    String? baseUrl,
+    String? anonKey,
+    Duration? readTimeout,
+    Duration? writeTimeout,
+  })  : _client = client ?? http.Client(),
         _baseUrl = baseUrl ?? ForumConfig.supabaseUrl,
-        _anonKey = anonKey ?? ForumConfig.anonKey;
+        _anonKey = anonKey ?? ForumConfig.anonKey,
+        _readTimeout = readTimeout ?? ListingsConfig.readTimeout,
+        _writeTimeout = writeTimeout ?? ListingsConfig.writeTimeout;
 
   final http.Client _client;
   final String _baseUrl;
   final String _anonKey;
+  final Duration _readTimeout;
+  final Duration _writeTimeout;
 
   Map<String, String> get _headers => {
         'apikey': _anonKey,
@@ -136,6 +151,7 @@ class HttpListingsApi implements ListingsApi {
           'p_crop': null,
         }),
       ),
+      timeout: _readTimeout,
     );
     if (response.statusCode != 200) {
       throw ListingsApiException(response.statusCode, response.body);
@@ -172,6 +188,7 @@ class HttpListingsApi implements ListingsApi {
           'phone': listing.phone,
         }),
       ),
+      timeout: _writeTimeout,
     );
     if (response.statusCode != 200) {
       throw ListingsApiException(response.statusCode, response.body);
@@ -189,6 +206,7 @@ class HttpListingsApi implements ListingsApi {
         headers: _headers,
         body: jsonEncode({'device_id': deviceId}),
       ),
+      timeout: _writeTimeout,
     );
     if (response.statusCode != 200) {
       throw ListingsApiException(response.statusCode, response.body);
@@ -206,6 +224,7 @@ class HttpListingsApi implements ListingsApi {
         headers: _headers,
         body: jsonEncode({'device_id': deviceId, 'listing_id': listingId}),
       ),
+      timeout: _writeTimeout,
     );
     switch (response.statusCode) {
       case 200:
@@ -225,10 +244,13 @@ class HttpListingsApi implements ListingsApi {
   }
 
   Future<http.Response> _send(
-    Future<http.Response> Function() request,
-  ) async {
+    Future<http.Response> Function() request, {
+    required Duration timeout,
+  }) async {
     try {
-      return await request();
+      return await request().timeout(timeout);
+    } on TimeoutException {
+      throw ListingsOfflineException();
     } on http.ClientException {
       throw ListingsOfflineException();
     } catch (e) {

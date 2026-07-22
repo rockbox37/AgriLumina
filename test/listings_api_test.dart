@@ -181,6 +181,27 @@ void main() {
     );
   });
 
+  test('requests that hang past the timeout map to ListingsOfflineException',
+      () async {
+    final api = HttpListingsApi(
+      client: MockClient((request) async {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        return http.Response('[]', 200);
+      }),
+      readTimeout: const Duration(milliseconds: 20),
+      writeTimeout: const Duration(milliseconds: 20),
+    );
+
+    await expectLater(
+      api.fetchListings(role: UserRole.buyer, excludeDeviceId: _device),
+      throwsA(isA<ListingsOfflineException>()),
+    );
+    await expectLater(
+      api.upsertListing(deviceId: _device, listing: remoteListingForUpsert()),
+      throwsA(isA<ListingsOfflineException>()),
+    );
+  });
+
   test('lastActiveKeyFor buckets by calendar day', () {
     final now = DateTime(2026, 7, 22, 8); // 08:00
     String key(DateTime t) => lastActiveKeyFor(t, now);

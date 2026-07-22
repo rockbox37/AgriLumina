@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:agrilumina/admin/admin_models.dart';
 import 'package:agrilumina/services/forum_api.dart' show ForumConfig;
+
+/// The backend did not respond in time or is unreachable.
+class AdminOfflineException implements Exception {}
 
 /// Invalid email/password (or the account lost admin rights).
 class AdminAuthException implements Exception {
@@ -42,14 +46,21 @@ class AdminApi {
     http.Client? client,
     String? baseUrl,
     String? anonKey,
+    Duration? timeout,
     this.onSessionChanged,
   })  : _client = client ?? http.Client(),
         _baseUrl = baseUrl ?? ForumConfig.supabaseUrl,
-        _anonKey = anonKey ?? ForumConfig.anonKey;
+        _anonKey = anonKey ?? ForumConfig.anonKey,
+        _timeout = timeout ?? _defaultTimeout;
+
+  /// Requests with no response by this deadline surface as
+  /// [AdminOfflineException] instead of hanging on a black-holing network.
+  static const _defaultTimeout = Duration(seconds: 15);
 
   final http.Client _client;
   final String _baseUrl;
   final String _anonKey;
+  final Duration _timeout;
 
   /// Called with the new session after login/refresh, null after logout.
   final void Function(AdminSession?)? onSessionChanged;
@@ -59,20 +70,24 @@ class AdminApi {
   // --- auth ---
 
   Future<AdminSession> login(String email, String password) async {
-    final response = await _client.post(
-      Uri.parse('$_baseUrl/auth/v1/token?grant_type=password'),
-      headers: _baseHeaders,
-      body: jsonEncode({'email': email, 'password': password}),
+    final response = await _send(
+      () => _client.post(
+        Uri.parse('$_baseUrl/auth/v1/token?grant_type=password'),
+        headers: _baseHeaders,
+        body: jsonEncode({'email': email, 'password': password}),
+      ),
     );
     return _adoptSession(response, email: email);
   }
 
   /// Restores a session from a persisted refresh token.
   Future<AdminSession> refresh(String refreshToken) async {
-    final response = await _client.post(
-      Uri.parse('$_baseUrl/auth/v1/token?grant_type=refresh_token'),
-      headers: _baseHeaders,
-      body: jsonEncode({'refresh_token': refreshToken}),
+    final response = await _send(
+      () => _client.post(
+        Uri.parse('$_baseUrl/auth/v1/token?grant_type=refresh_token'),
+        headers: _baseHeaders,
+        body: jsonEncode({'refresh_token': refreshToken}),
+      ),
     );
     return _adoptSession(response);
   }
@@ -82,12 +97,14 @@ class AdminApi {
     session = null;
     onSessionChanged?.call(null);
     if (current == null) return;
-    await _client.post(
-      Uri.parse('$_baseUrl/auth/v1/logout'),
-      headers: {
-        ..._baseHeaders,
-        'Authorization': 'Bearer ${current.accessToken}',
-      },
+    await _send(
+      () => _client.post(
+        Uri.parse('$_baseUrl/auth/v1/logout'),
+        headers: {
+          ..._baseHeaders,
+          'Authorization': 'Bearer ${current.accessToken}',
+        },
+      ),
     );
   }
 
@@ -289,18 +306,30 @@ class AdminApi {
   ) async {
     final current = session;
     if (current == null) throw const AdminAuthException('not signed in');
-    var response = await send({
-      ..._baseHeaders,
-      'Authorization': 'Bearer ${current.accessToken}',
-    });
+    var response = await _send(() => send({
+          ..._baseHeaders,
+          'Authorization': 'Bearer ${current.accessToken}',
+        }));
     if (response.statusCode == 401) {
       final renewed = await refresh(current.refreshToken);
-      response = await send({
-        ..._baseHeaders,
-        'Authorization': 'Bearer ${renewed.accessToken}',
-      });
+      response = await _send(() => send({
+            ..._baseHeaders,
+            'Authorization': 'Bearer ${renewed.accessToken}',
+          }));
     }
     return response;
+  }
+
+  /// Applies the request deadline; a hung request surfaces as a
+  /// connectivity error instead of blocking forever.
+  Future<http.Response> _send(
+    Future<http.Response> Function() request,
+  ) async {
+    try {
+      return await request().timeout(_timeout);
+    } on TimeoutException {
+      throw AdminOfflineException();
+    }
   }
 
   Map<String, Object?> _decodeObject(String body) {

@@ -128,6 +128,38 @@ void main() {
     );
   });
 
+  test('read that hangs past the timeout maps to ForumOfflineException',
+      () async {
+    final api = HttpForumApi(
+      client: MockClient((request) async {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        return http.Response('[]', 200);
+      }),
+      readTimeout: const Duration(milliseconds: 20),
+    );
+
+    await expectLater(
+      api.fetchThreads(),
+      throwsA(isA<ForumOfflineException>()),
+    );
+  });
+
+  test('write that hangs past the timeout maps to ForumOfflineException',
+      () async {
+    final api = HttpForumApi(
+      client: MockClient((request) async {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        return http.Response('{}', 201);
+      }),
+      writeTimeout: const Duration(milliseconds: 20),
+    );
+
+    await expectLater(
+      api.createPost(deviceId: deviceId, authorName: 'A', body: 'hello'),
+      throwsA(isA<ForumOfflineException>()),
+    );
+  });
+
   test('deletePost surfaces 403 as ForumApiException', () async {
     final api = apiWith(
       MockClient(
