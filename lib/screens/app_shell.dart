@@ -3,6 +3,7 @@ import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/screens/credits_screen.dart';
 import 'package:agrilumina/screens/discover_screen.dart';
+import 'package:agrilumina/screens/forum_screen.dart';
 import 'package:agrilumina/screens/home_screen.dart';
 import 'package:agrilumina/screens/profile_screen.dart';
 
@@ -12,6 +13,7 @@ class AppShell extends StatelessWidget {
   static const _pages = <Widget>[
     HomeScreen(),
     DiscoverScreen(),
+    ForumScreen(),
     CreditsScreen(),
     ProfileScreen(),
   ];
@@ -42,6 +44,11 @@ class AppShell extends StatelessWidget {
                 icon: const Icon(Icons.travel_explore_outlined),
                 selectedIcon: const Icon(Icons.travel_explore),
                 label: l10n.navDiscover,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.forum_outlined),
+                selectedIcon: const Icon(Icons.forum),
+                label: l10n.navForum,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.toll_outlined),

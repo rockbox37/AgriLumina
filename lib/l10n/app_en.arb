@@ -13,19 +13,25 @@
   "creditsCount": "{count} credits",
   "@creditsCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "welcomeUser": "Welcome, {name}",
   "@welcomeUser": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "findNearbyByDistance": "Find nearby {counterpart} by distance.",
   "@findNearbyByDistance": {
     "placeholders": {
-      "counterpart": {"type": "String"}
+      "counterpart": {
+        "type": "String"
+      }
     }
   },
   "buyers": "buyers",
@@ -41,22 +47,32 @@
   "nearbyCount": "{count} nearby {counterpart}",
   "@nearbyCount": {
     "placeholders": {
-      "count": {"type": "int"},
-      "counterpart": {"type": "String"}
+      "count": {
+        "type": "int"
+      },
+      "counterpart": {
+        "type": "String"
+      }
     }
   },
   "noMatchesInSeedData": "No matches in seed data yet",
   "closestListing": "Closest: {name} · {distance}",
   "@closestListing": {
     "placeholders": {
-      "name": {"type": "String"},
-      "distance": {"type": "String"}
+      "name": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
     }
   },
   "spendCreditToUnlock": "Spend {cost} credit to unlock a phone number.",
   "@spendCreditToUnlock": {
     "placeholders": {
-      "cost": {"type": "int"}
+      "cost": {
+        "type": "int"
+      }
     }
   },
   "findBuyers": "Find Buyers",
@@ -68,46 +84,64 @@
   "searchCounterparts": "Search {counterpart}",
   "@searchCounterparts": {
     "placeholders": {
-      "counterpart": {"type": "String"}
+      "counterpart": {
+        "type": "String"
+      }
     }
   },
   "clearSearch": "Clear search",
   "noCounterpartsNearbyYet": "No {counterpart} nearby yet.",
   "@noCounterpartsNearbyYet": {
     "placeholders": {
-      "counterpart": {"type": "String"}
+      "counterpart": {
+        "type": "String"
+      }
     }
   },
   "noCropCounterpartsNearby": "No {crop} {counterpart} nearby.",
   "@noCropCounterpartsNearby": {
     "placeholders": {
-      "crop": {"type": "String"},
-      "counterpart": {"type": "String"}
+      "crop": {
+        "type": "String"
+      },
+      "counterpart": {
+        "type": "String"
+      }
     }
   },
   "noCounterpartsForInterests": "No {counterpart} nearby for your interests.",
   "@noCounterpartsForInterests": {
     "placeholders": {
-      "counterpart": {"type": "String"}
+      "counterpart": {
+        "type": "String"
+      }
     }
   },
   "noCounterpartsNearby": "No {counterpart} nearby.",
   "@noCounterpartsNearby": {
     "placeholders": {
-      "counterpart": {"type": "String"}
+      "counterpart": {
+        "type": "String"
+      }
     }
   },
   "noSearchMatches": "No matches for \"{query}\" among {scope}.",
   "@noSearchMatches": {
     "placeholders": {
-      "query": {"type": "String"},
-      "scope": {"type": "String"}
+      "query": {
+        "type": "String"
+      },
+      "scope": {
+        "type": "String"
+      }
     }
   },
   "nearYouBanner": "Near you · {label}",
   "@nearYouBanner": {
     "placeholders": {
-      "label": {"type": "String"}
+      "label": {
+        "type": "String"
+      }
     }
   },
   "sampleListingsEnableLocation": "Sample listings · enable location for nearby distances",
@@ -122,7 +156,9 @@
   "@distanceKm": {
     "description": "Metric distance. Units strategy: km for all locales in MVP; mi can follow later.",
     "placeholders": {
-      "value": {"type": "String"}
+      "value": {
+        "type": "String"
+      }
     }
   },
   "listingTitle": "Listing",
@@ -138,7 +174,9 @@
   "phoneLockedSpendCredit": "Phone number is locked. Spend {cost} credit to unlock.",
   "@phoneLockedSpendCredit": {
     "placeholders": {
-      "cost": {"type": "int"}
+      "cost": {
+        "type": "int"
+      }
     }
   },
   "contactUnlocked": "Contact unlocked.",
@@ -146,13 +184,17 @@
   "unlockForCredit": "Unlock for {cost} credit",
   "@unlockForCredit": {
     "placeholders": {
-      "cost": {"type": "int"}
+      "cost": {
+        "type": "int"
+      }
     }
   },
   "youHaveCredits": "You have {count} credits.",
   "@youHaveCredits": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "couldNotOpenDialer": "Could not open the phone dialer on this device.",
@@ -161,31 +203,41 @@
   "creditsExplainer": "Unlocking a contact costs {cost} credit. Real payments come later — for now you can add demo credits.",
   "@creditsExplainer": {
     "placeholders": {
-      "cost": {"type": "int"}
+      "cost": {
+        "type": "int"
+      }
     }
   },
   "addedDemoCredits": "Added {count} demo credits.",
   "@addedDemoCredits": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "addDemoCredits": "Add {count} demo credits",
   "@addDemoCredits": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "addedDemoCredit": "Added {count} demo credit.",
   "@addedDemoCredit": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "addDemoCredit": "Add {count} demo credit",
   "@addDemoCredit": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "displayName": "Display name",
@@ -194,7 +246,9 @@
   "taglineTooLong": "Tagline must be {max} characters or fewer.",
   "@taglineTooLong": {
     "placeholders": {
-      "max": {"type": "int"}
+      "max": {
+        "type": "int"
+      }
     }
   },
   "labelTagline": "Tagline",
@@ -207,25 +261,33 @@
   "didYouMeanCrop": "Did you mean {crop}?",
   "@didYouMeanCrop": {
     "placeholders": {
-      "crop": {"type": "String"}
+      "crop": {
+        "type": "String"
+      }
     }
   },
   "useSuggestedCrop": "Use {crop}",
   "@useSuggestedCrop": {
     "placeholders": {
-      "crop": {"type": "String"}
+      "crop": {
+        "type": "String"
+      }
     }
   },
   "addCropAsTyped": "Add \"{crop}\" anyway",
   "@addCropAsTyped": {
     "placeholders": {
-      "crop": {"type": "String"}
+      "crop": {
+        "type": "String"
+      }
     }
   },
   "addedCanonicalCrop": "Added as {crop}.",
   "@addedCanonicalCrop": {
     "placeholders": {
-      "crop": {"type": "String"}
+      "crop": {
+        "type": "String"
+      }
     }
   },
   "profileSaved": "Profile saved.",
@@ -233,8 +295,12 @@
   "profileStats": "Credits: {credits} · Unlocked contacts: {unlocked}",
   "@profileStats": {
     "placeholders": {
-      "credits": {"type": "int"},
-      "unlocked": {"type": "int"}
+      "credits": {
+        "type": "int"
+      },
+      "unlocked": {
+        "type": "int"
+      }
     }
   },
   "defaultDisplayName": "You",
@@ -255,26 +321,36 @@
   "myListingSummary": "{crop} · {quantity}",
   "@myListingSummary": {
     "placeholders": {
-      "crop": {"type": "String"},
-      "quantity": {"type": "String"}
+      "crop": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      }
     }
   },
   "listingSubtitle": "{crop} · {quantity}\n{distance} · {lastActive}",
   "@listingSubtitle": {
     "placeholders": {
-      "crop": {"type": "String"},
-      "quantity": {"type": "String"},
-      "distance": {"type": "String"},
-      "lastActive": {"type": "String"}
+      "crop": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      },
+      "lastActive": {
+        "type": "String"
+      }
     }
   },
-
   "cropMaize": "Maize",
   "cropCassava": "Cassava",
   "cropBeans": "Beans",
   "cropGroundnuts": "Groundnuts",
   "cropRice": "Rice",
-
   "qtyBuyingUpTo2Tonnes": "Buying up to 2 tonnes",
   "qtyWeeklyBuyerBags": "Weekly buyer · bags",
   "qtyAggregatorFairPrice": "Aggregator · fair price",
@@ -285,17 +361,79 @@
   "qty10Bags": "10 bags",
   "qty1_5Tonnes": "1.5 tonnes",
   "qtySmallSurplus": "Small surplus",
-
   "placeVillageMarket": "Village market",
   "placeNearVillage": "Near village",
   "placeKaleheRoad": "Kalehe road",
   "placeVillage": "Village",
   "placeNearbyHills": "Nearby hills",
   "placeNearKalehe": "Near Kalehe",
-
   "activeToday": "Active today",
   "activeYesterday": "Active yesterday",
   "active2DaysAgo": "Active 2 days ago",
   "active3DaysAgo": "Active 3 days ago",
-  "activeThisWeek": "Active this week"
+  "activeThisWeek": "Active this week",
+  "navForum": "Forum",
+  "forumTitle": "Community forum",
+  "forumNewPost": "New post",
+  "forumPostHint": "Share news, prices, or questions…",
+  "forumPostAction": "Post",
+  "forumReplyAction": "Reply",
+  "forumReplyHint": "Write a reply…",
+  "forumReportSpam": "This is spam",
+  "forumReported": "Reported",
+  "forumReportThanks": "Thanks — this post was reported.",
+  "forumDeletePost": "Delete post",
+  "forumDeleteConfirm": "Delete this post?",
+  "forumPostDeleted": "Post deleted.",
+  "forumPendingReview": "Awaiting review",
+  "forumPendingExplainer": "Only you can see this until it is reviewed.",
+  "forumOfflineBanner": "You're offline — showing saved posts.",
+  "forumEmpty": "No posts yet. Start the conversation!",
+  "forumLoadError": "Couldn't load posts. Pull down to retry.",
+  "forumRateLimited": "You're posting too fast. Try again in {seconds} s.",
+  "@forumRateLimited": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "forumDuplicate": "You already posted this recently.",
+  "forumPostFailed": "Couldn't publish. Check your connection and try again.",
+  "forumReplies": "{count, plural, =0{No replies} =1{1 reply} other{{count} replies}}",
+  "@forumReplies": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "forumLoadMore": "Load more",
+  "forumThreadTitle": "Discussion",
+  "forumSetNameFirst": "Add your name in Profile before posting.",
+  "forumJustNow": "just now",
+  "forumMinutesAgo": "{minutes} min ago",
+  "@forumMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "forumHoursAgo": "{hours} h ago",
+  "@forumHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "forumDaysAgo": "{days} d ago",
+  "@forumDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -84,25 +84,33 @@
   "didYouMeanCrop": "Vouliez-vous dire {crop} ?",
   "@didYouMeanCrop": {
     "placeholders": {
-      "crop": {"type": "String"}
+      "crop": {
+        "type": "String"
+      }
     }
   },
   "useSuggestedCrop": "Utiliser {crop}",
   "@useSuggestedCrop": {
     "placeholders": {
-      "crop": {"type": "String"}
+      "crop": {
+        "type": "String"
+      }
     }
   },
   "addCropAsTyped": "Ajouter « {crop} » quand même",
   "@addCropAsTyped": {
     "placeholders": {
-      "crop": {"type": "String"}
+      "crop": {
+        "type": "String"
+      }
     }
   },
   "addedCanonicalCrop": "Ajouté sous {crop}.",
   "@addedCanonicalCrop": {
     "placeholders": {
-      "crop": {"type": "String"}
+      "crop": {
+        "type": "String"
+      }
     }
   },
   "profileSaved": "Profil enregistré.",
@@ -125,13 +133,11 @@
   "myListingEmpty": "Aucune annonce pour ce rôle.",
   "myListingSummary": "{crop} · {quantity}",
   "listingSubtitle": "{crop} · {quantity}\n{distance} · {lastActive}",
-
   "cropMaize": "Maïs",
   "cropCassava": "Manioc",
   "cropBeans": "Haricots",
   "cropGroundnuts": "Arachides",
   "cropRice": "Riz",
-
   "qtyBuyingUpTo2Tonnes": "Achète jusqu’à 2 tonnes",
   "qtyWeeklyBuyerBags": "Acheteur hebdomadaire · sacs",
   "qtyAggregatorFairPrice": "Agrégateur · prix équitable",
@@ -142,17 +148,44 @@
   "qty10Bags": "10 sacs",
   "qty1_5Tonnes": "1,5 tonnes",
   "qtySmallSurplus": "Petit surplus",
-
   "placeVillageMarket": "Marché du village",
   "placeNearVillage": "Près du village",
   "placeKaleheRoad": "Route de Kalehe",
   "placeVillage": "Village",
   "placeNearbyHills": "Collines proches",
   "placeNearKalehe": "Près de Kalehe",
-
   "activeToday": "Actif aujourd’hui",
   "activeYesterday": "Actif hier",
   "active2DaysAgo": "Actif il y a 2 jours",
   "active3DaysAgo": "Actif il y a 3 jours",
-  "activeThisWeek": "Actif cette semaine"
+  "activeThisWeek": "Actif cette semaine",
+  "navForum": "Forum",
+  "forumTitle": "Forum communautaire",
+  "forumNewPost": "Nouvelle publication",
+  "forumPostHint": "Partagez des nouvelles, des prix ou des questions…",
+  "forumPostAction": "Publier",
+  "forumReplyAction": "Répondre",
+  "forumReplyHint": "Écrivez une réponse…",
+  "forumReportSpam": "C'est du spam",
+  "forumReported": "Signalé",
+  "forumReportThanks": "Merci — cette publication a été signalée.",
+  "forumDeletePost": "Supprimer la publication",
+  "forumDeleteConfirm": "Supprimer cette publication ?",
+  "forumPostDeleted": "Publication supprimée.",
+  "forumPendingReview": "En attente de vérification",
+  "forumPendingExplainer": "Vous seul pouvez voir ceci avant vérification.",
+  "forumOfflineBanner": "Vous êtes hors ligne — publications enregistrées.",
+  "forumEmpty": "Aucune publication pour l'instant. Lancez la discussion !",
+  "forumLoadError": "Impossible de charger les publications. Tirez pour réessayer.",
+  "forumRateLimited": "Vous publiez trop vite. Réessayez dans {seconds} s.",
+  "forumDuplicate": "Vous avez déjà publié ceci récemment.",
+  "forumPostFailed": "Publication impossible. Vérifiez votre connexion et réessayez.",
+  "forumReplies": "{count, plural, =0{Aucune réponse} =1{1 réponse} other{{count} réponses}}",
+  "forumLoadMore": "Charger plus",
+  "forumThreadTitle": "Discussion",
+  "forumSetNameFirst": "Ajoutez votre nom dans le Profil avant de publier.",
+  "forumJustNow": "à l'instant",
+  "forumMinutesAgo": "il y a {minutes} min",
+  "forumHoursAgo": "il y a {hours} h",
+  "forumDaysAgo": "il y a {days} j"
 }

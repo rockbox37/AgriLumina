@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+import 'package:agrilumina/models/forum_post.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 
@@ -74,6 +76,10 @@ class LocalStateStore {
   static const _kUnlockedListingIds = 'mvp.unlockedListingIds';
   static const _kMySellerListing = 'mvp.mySellerListing';
   static const _kMyBuyerListing = 'mvp.myBuyerListing';
+  static const _kDeviceId = 'mvp.deviceId';
+  static const _kForumThreadCache = 'mvp.forumThreadCache';
+  static const _kForumReportedIds = 'mvp.forumReportedIds';
+  static const _kForumMyPosts = 'mvp.forumMyPosts';
 
   static Future<LocalStateStore> open() async {
     return LocalStateStore(await SharedPreferences.getInstance());
@@ -164,6 +170,61 @@ class LocalStateStore {
     if (parsed.isEmpty) return {...defaults};
     return parsed;
   }
+
+  /// Stable anonymous device identity (created once, then reused).
+  ///
+  /// Acts as this device's secret for backend writes (forum posts, later
+  /// listings sync) — never shown in any public payload.
+  String deviceId() {
+    final existing = _prefs.getString(_kDeviceId);
+    if (existing != null && existing.isNotEmpty) return existing;
+    final generated = const Uuid().v4();
+    // Fire-and-forget: the value stays stable in memory either way.
+    _prefs.setString(_kDeviceId, generated);
+    return generated;
+  }
+
+  /// Last fetched page of forum threads, for offline display.
+  List<ForumPost> loadForumThreadCache() => _readForumPosts(_kForumThreadCache);
+
+  Future<void> saveForumThreadCache(List<ForumPost> threads) =>
+      _writeForumPosts(_kForumThreadCache, threads);
+
+  /// Posts this device has reported as spam (to disable the button locally).
+  Set<String> loadReportedForumPostIds() =>
+      (_prefs.getStringList(_kForumReportedIds) ?? const []).toSet();
+
+  Future<void> saveReportedForumPostIds(Set<String> ids) =>
+      _prefs.setStringList(_kForumReportedIds, ids.toList()..sort());
+
+  /// Posts authored on this device (including ones held as pending review,
+  /// which never appear in the public feed).
+  List<ForumPost> loadMyForumPosts() => _readForumPosts(_kForumMyPosts);
+
+  Future<void> saveMyForumPosts(List<ForumPost> posts) =>
+      _writeForumPosts(_kForumMyPosts, posts);
+
+  List<ForumPost> _readForumPosts(String key) {
+    final raw = _prefs.getString(key);
+    if (raw == null || raw.isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return const [];
+      return decoded
+          .whereType<Map>()
+          .map((m) => ForumPost.fromJson(Map<String, Object?>.from(m)))
+          .whereType<ForumPost>()
+          .toList();
+    } on FormatException {
+      return const [];
+    }
+  }
+
+  Future<void> _writeForumPosts(String key, List<ForumPost> posts) =>
+      _prefs.setString(
+        key,
+        jsonEncode(posts.map((p) => p.toJson()).toList()),
+      );
 
   UserRole? _parseRole(String? name) {
     if (name == UserRole.buyer.name) return UserRole.buyer;

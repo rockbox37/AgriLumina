@@ -107,6 +107,15 @@ extension AppLocalizationsX on AppLocalizations {
       ? showingCropsYouSell
       : showingCropsYouBuy;
 
+  /// Coarse relative timestamp for forum posts ("just now", "5 min ago").
+  String forumTimeAgo(DateTime time, {DateTime? now}) {
+    final diff = (now ?? DateTime.now()).difference(time);
+    if (diff.inMinutes < 1) return forumJustNow;
+    if (diff.inMinutes < 60) return forumMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return forumHoursAgo(diff.inHours);
+    return forumDaysAgo(diff.inDays);
+  }
+
   String locationBannerForStatus(LocationFetchStatus status) =>
       switch (status) {
         LocationFetchStatus.success => sampleListingsEnableLocation,

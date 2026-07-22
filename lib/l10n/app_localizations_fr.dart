@@ -478,4 +478,115 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get activeThisWeek => 'Actif cette semaine';
+
+  @override
+  String get navForum => 'Forum';
+
+  @override
+  String get forumTitle => 'Forum communautaire';
+
+  @override
+  String get forumNewPost => 'Nouvelle publication';
+
+  @override
+  String get forumPostHint =>
+      'Partagez des nouvelles, des prix ou des questions…';
+
+  @override
+  String get forumPostAction => 'Publier';
+
+  @override
+  String get forumReplyAction => 'Répondre';
+
+  @override
+  String get forumReplyHint => 'Écrivez une réponse…';
+
+  @override
+  String get forumReportSpam => 'C\'est du spam';
+
+  @override
+  String get forumReported => 'Signalé';
+
+  @override
+  String get forumReportThanks => 'Merci — cette publication a été signalée.';
+
+  @override
+  String get forumDeletePost => 'Supprimer la publication';
+
+  @override
+  String get forumDeleteConfirm => 'Supprimer cette publication ?';
+
+  @override
+  String get forumPostDeleted => 'Publication supprimée.';
+
+  @override
+  String get forumPendingReview => 'En attente de vérification';
+
+  @override
+  String get forumPendingExplainer =>
+      'Vous seul pouvez voir ceci avant vérification.';
+
+  @override
+  String get forumOfflineBanner =>
+      'Vous êtes hors ligne — publications enregistrées.';
+
+  @override
+  String get forumEmpty =>
+      'Aucune publication pour l\'instant. Lancez la discussion !';
+
+  @override
+  String get forumLoadError =>
+      'Impossible de charger les publications. Tirez pour réessayer.';
+
+  @override
+  String forumRateLimited(int seconds) {
+    return 'Vous publiez trop vite. Réessayez dans $seconds s.';
+  }
+
+  @override
+  String get forumDuplicate => 'Vous avez déjà publié ceci récemment.';
+
+  @override
+  String get forumPostFailed =>
+      'Publication impossible. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String forumReplies(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count réponses',
+      one: '1 réponse',
+      zero: 'Aucune réponse',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get forumLoadMore => 'Charger plus';
+
+  @override
+  String get forumThreadTitle => 'Discussion';
+
+  @override
+  String get forumSetNameFirst =>
+      'Ajoutez votre nom dans le Profil avant de publier.';
+
+  @override
+  String get forumJustNow => 'à l\'instant';
+
+  @override
+  String forumMinutesAgo(int minutes) {
+    return 'il y a $minutes min';
+  }
+
+  @override
+  String forumHoursAgo(int hours) {
+    return 'il y a $hours h';
+  }
+
+  @override
+  String forumDaysAgo(int days) {
+    return 'il y a $days j';
+  }
 }

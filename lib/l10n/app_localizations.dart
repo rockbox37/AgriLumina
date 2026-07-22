@@ -888,6 +888,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Active this week'**
   String get activeThisWeek;
+
+  /// No description provided for @navForum.
+  ///
+  /// In en, this message translates to:
+  /// **'Forum'**
+  String get navForum;
+
+  /// No description provided for @forumTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Community forum'**
+  String get forumTitle;
+
+  /// No description provided for @forumNewPost.
+  ///
+  /// In en, this message translates to:
+  /// **'New post'**
+  String get forumNewPost;
+
+  /// No description provided for @forumPostHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share news, prices, or questions…'**
+  String get forumPostHint;
+
+  /// No description provided for @forumPostAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get forumPostAction;
+
+  /// No description provided for @forumReplyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get forumReplyAction;
+
+  /// No description provided for @forumReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reply…'**
+  String get forumReplyHint;
+
+  /// No description provided for @forumReportSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'This is spam'**
+  String get forumReportSpam;
+
+  /// No description provided for @forumReported.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported'**
+  String get forumReported;
+
+  /// No description provided for @forumReportThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks — this post was reported.'**
+  String get forumReportThanks;
+
+  /// No description provided for @forumDeletePost.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete post'**
+  String get forumDeletePost;
+
+  /// No description provided for @forumDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this post?'**
+  String get forumDeleteConfirm;
+
+  /// No description provided for @forumPostDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Post deleted.'**
+  String get forumPostDeleted;
+
+  /// No description provided for @forumPendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting review'**
+  String get forumPendingReview;
+
+  /// No description provided for @forumPendingExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you can see this until it is reviewed.'**
+  String get forumPendingExplainer;
+
+  /// No description provided for @forumOfflineBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline — showing saved posts.'**
+  String get forumOfflineBanner;
+
+  /// No description provided for @forumEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet. Start the conversation!'**
+  String get forumEmpty;
+
+  /// No description provided for @forumLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load posts. Pull down to retry.'**
+  String get forumLoadError;
+
+  /// No description provided for @forumRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re posting too fast. Try again in {seconds} s.'**
+  String forumRateLimited(int seconds);
+
+  /// No description provided for @forumDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'You already posted this recently.'**
+  String get forumDuplicate;
+
+  /// No description provided for @forumPostFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t publish. Check your connection and try again.'**
+  String get forumPostFailed;
+
+  /// No description provided for @forumReplies.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No replies} =1{1 reply} other{{count} replies}}'**
+  String forumReplies(num count);
+
+  /// No description provided for @forumLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get forumLoadMore;
+
+  /// No description provided for @forumThreadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion'**
+  String get forumThreadTitle;
+
+  /// No description provided for @forumSetNameFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your name in Profile before posting.'**
+  String get forumSetNameFirst;
+
+  /// No description provided for @forumJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get forumJustNow;
+
+  /// No description provided for @forumMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min ago'**
+  String forumMinutesAgo(int minutes);
+
+  /// No description provided for @forumHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h ago'**
+  String forumHoursAgo(int hours);
+
+  /// No description provided for @forumDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d ago'**
+  String forumDaysAgo(int days);
 }
 
 class _AppLocalizationsDelegate
