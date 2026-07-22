@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/data/listing_copy_keys.dart';
 import 'package:agrilumina/data/mock_listings.dart';
+import 'package:agrilumina/models/forum_post.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/user_role.dart';
 import 'package:agrilumina/services/local_state_store.dart';
@@ -72,8 +73,9 @@ class AppState extends ChangeNotifier {
   static const int unlockContactCost = 1;
   static const int homeTabIndex = 0;
   static const int discoverTabIndex = 1;
+  static const int forumTabIndex = 2;
 
-  /// Bottom-nav indices: 0 Home, 1 Discover, 2 Credits, 3 Profile.
+  /// Bottom-nav indices: 0 Home, 1 Discover, 2 Forum, 3 Credits, 4 Profile.
   int shellTabIndex = 0;
 
   int credits;
@@ -167,6 +169,76 @@ class AppState extends ChangeNotifier {
   }
 
   bool isUnlocked(String listingId) => unlockedListingIds.contains(listingId);
+
+  // --- Forum (public message board) ---
+
+  /// Stable anonymous device identity used as the author secret for backend
+  /// writes. Ephemeral when no store is attached (in-memory test states).
+  String get deviceId => _deviceId ??= _store?.deviceId() ?? _ephemeralId();
+
+  String? _deviceId;
+
+  static String _ephemeralId() =>
+      'mem-${DateTime.now().microsecondsSinceEpoch}';
+
+  Set<String>? _reportedForumPostIds;
+
+  /// Posts this device has reported as spam.
+  Set<String> get reportedForumPostIds => _reportedForumPostIds ??=
+      _store?.loadReportedForumPostIds() ?? <String>{};
+
+  bool isForumPostReported(String postId) =>
+      reportedForumPostIds.contains(postId);
+
+  void markForumPostReported(String postId) {
+    if (!reportedForumPostIds.add(postId)) return;
+    notifyListeners();
+    final store = _store;
+    if (store != null) {
+      unawaited(store.saveReportedForumPostIds(reportedForumPostIds));
+    }
+  }
+
+  List<ForumPost>? _myForumPosts;
+
+  /// Posts authored on this device, newest first (including pending review).
+  List<ForumPost> get myForumPosts =>
+      _myForumPosts ??= List.of(_store?.loadMyForumPosts() ?? const []);
+
+  bool isMyForumPost(String postId) =>
+      myForumPosts.any((p) => p.id == postId);
+
+  void addMyForumPost(ForumPost post) {
+    myForumPosts.insert(0, post);
+    notifyListeners();
+    _persistMyForumPosts();
+  }
+
+  void removeMyForumPost(String postId) {
+    final before = myForumPosts.length;
+    myForumPosts.removeWhere((p) => p.id == postId);
+    if (myForumPosts.length == before) return;
+    notifyListeners();
+    _persistMyForumPosts();
+  }
+
+  void _persistMyForumPosts() {
+    final store = _store;
+    if (store != null) {
+      unawaited(store.saveMyForumPosts(myForumPosts));
+    }
+  }
+
+  /// Last fetched thread page for offline display.
+  List<ForumPost> get cachedForumThreads =>
+      _store?.loadForumThreadCache() ?? const [];
+
+  void cacheForumThreads(List<ForumPost> threads) {
+    final store = _store;
+    if (store != null) {
+      unawaited(store.saveForumThreadCache(threads));
+    }
+  }
 
   bool isRoleEnabled(UserRole value) => enabledRoles.contains(value);
 

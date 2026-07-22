@@ -474,4 +474,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activeThisWeek => 'Active this week';
+
+  @override
+  String get navForum => 'Forum';
+
+  @override
+  String get forumTitle => 'Community forum';
+
+  @override
+  String get forumNewPost => 'New post';
+
+  @override
+  String get forumPostHint => 'Share news, prices, or questions…';
+
+  @override
+  String get forumPostAction => 'Post';
+
+  @override
+  String get forumReplyAction => 'Reply';
+
+  @override
+  String get forumReplyHint => 'Write a reply…';
+
+  @override
+  String get forumReportSpam => 'This is spam';
+
+  @override
+  String get forumReported => 'Reported';
+
+  @override
+  String get forumReportThanks => 'Thanks — this post was reported.';
+
+  @override
+  String get forumDeletePost => 'Delete post';
+
+  @override
+  String get forumDeleteConfirm => 'Delete this post?';
+
+  @override
+  String get forumPostDeleted => 'Post deleted.';
+
+  @override
+  String get forumPendingReview => 'Awaiting review';
+
+  @override
+  String get forumPendingExplainer =>
+      'Only you can see this until it is reviewed.';
+
+  @override
+  String get forumOfflineBanner => 'You\'re offline — showing saved posts.';
+
+  @override
+  String get forumEmpty => 'No posts yet. Start the conversation!';
+
+  @override
+  String get forumLoadError => 'Couldn\'t load posts. Pull down to retry.';
+
+  @override
+  String forumRateLimited(int seconds) {
+    return 'You\'re posting too fast. Try again in $seconds s.';
+  }
+
+  @override
+  String get forumDuplicate => 'You already posted this recently.';
+
+  @override
+  String get forumPostFailed =>
+      'Couldn\'t publish. Check your connection and try again.';
+
+  @override
+  String forumReplies(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count replies',
+      one: '1 reply',
+      zero: 'No replies',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get forumLoadMore => 'Load more';
+
+  @override
+  String get forumThreadTitle => 'Discussion';
+
+  @override
+  String get forumSetNameFirst => 'Add your name in Profile before posting.';
+
+  @override
+  String get forumJustNow => 'just now';
+
+  @override
+  String forumMinutesAgo(int minutes) {
+    return '$minutes min ago';
+  }
+
+  @override
+  String forumHoursAgo(int hours) {
+    return '$hours h ago';
+  }
+
+  @override
+  String forumDaysAgo(int days) {
+    return '$days d ago';
+  }
 }
