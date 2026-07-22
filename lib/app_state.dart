@@ -6,7 +6,9 @@ import 'package:agrilumina/data/listing_copy_keys.dart';
 import 'package:agrilumina/data/mock_listings.dart';
 import 'package:agrilumina/models/forum_post.dart';
 import 'package:agrilumina/models/listing.dart';
+import 'package:agrilumina/models/listing_sync.dart';
 import 'package:agrilumina/models/user_role.dart';
+import 'package:agrilumina/services/listings_api.dart';
 import 'package:agrilumina/services/local_state_store.dart';
 import 'package:agrilumina/services/location_service.dart';
 import 'package:agrilumina/utils/geo.dart';
@@ -35,6 +37,7 @@ class AppState extends ChangeNotifier {
     List<Listing>? listings,
     LocationService? locationService,
     LocalStateStore? store,
+    ListingsApi? listingsApi,
   })  : enabledRoles = _initEnabledRoles(enabledRoles, activeRole, role),
         activeRole = _initActiveRole(enabledRoles, activeRole, role),
         buyingInterests = List<String>.from(buyingInterests ?? const []),
@@ -43,13 +46,15 @@ class AppState extends ChangeNotifier {
         unlockedListingIds = {...?unlockedListingIds},
         _seedListings = List.unmodifiable(listings ?? mockListings),
         _locationService = locationService ?? PluginLocationService(),
-        _store = store;
+        _store = store,
+        _listingsApi = listingsApi ?? HttpListingsApi();
 
   /// Builds [AppState] from persisted MVP fields (and keeps saving mutations).
   factory AppState.fromStore(
     LocalStateStore store, {
     LocationService? locationService,
     List<Listing>? listings,
+    ListingsApi? listingsApi,
   }) {
     final snap = store.load();
     return AppState(
@@ -67,6 +72,7 @@ class AppState extends ChangeNotifier {
       listings: listings,
       locationService: locationService,
       store: store,
+      listingsApi: listingsApi,
     );
   }
 
@@ -112,7 +118,23 @@ class AppState extends ChangeNotifier {
 
   final LocationService _locationService;
   final LocalStateStore? _store;
+  final ListingsApi _listingsApi;
   Future<void>? _persistFuture;
+
+  /// Seed mocks are shown only when remote is unreachable and no cache exists.
+  static const bool useSeedFallback = true;
+
+  Map<UserRole, PendingListingSync>? _listingSyncOps;
+  bool _syncingListings = false;
+
+  List<Listing>? _remoteListings;
+  UserRole? _remoteListingsRole;
+  bool discoverLoading = false;
+
+  /// True when the last Discover refresh attempt failed (serving cache/seeds).
+  bool discoverOffline = false;
+
+  Map<String, String>? _unlockedPhones;
 
   UserLocation? userPosition;
   bool locationLoading = false;
@@ -128,9 +150,33 @@ class AppState extends ChangeNotifier {
   Listing? get myListing =>
       activeRole == UserRole.seller ? mySellerListing : myBuyerListing;
 
-  /// Seed mocks plus any published local listings.
+  /// Discover feed for the active counterpart role: live remote data when
+  /// the last fetch succeeded, else the per-role cache, else seed mocks.
+  List<Listing> get _feedListings {
+    final counterpart = activeRole.counterpart;
+    if (_remoteListings != null && _remoteListingsRole == counterpart) {
+      return _remoteListings!;
+    }
+    final cached = _store?.loadDiscoverCache(counterpart) ?? const [];
+    if (cached.isNotEmpty) return cached;
+    return useSeedFallback ? _seedListings : const [];
+  }
+
+  /// Where the current feed comes from (drives the Discover banner).
+  DiscoverFeedSource get discoverFeedSource {
+    final counterpart = activeRole.counterpart;
+    if (_remoteListings != null && _remoteListingsRole == counterpart) {
+      return DiscoverFeedSource.remote;
+    }
+    final cached = _store?.loadDiscoverCache(counterpart) ?? const [];
+    if (cached.isNotEmpty) return DiscoverFeedSource.cache;
+    return DiscoverFeedSource.seed;
+  }
+
+  /// Feed listings plus any published local listings. Own remote rows are
+  /// excluded server-side, so local `me-*` entries never duplicate.
   List<Listing> get listings => [
-        ..._seedListings,
+        ..._feedListings,
         ?mySellerListing,
         ?myBuyerListing,
       ];
@@ -274,7 +320,7 @@ class AppState extends ChangeNotifier {
       notifyListeners();
     }
     if (index == discoverTabIndex) {
-      unawaited(refreshLocation());
+      unawaited(refreshDiscover());
     }
   }
 
@@ -306,6 +352,10 @@ class AppState extends ChangeNotifier {
     activeRole = value;
     notifyListeners();
     _persist();
+    // The counterpart changed; the remote feed is role-filtered server-side.
+    if (_remoteListingsRole != value.counterpart) {
+      unawaited(refreshDiscover());
+    }
   }
 
   /// Legacy alias for [setActiveRole].
@@ -355,18 +405,206 @@ class AppState extends ChangeNotifier {
     _persist();
   }
 
-  /// Spends [unlockContactCost] credit to reveal contact for [listingId].
-  /// Returns false if already unlocked, listing missing, or not enough credits.
-  bool unlockContact(String listingId) {
-    if (unlockedListingIds.contains(listingId)) return true;
-    if (!listings.any((l) => l.id == listingId)) return false;
-    if (credits < unlockContactCost) return false;
+  // --- Remote listings sync (#25) ---
 
-    credits -= unlockContactCost;
-    unlockedListingIds.add(listingId);
+  Map<UserRole, PendingListingSync> get _syncOps =>
+      _listingSyncOps ??= _loadSyncOps();
+
+  Map<UserRole, PendingListingSync> _loadSyncOps() {
+    final raw = _store?.loadListingSyncState() ?? const {};
+    final ops = <UserRole, PendingListingSync>{};
+    for (final entry in raw.entries) {
+      final role = entry.key == UserRole.seller.name
+          ? UserRole.seller
+          : entry.key == UserRole.buyer.name
+              ? UserRole.buyer
+              : null;
+      final op = PendingListingSync.fromJson(entry.value);
+      if (role != null && op != null) ops[role] = op;
+    }
+    return ops;
+  }
+
+  void _persistSyncOps() {
+    final store = _store;
+    if (store == null) return;
+    unawaited(
+      store.saveListingSyncState(
+        _syncOps.map((role, op) => MapEntry(role.name, op.toJson())),
+      ),
+    );
+  }
+
+  /// Sync status for one role's listing.
+  ListingSyncStatus listingSyncStatusFor(UserRole role) {
+    final op = _syncOps[role];
+    if (op == null) return ListingSyncStatus.synced;
+    return op.failed ? ListingSyncStatus.failed : ListingSyncStatus.pending;
+  }
+
+  /// Sync status for the active role (drives the Profile chip).
+  ListingSyncStatus get myListingSyncStatus =>
+      listingSyncStatusFor(activeRole);
+
+  void _enqueueListingOp(UserRole role, PendingListingOp op) {
+    _syncOps[role] = PendingListingSync(op: op);
+    _persistSyncOps();
     notifyListeners();
-    _persist();
-    return true;
+  }
+
+  Listing? _listingFor(UserRole role) =>
+      role == UserRole.seller ? mySellerListing : myBuyerListing;
+
+  /// Flushes queued listing ops to the backend. Offline keeps ops pending;
+  /// API errors mark them failed (both retried on the next trigger: app
+  /// start, publish/clear, Discover refresh, or a failed-chip tap).
+  Future<void> syncPendingListings() async {
+    if (_syncingListings || _syncOps.isEmpty) return;
+    _syncingListings = true;
+    var changed = false;
+    try {
+      for (final role in UserRole.values) {
+        final pending = _syncOps[role];
+        if (pending == null) continue;
+        // The listing may have been cleared since an upsert was queued.
+        final effectiveOp = pending.op == PendingListingOp.upsert &&
+                _listingFor(role) == null
+            ? PendingListingOp.delete
+            : pending.op;
+        try {
+          if (effectiveOp == PendingListingOp.upsert) {
+            await _listingsApi.upsertListing(
+              deviceId: deviceId,
+              listing: _listingFor(role)!,
+            );
+          } else {
+            await _listingsApi.deleteListing(deviceId: deviceId, role: role);
+          }
+          _syncOps.remove(role);
+          changed = true;
+        } on ListingsOfflineException {
+          if (pending.failed) {
+            pending.failed = false;
+            changed = true;
+          }
+        } on Exception {
+          if (!pending.failed) {
+            pending.failed = true;
+            changed = true;
+          }
+        }
+      }
+    } finally {
+      _syncingListings = false;
+    }
+    if (changed) {
+      _persistSyncOps();
+      notifyListeners();
+    }
+  }
+
+  // --- Remote Discover (#26) ---
+
+  /// Refreshes the Discover feed: flush pending sync, refresh GPS, fetch
+  /// remote counterparts. Failure keeps the previous feed and flips
+  /// [discoverOffline].
+  Future<void> refreshDiscover() async {
+    unawaited(syncPendingListings());
+    if (discoverLoading) return;
+    discoverLoading = true;
+    notifyListeners();
+    await refreshLocation();
+    final counterpart = activeRole.counterpart;
+    try {
+      final fetched = await _listingsApi.fetchListings(
+        role: counterpart,
+        excludeDeviceId: deviceId,
+        lat: userPosition?.latitude,
+        lon: userPosition?.longitude,
+        radiusKm: userPosition == null ? null : ListingsConfig.radiusKm,
+      );
+      _remoteListings = fetched;
+      _remoteListingsRole = counterpart;
+      discoverOffline = false;
+      final store = _store;
+      if (store != null) {
+        unawaited(store.saveDiscoverCache(counterpart, fetched));
+      }
+    } on Exception {
+      discoverOffline = true;
+    }
+    discoverLoading = false;
+    notifyListeners();
+  }
+
+  // --- Contact unlock (#26) ---
+
+  Map<String, String> get _phones =>
+      _unlockedPhones ??= _store?.loadUnlockedPhones() ?? {};
+
+  /// Phone to display for [listing]: local value (seeds, own listings) or
+  /// the cached contact-endpoint result.
+  String phoneFor(Listing listing) =>
+      listing.phone.isNotEmpty ? listing.phone : _phones[listing.id] ?? '';
+
+  /// Unlocks contact for [listingId]. Spends [unlockContactCost] only when
+  /// the phone is actually obtained; failures never consume a credit.
+  Future<ContactUnlockResult> unlockListingContact(String listingId) async {
+    final matches = listings.where((l) => l.id == listingId);
+    if (matches.isEmpty) {
+      return const ContactUnlockResult(ContactUnlockStatus.notFound);
+    }
+    final listing = matches.first;
+    final alreadyUnlocked = unlockedListingIds.contains(listingId);
+
+    // Phone available locally (seeds, own listings, previously cached).
+    if (phoneFor(listing).isNotEmpty) {
+      if (!alreadyUnlocked) {
+        if (credits < unlockContactCost) {
+          return const ContactUnlockResult(ContactUnlockStatus.noCredits);
+        }
+        credits -= unlockContactCost;
+        unlockedListingIds.add(listingId);
+        notifyListeners();
+        _persist();
+      }
+      return ContactUnlockResult(
+        ContactUnlockStatus.unlocked,
+        phoneFor(listing),
+      );
+    }
+
+    // Remote listing: fetch the phone first, charge only on success. An
+    // already-unlocked listing whose cached phone was lost refetches free.
+    if (!alreadyUnlocked && credits < unlockContactCost) {
+      return const ContactUnlockResult(ContactUnlockStatus.noCredits);
+    }
+    try {
+      final phone = await _listingsApi.fetchContactPhone(
+        deviceId: deviceId,
+        listingId: listingId,
+      );
+      if (!alreadyUnlocked) {
+        credits -= unlockContactCost;
+        unlockedListingIds.add(listingId);
+      }
+      _phones[listingId] = phone;
+      final store = _store;
+      if (store != null) {
+        unawaited(store.saveUnlockedPhones(_phones));
+      }
+      notifyListeners();
+      _persist();
+      return ContactUnlockResult(ContactUnlockStatus.unlocked, phone);
+    } on ListingsOfflineException {
+      return const ContactUnlockResult(ContactUnlockStatus.offline);
+    } on ContactRateLimitedException {
+      return const ContactUnlockResult(ContactUnlockStatus.rateLimited);
+    } on ListingNotFoundException {
+      return const ContactUnlockResult(ContactUnlockStatus.notFound);
+    } on Exception {
+      return const ContactUnlockResult(ContactUnlockStatus.error);
+    }
   }
 
   /// Adds [crop] to buying interests.
@@ -498,6 +736,8 @@ class AppState extends ChangeNotifier {
     }
     notifyListeners();
     _persist();
+    _enqueueListingOp(activeRole, PendingListingOp.upsert);
+    unawaited(syncPendingListings());
     return true;
   }
 
@@ -512,6 +752,8 @@ class AppState extends ChangeNotifier {
     }
     notifyListeners();
     _persist();
+    _enqueueListingOp(activeRole, PendingListingOp.delete);
+    unawaited(syncPendingListings());
   }
 
   static Set<UserRole> _initEnabledRoles(

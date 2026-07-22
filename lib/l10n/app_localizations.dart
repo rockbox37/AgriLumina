@@ -1062,6 +1062,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{days} d ago'**
   String forumDaysAgo(int days);
+
+  /// No description provided for @listingSyncSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get listingSyncSynced;
+
+  /// No description provided for @listingSyncPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to sync'**
+  String get listingSyncPending;
+
+  /// No description provided for @listingSyncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed — tap to retry'**
+  String get listingSyncFailed;
+
+  /// No description provided for @listingPublishedPendingSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing saved — it will sync when you\'re online.'**
+  String get listingPublishedPendingSync;
+
+  /// No description provided for @discoverOfflineBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline — showing saved listings.'**
+  String get discoverOfflineBanner;
+
+  /// No description provided for @discoverSampleBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t connect — showing sample listings.'**
+  String get discoverSampleBanner;
+
+  /// No description provided for @unlockOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. No credit was used — try again later.'**
+  String get unlockOffline;
+
+  /// No description provided for @unlockRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily contact limit reached — try again tomorrow. No credit was used.'**
+  String get unlockRateLimited;
+
+  /// No description provided for @unlockListingGone.
+  ///
+  /// In en, this message translates to:
+  /// **'This listing is no longer available. No credit was used.'**
+  String get unlockListingGone;
+
+  /// No description provided for @unlockFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get the contact. No credit was used — try again.'**
+  String get unlockFailed;
 }
 
 class _AppLocalizationsDelegate

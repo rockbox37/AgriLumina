@@ -54,8 +54,13 @@ class _PublishListingScreenState extends State<PublishListingScreen> {
       phone: _phoneController.text,
     );
     if (!ok) return;
+    // The remote push runs in the background; when the app already knows it
+    // is offline, say so up front (the Profile chip tracks the rest).
+    final message = state.discoverOffline
+        ? l10n.listingPublishedPendingSync
+        : l10n.listingPublished;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.listingPublished)),
+      SnackBar(content: Text(message)),
     );
     Navigator.of(context).pop();
   }

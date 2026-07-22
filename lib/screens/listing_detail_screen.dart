@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/l10n/l10n_extensions.dart';
 import 'package:agrilumina/models/listing.dart';
+import 'package:agrilumina/models/listing_sync.dart';
 import 'package:agrilumina/services/contact_launcher.dart';
 import 'package:agrilumina/utils/locale_format.dart';
 import 'package:agrilumina/widgets/brand_mark.dart';
 
-class ListingDetailScreen extends StatelessWidget {
+class ListingDetailScreen extends StatefulWidget {
   const ListingDetailScreen({
     super.key,
     required this.listingId,
@@ -15,6 +16,36 @@ class ListingDetailScreen extends StatelessWidget {
 
   final String listingId;
   final ContactLauncher contactLauncher;
+
+  @override
+  State<ListingDetailScreen> createState() => _ListingDetailScreenState();
+}
+
+class _ListingDetailScreenState extends State<ListingDetailScreen> {
+  bool _unlocking = false;
+
+  String get listingId => widget.listingId;
+  ContactLauncher get contactLauncher => widget.contactLauncher;
+
+  Future<void> _unlock(AppState state) async {
+    if (_unlocking) return;
+    setState(() => _unlocking = true);
+    final result = await state.unlockListingContact(listingId);
+    if (!mounted) return;
+    setState(() => _unlocking = false);
+    final l10n = context.l10n;
+    final message = switch (result.status) {
+      ContactUnlockStatus.unlocked => l10n.contactUnlocked,
+      ContactUnlockStatus.noCredits => l10n.notEnoughCredits,
+      ContactUnlockStatus.offline => l10n.unlockOffline,
+      ContactUnlockStatus.rateLimited => l10n.unlockRateLimited,
+      ContactUnlockStatus.notFound => l10n.unlockListingGone,
+      ContactUnlockStatus.error => l10n.unlockFailed,
+    };
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +124,7 @@ class ListingDetailScreen extends StatelessWidget {
               const SizedBox(height: 8),
               if (unlocked) ...[
                 SelectableText(
-                  listing.phone,
+                  state.phoneFor(listing),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 16),
@@ -101,7 +132,8 @@ class ListingDetailScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: FilledButton.icon(
-                        onPressed: () => _launchCall(context, listing.phone),
+                        onPressed: () =>
+                            _launchCall(context, state.phoneFor(listing)),
                         icon: const Icon(Icons.call),
                         label: Text(l10n.call),
                       ),
@@ -110,7 +142,7 @@ class ListingDetailScreen extends StatelessWidget {
                     Expanded(
                       child: FilledButton.tonalIcon(
                         onPressed: () =>
-                            _launchWhatsApp(context, listing.phone),
+                            _launchWhatsApp(context, state.phoneFor(listing)),
                         icon: const Icon(Icons.chat),
                         label: Text(l10n.whatsApp),
                       ),
@@ -130,20 +162,15 @@ class ListingDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 FilledButton.icon(
-                  onPressed: () {
-                    final ok = state.unlockContact(listing.id);
-                    final messenger = ScaffoldMessenger.of(context);
-                    if (ok) {
-                      messenger.showSnackBar(
-                        SnackBar(content: Text(l10n.contactUnlocked)),
-                      );
-                    } else {
-                      messenger.showSnackBar(
-                        SnackBar(content: Text(l10n.notEnoughCredits)),
-                      );
-                    }
-                  },
-                  icon: const Icon(Icons.lock_open),
+                  key: const Key('listing_unlock_button'),
+                  onPressed: _unlocking ? null : () => _unlock(state),
+                  icon: _unlocking
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.lock_open),
                   label: Text(
                     l10n.unlockForCredit(AppState.unlockContactCost),
                   ),

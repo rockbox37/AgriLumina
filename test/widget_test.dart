@@ -250,7 +250,7 @@ void main() {
   testWidgets('Unlocked contact Call and WhatsApp use launcher', (tester) async {
     final launcher = FakeContactLauncher();
     final state = AppState(locationService: FakeLocationService());
-    expect(state.unlockContact('b1'), isTrue);
+    expect((await state.unlockListingContact('b1')).ok, isTrue);
 
     await tester.pumpWidget(
       AppStateScope(

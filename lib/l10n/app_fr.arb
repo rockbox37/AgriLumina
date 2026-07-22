@@ -187,5 +187,15 @@
   "forumJustNow": "à l'instant",
   "forumMinutesAgo": "il y a {minutes} min",
   "forumHoursAgo": "il y a {hours} h",
-  "forumDaysAgo": "il y a {days} j"
+  "forumDaysAgo": "il y a {days} j",
+  "listingSyncSynced": "Synchronisé",
+  "listingSyncPending": "En attente de synchronisation",
+  "listingSyncFailed": "Échec de la synchro — touchez pour réessayer",
+  "listingPublishedPendingSync": "Annonce enregistrée — elle sera synchronisée en ligne.",
+  "discoverOfflineBanner": "Vous êtes hors ligne — annonces enregistrées.",
+  "discoverSampleBanner": "Connexion impossible — annonces d'exemple.",
+  "unlockOffline": "Vous êtes hors ligne. Aucun crédit utilisé — réessayez plus tard.",
+  "unlockRateLimited": "Limite quotidienne de contacts atteinte — réessayez demain. Aucun crédit utilisé.",
+  "unlockListingGone": "Cette annonce n'est plus disponible. Aucun crédit utilisé.",
+  "unlockFailed": "Impossible d'obtenir le contact. Aucun crédit utilisé — réessayez."
 }

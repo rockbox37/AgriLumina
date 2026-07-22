@@ -112,7 +112,7 @@ void main() {
       state.toggleSellingInterest('Cassava');
       state.toggleSellingInterest('Maize'); // remove seed
       state.addCredits(2);
-      expect(state.unlockContact('b1'), isTrue);
+      expect((await state.unlockListingContact('b1')).ok, isTrue);
       await state.waitForPersistence();
 
       final reloaded = AppState.fromStore(
