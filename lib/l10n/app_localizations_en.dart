@@ -617,4 +617,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get unlockFailed =>
       'Couldn\'t get the contact. No credit was used — try again.';
+
+  @override
+  String get forumQueued => 'Waiting to send';
+
+  @override
+  String get forumQueuedFailed => 'Couldn\'t send — will retry';
+
+  @override
+  String get forumQueuedExplainer =>
+      'You\'re offline — this will be sent automatically when you reconnect.';
+
+  @override
+  String get forumQueuedReplyDropped =>
+      'A saved reply couldn\'t be sent because the post was removed.';
 }

@@ -101,6 +101,16 @@ class _ForumThreadScreenState extends State<ForumThreadScreen> {
           SnackBar(content: Text(context.l10n.forumPendingExplainer)),
         );
       }
+    } on ForumOfflineException {
+      // Queue for automatic send; the queued card renders from state.
+      if (!mounted) return;
+      AppStateScope.of(context)
+          .queueForumPost(body: body, parentId: widget.root.id);
+      _replyController.clear();
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.forumQueuedExplainer)),
+      );
     } on Exception catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);
@@ -110,23 +120,14 @@ class _ForumThreadScreenState extends State<ForumThreadScreen> {
     }
   }
 
-  Future<void> _reportPost(ForumPost post) async {
+  void _reportPost(ForumPost post) {
     final state = AppStateScope.of(context);
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      await widget.api.reportPost(deviceId: state.deviceId, postId: post.id);
-      if (!mounted) return;
-      state.markForumPostReported(post.id);
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.forumReportThanks)),
-      );
-    } on Exception catch (e) {
-      if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(content: Text(forumErrorMessage(l10n, e))),
-      );
-    }
+    // Queued + optimistic: idempotent server-side, flushed immediately when
+    // online and on the next reconnect otherwise.
+    state.queueForumReport(post.id);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.forumReportThanks)),
+    );
   }
 
   Future<void> _deletePost(ForumPost post) async {
@@ -187,6 +188,9 @@ class _ForumThreadScreenState extends State<ForumThreadScreen> {
     final pendingReplies = state.myForumPosts
         .where((p) => p.isPendingReview && p.parentId == widget.root.id)
         .toList();
+    final queuedReplies = state.queuedForumPosts
+        .where((p) => p.parentId == widget.root.id)
+        .toList();
 
     return PopScope<ForumThreadResult>(
       canPop: false,
@@ -234,6 +238,13 @@ class _ForumThreadScreenState extends State<ForumThreadScreen> {
                     ),
                     ...pendingReplies.map(
                       (reply) => _PostCard(post: reply, pending: true),
+                    ),
+                    ...queuedReplies.map(
+                      (reply) => _PostCard(
+                        post: reply,
+                        queued: true,
+                        queuedFailed: state.isQueuedOpFailed(reply.id),
+                      ),
                     ),
                   ],
                 ],
@@ -289,6 +300,8 @@ class _PostCard extends StatelessWidget {
     required this.post,
     this.isRoot = false,
     this.pending = false,
+    this.queued = false,
+    this.queuedFailed = false,
     this.onReport,
     this.onDelete,
   });
@@ -296,6 +309,8 @@ class _PostCard extends StatelessWidget {
   final ForumPost post;
   final bool isRoot;
   final bool pending;
+  final bool queued;
+  final bool queuedFailed;
   final void Function(ForumPost)? onReport;
   final void Function(ForumPost)? onDelete;
 
@@ -328,7 +343,7 @@ class _PostCard extends StatelessWidget {
                 style: theme.textTheme.bodySmall
                     ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
-              if (!pending && (mine || onReport != null))
+              if (!pending && !queued && (mine || onReport != null))
                 PopupMenuButton<String>(
                   key: Key('forum_post_menu_${post.id}'),
                   onSelected: (action) {
@@ -358,7 +373,22 @@ class _PostCard extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: Text(post.body, style: theme.textTheme.bodyMedium),
           ),
-          if (pending) ...[
+          if (queued) ...[
+            const SizedBox(height: 4),
+            Chip(
+              key: Key('forum_queued_reply_${post.id}'),
+              avatar: Icon(
+                queuedFailed
+                    ? Icons.error_outline
+                    : Icons.schedule_send_outlined,
+                size: 16,
+              ),
+              label: Text(
+                queuedFailed ? l10n.forumQueuedFailed : l10n.forumQueued,
+              ),
+              visualDensity: VisualDensity.compact,
+            ),
+          ] else if (pending) ...[
             const SizedBox(height: 4),
             Chip(
               avatar: const Icon(Icons.hourglass_top, size: 16),

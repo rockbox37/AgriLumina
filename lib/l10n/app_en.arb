@@ -445,5 +445,9 @@
   "unlockOffline": "You're offline. No credit was used — try again later.",
   "unlockRateLimited": "Daily contact limit reached — try again tomorrow. No credit was used.",
   "unlockListingGone": "This listing is no longer available. No credit was used.",
-  "unlockFailed": "Couldn't get the contact. No credit was used — try again."
+  "unlockFailed": "Couldn't get the contact. No credit was used — try again.",
+  "forumQueued": "Waiting to send",
+  "forumQueuedFailed": "Couldn't send — will retry",
+  "forumQueuedExplainer": "You're offline — this will be sent automatically when you reconnect.",
+  "forumQueuedReplyDropped": "A saved reply couldn't be sent because the post was removed."
 }

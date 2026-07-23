@@ -9,71 +9,7 @@ import 'package:agrilumina/screens/forum_screen.dart';
 import 'package:agrilumina/services/forum_api.dart';
 import 'package:agrilumina/services/local_state_store.dart';
 
-class FakeForumApi implements ForumApi {
-  FakeForumApi({List<ForumPost>? threads, Map<String, List<ForumPost>>? replies})
-      : threads = threads ?? [],
-        replies = replies ?? {};
-
-  List<ForumPost> threads;
-  Map<String, List<ForumPost>> replies;
-  bool offline = false;
-  ForumPostStatus nextCreateStatus = ForumPostStatus.visible;
-  final List<String> reportedPostIds = [];
-  final List<String> deletedPostIds = [];
-  int _idCounter = 0;
-
-  void _failIfOffline() {
-    if (offline) throw ForumOfflineException();
-  }
-
-  @override
-  Future<List<ForumPost>> fetchThreads({DateTime? before}) async {
-    _failIfOffline();
-    return threads;
-  }
-
-  @override
-  Future<List<ForumPost>> fetchReplies(String threadId) async {
-    _failIfOffline();
-    return replies[threadId] ?? const [];
-  }
-
-  @override
-  Future<ForumPost> createPost({
-    required String deviceId,
-    required String authorName,
-    required String body,
-    String? parentId,
-  }) async {
-    _failIfOffline();
-    return ForumPost(
-      id: 'created-${_idCounter++}',
-      parentId: parentId,
-      authorName: authorName,
-      body: body,
-      createdAt: DateTime.now(),
-      status: nextCreateStatus,
-    );
-  }
-
-  @override
-  Future<void> reportPost({
-    required String deviceId,
-    required String postId,
-  }) async {
-    _failIfOffline();
-    reportedPostIds.add(postId);
-  }
-
-  @override
-  Future<void> deletePost({
-    required String deviceId,
-    required String postId,
-  }) async {
-    _failIfOffline();
-    deletedPostIds.add(postId);
-  }
-}
+import 'fake_forum_api.dart';
 
 ForumPost thread(String id, String body, {int replyCount = 0}) => ForumPost(
       id: id,
@@ -90,7 +26,11 @@ Future<AppState> pumpForum(
 }) async {
   SharedPreferences.setMockInitialValues({});
   final store = LocalStateStore(await SharedPreferences.getInstance());
-  final state = AppState(displayName: displayName, store: store);
+  final state = AppState(
+    displayName: displayName,
+    store: store,
+    forumApi: api,
+  );
   await tester.pumpWidget(
     AppStateScope(
       state: state,
@@ -134,7 +74,11 @@ void main() {
     await store.saveForumThreadCache([thread('t1', 'Cached post body')]);
 
     final api = FakeForumApi()..offline = true;
-    final state = AppState(displayName: 'Chantal', store: store);
+    final state = AppState(
+      displayName: 'Chantal',
+      store: store,
+      forumApi: api,
+    );
     await tester.pumpWidget(
       AppStateScope(
         state: state,
