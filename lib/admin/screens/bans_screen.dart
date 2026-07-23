@@ -60,6 +60,28 @@ class _BansScreenState extends State<BansScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final deviceId = _deviceController.text.trim().toLowerCase();
     if (deviceId.isEmpty) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ban this device?'),
+        content: Text(
+          'Device $deviceId will be unable to post or publish. '
+          'Existing rows are not changed.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            key: const Key('ban_confirm'),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Ban device'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
     try {
       await state.api.banDevice(
         deviceId,
