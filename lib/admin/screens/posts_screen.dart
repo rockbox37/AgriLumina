@@ -55,6 +55,38 @@ class _PostsScreenState extends State<PostsScreen> {
   Future<void> _setStatus(AdminPost post, String status) async {
     final state = AdminStateScope.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    // Approving (making visible) restores a post; only guard the destructive
+    // moderation actions.
+    if (status == 'spam' || status == 'deleted') {
+      final label = status == 'spam' ? 'Mark as spam' : 'Delete';
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            status == 'spam' ? 'Mark this post as spam?' : 'Delete this post?',
+          ),
+          content: Text(
+            status == 'spam'
+                ? 'The post will be hidden as spam. You can approve it later '
+                    'to restore it.'
+                : 'The post will be removed from the app. You can approve it '
+                    'later to restore it.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              key: Key('set_status_confirm_${post.id}'),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(label),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
     try {
       await state.api.setPostStatus(post.id, status);
       messenger.showSnackBar(

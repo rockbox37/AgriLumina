@@ -80,6 +80,28 @@ class _BlocklistScreenState extends State<BlocklistScreen> {
 
   Future<void> _delete(BlocklistEntry entry) async {
     final api = AdminStateScope.of(context).api;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete this term?'),
+        content: Text(
+          '"${entry.term}" will be removed from the blocklist and will no '
+          'longer contribute to spam scoring.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            key: Key('blocklist_delete_confirm_${entry.id}'),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete term'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
     await api.deleteBlocklistEntry(entry.id);
     await _load();
   }
