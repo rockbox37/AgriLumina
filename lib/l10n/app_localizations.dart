@@ -1122,6 +1122,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t get the contact. No credit was used — try again.'**
   String get unlockFailed;
+
+  /// No description provided for @forumQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to send'**
+  String get forumQueued;
+
+  /// No description provided for @forumQueuedFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send — will retry'**
+  String get forumQueuedFailed;
+
+  /// No description provided for @forumQueuedExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline — this will be sent automatically when you reconnect.'**
+  String get forumQueuedExplainer;
+
+  /// No description provided for @forumQueuedReplyDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'A saved reply couldn\'t be sent because the post was removed.'**
+  String get forumQueuedReplyDropped;
 }
 
 class _AppLocalizationsDelegate

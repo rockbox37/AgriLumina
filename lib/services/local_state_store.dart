@@ -80,6 +80,7 @@ class LocalStateStore {
   static const _kForumThreadCache = 'mvp.forumThreadCache';
   static const _kForumReportedIds = 'mvp.forumReportedIds';
   static const _kForumMyPosts = 'mvp.forumMyPosts';
+  static const _kForumOutbox = 'mvp.forumOutbox';
   static const _kListingSyncState = 'mvp.listingSyncState';
   static const _kDiscoverCachePrefix = 'mvp.discoverCache.';
   static const _kUnlockedPhones = 'mvp.unlockedPhones';
@@ -206,6 +207,25 @@ class LocalStateStore {
 
   Future<void> saveMyForumPosts(List<ForumPost> posts) =>
       _writeForumPosts(_kForumMyPosts, posts);
+
+  /// Queued forum writes awaiting the backend, oldest first.
+  List<Map<String, Object?>> loadForumOutbox() {
+    final raw = _prefs.getString(_kForumOutbox);
+    if (raw == null || raw.isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return const [];
+      return decoded
+          .whereType<Map>()
+          .map((m) => Map<String, Object?>.from(m))
+          .toList();
+    } on FormatException {
+      return const [];
+    }
+  }
+
+  Future<void> saveForumOutbox(List<Map<String, Object?>> ops) =>
+      _prefs.setString(_kForumOutbox, jsonEncode(ops));
 
   /// Per-role pending listing sync ops, e.g. {"seller": {"op": "upsert",
   /// "failed": false}}. Absent role = synced.

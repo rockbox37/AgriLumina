@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/l10n/l10n_extensions.dart';
@@ -56,6 +58,7 @@ class _ForumScreenState extends State<ForumScreen> {
 
   Future<void> _refresh() async {
     final state = AppStateScope.of(context);
+    unawaited(state.syncForumOutbox());
     try {
       final threads = await _api.fetchThreads();
       if (!mounted) return;
@@ -67,6 +70,12 @@ class _ForumScreenState extends State<ForumScreen> {
         _offline = false;
         _hasMore = threads.length >= ForumConfig.threadsPageSize;
       });
+      final dropped = state.takeDroppedForumReplyNotice();
+      if (dropped > 0 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.forumQueuedReplyDropped)),
+        );
+      }
     } on Exception {
       if (!mounted) return;
       setState(() {
@@ -136,6 +145,13 @@ class _ForumScreenState extends State<ForumScreen> {
     );
     if (created == null || !mounted) return;
     final messenger = ScaffoldMessenger.of(context);
+    if (created.isQueued) {
+      // Already in the outbox; the queued tile renders from state.
+      messenger.showSnackBar(
+        SnackBar(content: Text(context.l10n.forumQueuedExplainer)),
+      );
+      return;
+    }
     AppStateScope.of(context).addMyForumPost(created);
     if (created.isPendingReview) {
       messenger.showSnackBar(
@@ -179,6 +195,8 @@ class _ForumScreenState extends State<ForumScreen> {
         final pending = state.myForumPosts
             .where((p) => p.isPendingReview && p.isRoot)
             .toList();
+        final queued =
+            state.queuedForumPosts.where((p) => p.isRoot).toList();
         return Scaffold(
           appBar: AppBar(
             leading: const BrandHomeLeading(),
@@ -197,7 +215,7 @@ class _ForumScreenState extends State<ForumScreen> {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: _refresh,
-                  child: _buildList(pending),
+                  child: _buildList(queued, pending),
                 ),
               ),
             ],
@@ -207,12 +225,12 @@ class _ForumScreenState extends State<ForumScreen> {
     );
   }
 
-  Widget _buildList(List<ForumPost> pending) {
+  Widget _buildList(List<ForumPost> queued, List<ForumPost> pending) {
     final l10n = context.l10n;
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_threads.isEmpty && pending.isEmpty) {
+    if (_threads.isEmpty && pending.isEmpty && queued.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
@@ -226,7 +244,11 @@ class _ForumScreenState extends State<ForumScreen> {
         ],
       );
     }
-    final itemCount = pending.length + _threads.length + (_loadingMore ? 1 : 0);
+    final state = AppStateScope.of(context);
+    final itemCount = queued.length +
+        pending.length +
+        _threads.length +
+        (_loadingMore ? 1 : 0);
     return ListView.separated(
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
@@ -234,10 +256,21 @@ class _ForumScreenState extends State<ForumScreen> {
       itemCount: itemCount,
       separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
-        if (index < pending.length) {
-          return _ThreadTile(post: pending[index], pending: true);
+        if (index < queued.length) {
+          final post = queued[index];
+          return _ThreadTile(
+            post: post,
+            queued: true,
+            queuedFailed: state.isQueuedOpFailed(post.id),
+          );
         }
-        final threadIndex = index - pending.length;
+        if (index < queued.length + pending.length) {
+          return _ThreadTile(
+            post: pending[index - queued.length],
+            pending: true,
+          );
+        }
+        final threadIndex = index - queued.length - pending.length;
         if (threadIndex >= _threads.length) {
           return const Padding(
             padding: EdgeInsets.all(16),
@@ -255,10 +288,18 @@ class _ForumScreenState extends State<ForumScreen> {
 }
 
 class _ThreadTile extends StatelessWidget {
-  const _ThreadTile({required this.post, this.pending = false, this.onTap});
+  const _ThreadTile({
+    required this.post,
+    this.pending = false,
+    this.queued = false,
+    this.queuedFailed = false,
+    this.onTap,
+  });
 
   final ForumPost post;
   final bool pending;
+  final bool queued;
+  final bool queuedFailed;
   final VoidCallback? onTap;
 
   @override
@@ -292,7 +333,21 @@ class _ThreadTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-          if (pending)
+          if (queued)
+            Chip(
+              key: const Key('forum_queued_chip'),
+              avatar: Icon(
+                queuedFailed
+                    ? Icons.error_outline
+                    : Icons.schedule_send_outlined,
+                size: 16,
+              ),
+              label: Text(
+                queuedFailed ? l10n.forumQueuedFailed : l10n.forumQueued,
+              ),
+              visualDensity: VisualDensity.compact,
+            )
+          else if (pending)
             Chip(
               key: const Key('forum_pending_chip'),
               avatar: const Icon(Icons.hourglass_top, size: 16),
@@ -384,6 +439,12 @@ class _ForumComposeSheetState extends State<ForumComposeSheet> {
       );
       if (!mounted) return;
       Navigator.of(context).pop(post);
+    } on ForumOfflineException {
+      // Queue for automatic send instead of failing the composer.
+      if (!mounted) return;
+      final queued =
+          AppStateScope.of(context).queueForumPost(body: body);
+      Navigator.of(context).pop(queued);
     } on Exception catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);

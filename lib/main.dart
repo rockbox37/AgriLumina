@@ -7,6 +7,7 @@ import 'package:agrilumina/app_state.dart';
 import 'package:agrilumina/l10n/app_localizations.dart';
 import 'package:agrilumina/screens/app_shell.dart';
 import 'package:agrilumina/screens/splash_screen.dart';
+import 'package:agrilumina/services/connectivity_service.dart';
 import 'package:agrilumina/services/listings_api.dart';
 import 'package:agrilumina/services/local_state_store.dart';
 import 'package:agrilumina/services/location_service.dart';
@@ -24,6 +25,7 @@ class AgriluminaApp extends StatefulWidget {
     this.locationService,
     this.stateStore,
     this.listingsApi,
+    this.connectivity,
     this.locale,
     this.showSplash = true,
     this.removeNativeSplash = true,
@@ -34,6 +36,9 @@ class AgriluminaApp extends StatefulWidget {
 
   /// Optional override for tests (avoids real network calls).
   final ListingsApi? listingsApi;
+
+  /// Optional override for tests (avoids the platform connectivity plugin).
+  final ConnectivityService? connectivity;
 
   /// When set, MVP fields load from / save to this store.
   final LocalStateStore? stateStore;
@@ -58,18 +63,22 @@ class _AgriluminaAppState extends State<AgriluminaApp> {
   void initState() {
     super.initState();
     final store = widget.stateStore;
+    final connectivity = widget.connectivity ?? PluginConnectivityService();
     _state = store != null
         ? AppState.fromStore(
             store,
             locationService: widget.locationService,
             listingsApi: widget.listingsApi,
+            connectivity: connectivity,
           )
         : AppState(
             locationService: widget.locationService,
             listingsApi: widget.listingsApi,
+            connectivity: connectivity,
           );
-    // Push any listing sync queued while offline in a previous session.
+    // Push anything queued while offline in a previous session.
     unawaited(_state.syncPendingListings());
+    unawaited(_state.syncForumOutbox());
   }
 
   @override
@@ -120,6 +129,7 @@ class MyApp extends StatelessWidget {
     this.locationService,
     this.stateStore,
     this.listingsApi,
+    this.connectivity,
     this.locale,
     this.showSplash = false,
     this.removeNativeSplash = false,
@@ -128,6 +138,7 @@ class MyApp extends StatelessWidget {
   final LocationService? locationService;
   final LocalStateStore? stateStore;
   final ListingsApi? listingsApi;
+  final ConnectivityService? connectivity;
   final Locale? locale;
 
   /// Tests default to skipping the timed splash for speed / stability.
@@ -140,6 +151,7 @@ class MyApp extends StatelessWidget {
         locationService: locationService,
         stateStore: stateStore,
         listingsApi: listingsApi,
+        connectivity: connectivity,
         locale: locale,
         showSplash: showSplash,
         removeNativeSplash: removeNativeSplash,

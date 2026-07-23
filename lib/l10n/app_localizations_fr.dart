@@ -627,4 +627,18 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get unlockFailed =>
       'Impossible d\'obtenir le contact. Aucun crédit utilisé — réessayez.';
+
+  @override
+  String get forumQueued => 'En attente d\'envoi';
+
+  @override
+  String get forumQueuedFailed => 'Échec de l\'envoi — nouvel essai bientôt';
+
+  @override
+  String get forumQueuedExplainer =>
+      'Vous êtes hors ligne — ceci sera envoyé automatiquement dès la reconnexion.';
+
+  @override
+  String get forumQueuedReplyDropped =>
+      'Une réponse enregistrée n\'a pas pu être envoyée car le message a été supprimé.';
 }

@@ -1,8 +1,10 @@
-/// Publication state of one of *my* forum posts as reported by the backend.
+/// Publication state of one of *my* forum posts.
 ///
-/// Public feed posts are always effectively [visible]; `pendingReview` only
-/// ever applies to the author's own posts held by the spam filter.
-enum ForumPostStatus { visible, pendingReview }
+/// Public feed posts are always effectively [visible]; [pendingReview] only
+/// ever applies to the author's own posts held by the spam filter, and
+/// [queued] to posts waiting in the offline outbox (display-only — queued
+/// posts live in the outbox store, never in the my-posts store).
+enum ForumPostStatus { visible, pendingReview, queued }
 
 /// A forum post: a thread root (null [parentId]) or a single-level reply.
 class ForumPost {
@@ -34,6 +36,7 @@ class ForumPost {
 
   bool get isRoot => parentId == null;
   bool get isPendingReview => status == ForumPostStatus.pendingReview;
+  bool get isQueued => status == ForumPostStatus.queued;
 
   ForumPost copyWith({
     int? replyCount,
@@ -86,8 +89,10 @@ class ForumPost {
         'created_at': createdAt.toIso8601String(),
         'reply_count': replyCount,
         'last_activity_at': lastActivityAt.toIso8601String(),
-        'status': status == ForumPostStatus.pendingReview
-            ? 'pending_review'
-            : 'visible',
+        'status': switch (status) {
+          ForumPostStatus.pendingReview => 'pending_review',
+          ForumPostStatus.queued => 'queued',
+          ForumPostStatus.visible => 'visible',
+        },
       };
 }

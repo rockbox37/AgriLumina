@@ -197,5 +197,9 @@
   "unlockOffline": "Vous êtes hors ligne. Aucun crédit utilisé — réessayez plus tard.",
   "unlockRateLimited": "Limite quotidienne de contacts atteinte — réessayez demain. Aucun crédit utilisé.",
   "unlockListingGone": "Cette annonce n'est plus disponible. Aucun crédit utilisé.",
-  "unlockFailed": "Impossible d'obtenir le contact. Aucun crédit utilisé — réessayez."
+  "unlockFailed": "Impossible d'obtenir le contact. Aucun crédit utilisé — réessayez.",
+  "forumQueued": "En attente d'envoi",
+  "forumQueuedFailed": "Échec de l'envoi — nouvel essai bientôt",
+  "forumQueuedExplainer": "Vous êtes hors ligne — ceci sera envoyé automatiquement dès la reconnexion.",
+  "forumQueuedReplyDropped": "Une réponse enregistrée n'a pas pu être envoyée car le message a été supprimé."
 }

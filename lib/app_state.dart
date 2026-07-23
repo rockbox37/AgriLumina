@@ -4,14 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:agrilumina/data/crop_vocabulary.dart';
 import 'package:agrilumina/data/listing_copy_keys.dart';
 import 'package:agrilumina/data/mock_listings.dart';
+import 'package:agrilumina/models/forum_outbox.dart';
 import 'package:agrilumina/models/forum_post.dart';
 import 'package:agrilumina/models/listing.dart';
 import 'package:agrilumina/models/listing_sync.dart';
 import 'package:agrilumina/models/user_role.dart';
+import 'package:agrilumina/services/connectivity_service.dart';
+import 'package:agrilumina/services/forum_api.dart';
 import 'package:agrilumina/services/listings_api.dart';
 import 'package:agrilumina/services/local_state_store.dart';
 import 'package:agrilumina/services/location_service.dart';
 import 'package:agrilumina/utils/geo.dart';
+import 'package:uuid/uuid.dart';
 
 /// Shared app state for the MVP vertical slice.
 ///
@@ -38,6 +42,8 @@ class AppState extends ChangeNotifier {
     LocationService? locationService,
     LocalStateStore? store,
     ListingsApi? listingsApi,
+    ForumApi? forumApi,
+    ConnectivityService? connectivity,
   })  : enabledRoles = _initEnabledRoles(enabledRoles, activeRole, role),
         activeRole = _initActiveRole(enabledRoles, activeRole, role),
         buyingInterests = List<String>.from(buyingInterests ?? const []),
@@ -47,7 +53,14 @@ class AppState extends ChangeNotifier {
         _seedListings = List.unmodifiable(listings ?? mockListings),
         _locationService = locationService ?? PluginLocationService(),
         _store = store,
-        _listingsApi = listingsApi ?? HttpListingsApi();
+        _listingsApi = listingsApi ?? HttpListingsApi(),
+        _forumApi = forumApi ?? HttpForumApi(),
+        _connectivity = connectivity {
+    _connectivitySub = _connectivity?.onReconnected.listen((_) {
+      unawaited(syncPendingListings());
+      unawaited(syncForumOutbox());
+    });
+  }
 
   /// Builds [AppState] from persisted MVP fields (and keeps saving mutations).
   factory AppState.fromStore(
@@ -55,6 +68,8 @@ class AppState extends ChangeNotifier {
     LocationService? locationService,
     List<Listing>? listings,
     ListingsApi? listingsApi,
+    ForumApi? forumApi,
+    ConnectivityService? connectivity,
   }) {
     final snap = store.load();
     return AppState(
@@ -73,6 +88,8 @@ class AppState extends ChangeNotifier {
       locationService: locationService,
       store: store,
       listingsApi: listingsApi,
+      forumApi: forumApi,
+      connectivity: connectivity,
     );
   }
 
@@ -119,6 +136,9 @@ class AppState extends ChangeNotifier {
   final LocationService _locationService;
   final LocalStateStore? _store;
   final ListingsApi _listingsApi;
+  final ForumApi _forumApi;
+  final ConnectivityService? _connectivity;
+  StreamSubscription<void>? _connectivitySub;
   Future<void>? _persistFuture;
 
   /// Seed mocks are shown only when remote is unreachable and no cache exists.
@@ -284,6 +304,169 @@ class AppState extends ChangeNotifier {
     if (store != null) {
       unawaited(store.saveForumThreadCache(threads));
     }
+  }
+
+  // --- Forum outbox (offline posting) ---
+
+  List<PendingForumOp>? _forumOutbox;
+  bool _syncingForum = false;
+  Timer? _forumRetryTimer;
+  int _droppedForumReplies = 0;
+
+  /// Queued forum writes, oldest first.
+  List<PendingForumOp> get forumOutbox => _forumOutbox ??=
+      (_store?.loadForumOutbox() ?? const [])
+          .map(PendingForumOp.fromJson)
+          .whereType<PendingForumOp>()
+          .toList();
+
+  /// Queued posts/replies as display posts, newest first.
+  List<ForumPost> get queuedForumPosts => forumOutbox.reversed
+      .map((op) => op.toDisplayPost())
+      .whereType<ForumPost>()
+      .toList();
+
+  /// True when [postId]'s queued op failed its last replay attempt.
+  bool isQueuedOpFailed(String postId) =>
+      forumOutbox.any((op) => op.id == postId && op.failed);
+
+  void _persistForumOutbox() {
+    final store = _store;
+    if (store != null) {
+      unawaited(
+        store.saveForumOutbox(
+          forumOutbox.map((op) => op.toJson()).toList(),
+        ),
+      );
+    }
+  }
+
+  /// Queues a post or reply composed while offline. Returns the display
+  /// post (status queued) for immediate UI feedback.
+  ForumPost queueForumPost({required String body, String? parentId}) {
+    final op = PendingForumOp(
+      kind: parentId == null ? ForumOutboxKind.post : ForumOutboxKind.reply,
+      id: 'queued-${const Uuid().v4()}',
+      body: body,
+      authorName: displayName.trim(),
+      parentId: parentId,
+      createdAt: DateTime.now(),
+    );
+    forumOutbox.add(op);
+    _persistForumOutbox();
+    notifyListeners();
+    unawaited(syncForumOutbox());
+    return op.toDisplayPost()!;
+  }
+
+  /// Queues a spam report and marks the post reported immediately
+  /// (idempotent server-side; sent on the next flush).
+  void queueForumReport(String postId) {
+    if (isForumPostReported(postId)) return;
+    markForumPostReported(postId);
+    forumOutbox.add(
+      PendingForumOp(
+        kind: ForumOutboxKind.report,
+        id: 'queued-${const Uuid().v4()}',
+        postId: postId,
+        createdAt: DateTime.now(),
+      ),
+    );
+    _persistForumOutbox();
+    unawaited(syncForumOutbox());
+  }
+
+  /// Returns and clears the count of queued replies dropped because their
+  /// parent vanished (surfaced once in the forum UI).
+  int takeDroppedForumReplyNotice() {
+    final n = _droppedForumReplies;
+    _droppedForumReplies = 0;
+    return n;
+  }
+
+  /// Replays the outbox FIFO. Offline and rate limits stop the pass (a 429
+  /// arms a retry timer); duplicates and vanished parents drop their op;
+  /// other API errors mark the op failed and continue so independent ops
+  /// are not starved.
+  Future<void> syncForumOutbox() async {
+    if (_syncingForum || forumOutbox.isEmpty) return;
+    _syncingForum = true;
+    var changed = false;
+    try {
+      for (final op in List.of(forumOutbox)) {
+        try {
+          switch (op.kind) {
+            case ForumOutboxKind.post:
+            case ForumOutboxKind.reply:
+              final post = await _forumApi.createPost(
+                deviceId: deviceId,
+                authorName: op.authorName,
+                body: op.body,
+                parentId: op.parentId,
+              );
+              forumOutbox.remove(op);
+              addMyForumPost(post);
+              changed = true;
+            case ForumOutboxKind.report:
+              await _forumApi.reportPost(
+                deviceId: deviceId,
+                postId: op.postId ?? '',
+              );
+              forumOutbox.remove(op);
+              changed = true;
+          }
+        } on ForumOfflineException {
+          if (op.failed) {
+            op.failed = false;
+            changed = true;
+          }
+          break; // everything behind shares the dead link
+        } on ForumRateLimitedException catch (e) {
+          if (op.failed) {
+            op.failed = false;
+            changed = true;
+          }
+          _forumRetryTimer?.cancel();
+          _forumRetryTimer = Timer(
+            Duration(seconds: e.retryAfterSeconds.clamp(5, 3600)),
+            () => unawaited(syncForumOutbox()),
+          );
+          break; // respect the server's backoff for the whole queue
+        } on ForumDuplicateException {
+          // Already server-side (crash-safe at-least-once dedupe).
+          forumOutbox.remove(op);
+          changed = true;
+        } on ForumApiException catch (e) {
+          if (op.kind == ForumOutboxKind.report ||
+              (e.statusCode == 400 && e.error == 'invalid_parent')) {
+            if (op.kind != ForumOutboxKind.report) _droppedForumReplies++;
+            forumOutbox.remove(op);
+          } else if (!op.failed) {
+            op.failed = true;
+          }
+          changed = true;
+        } on Exception {
+          if (!op.failed) {
+            op.failed = true;
+            changed = true;
+          }
+        }
+      }
+    } finally {
+      _syncingForum = false;
+    }
+    if (changed) {
+      _persistForumOutbox();
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _connectivitySub?.cancel();
+    _connectivity?.dispose();
+    _forumRetryTimer?.cancel();
+    super.dispose();
   }
 
   bool isRoleEnabled(UserRole value) => enabledRoles.contains(value);
