@@ -107,7 +107,12 @@ void main() {
     expect(find.text('Visible posts'), findsOneWidget);
     expect(find.text('7'), findsOneWidget);
     expect(find.text('Pending review'), findsOneWidget);
-    // Top reported list.
+    // Top reported list (below the stat tiles; scroll it into view).
+    await tester.scrollUntilVisible(
+      find.textContaining('Suspicious Sam'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.textContaining('Suspicious Sam'), findsOneWidget);
     expect(find.text('4 reports'), findsOneWidget);
     // Unread badge on the Alerts destination.

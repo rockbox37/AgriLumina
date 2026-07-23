@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:agrilumina/admin/admin_state.dart';
+import 'package:agrilumina/admin/url_strategy_stub.dart'
+    if (dart.library.js_interop) 'package:agrilumina/admin/url_strategy_web.dart';
 import 'package:agrilumina/admin/screens/admin_login_screen.dart';
 import 'package:agrilumina/admin/screens/admin_shell.dart';
 
@@ -9,6 +11,7 @@ import 'package:agrilumina/admin/screens/admin_shell.dart';
 /// Run with:
 ///   flutter run -d web-server --web-port 8088 --target lib/admin/main_admin.dart
 Future<void> main() async {
+  disableUrlHistory();
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final state = AdminState(prefs: prefs);

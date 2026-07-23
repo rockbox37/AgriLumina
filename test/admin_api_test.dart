@@ -209,6 +209,66 @@ void main() {
     await expectLater(api.fetchPosts(), throwsA(isA<AdminOfflineException>()));
   });
 
+  test('fetchListings parses rows and deleteListing targets the id', () async {
+    final calls = <String>[];
+    final api = AdminApi(
+      client: MockClient((request) async {
+        calls.add('${request.method} ${request.url.path}'
+            '?${request.url.query}');
+        if (request.method == 'DELETE') return http.Response('', 204);
+        return http.Response(
+          jsonEncode([
+            {
+              'id': '11111111-1111-4111-8111-111111111111',
+              'owner_device_id': 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+              'role': 'seller',
+              'name': 'Amani K.',
+              'crop': 'Maize',
+              'quantity_hint': '5 bags',
+              'location_text': 'Bugobe',
+              'phone': '+243970000001',
+              'updated_at':
+                  DateTime.now().toUtc().toIso8601String(),
+            },
+            {
+              'id': '22222222-2222-4222-8222-222222222222',
+              'owner_device_id': 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+              'role': 'buyer',
+              'name': 'Old Row',
+              'crop': 'Beans',
+              'quantity_hint': '',
+              'location_text': '',
+              'phone': '+243970000002',
+              'updated_at': DateTime.now()
+                  .subtract(const Duration(days: 45))
+                  .toUtc()
+                  .toIso8601String(),
+            },
+          ]),
+          200,
+        );
+      }),
+    )..session = const AdminSession(
+        accessToken: 'jwt',
+        refreshToken: 'r',
+        email: 'a@b.c',
+      );
+
+    final listings = await api.fetchListings();
+
+    expect(listings, hasLength(2));
+    expect(listings.first.phone, '+243970000001');
+    expect(listings.first.expired, isFalse);
+    expect(listings.last.expired, isTrue);
+    expect(calls.single, contains('order=updated_at.desc'));
+
+    await api.deleteListing(listings.first.id);
+    expect(
+      calls.last,
+      'DELETE /rest/v1/listings?id=eq.11111111-1111-4111-8111-111111111111',
+    );
+  });
+
   test('logout clears and reports null session', () async {
     AdminSession? reported = const AdminSession(
       accessToken: 'x',

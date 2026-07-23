@@ -7,6 +7,8 @@ const _ruleLabels = <String, String>{
   'auto_hidden_reports': 'Post auto-hidden by user reports',
   'post_rate_spike': 'Posting-rate spike (posts/hour)',
   'report_rate_spike': 'Report-rate spike (reports/hour)',
+  'listing_rate_spike': 'New-listing spike (listings/hour)',
+  'contact_rate_spike': 'Contact-unlock spike (unlocks/hour)',
 };
 
 class AlertsScreen extends StatefulWidget {

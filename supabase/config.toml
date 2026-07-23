@@ -389,6 +389,18 @@ verify_jwt = true
 [functions.listings]
 verify_jwt = true
 
+[functions.admin-web]
+# Serves the built admin dashboard (static HTML/JS). Browsers request these
+# files without Supabase headers; the app inside still requires admin login.
+verify_jwt = false
+static_files = [
+  "./functions/admin-web/dist/*",
+  "./functions/admin-web/dist/*/*",
+  "./functions/admin-web/dist/*/*/*",
+  "./functions/admin-web/dist/*/*/*/*",
+  "./functions/admin-web/dist/*/*/*/*/*",
+]
+
 [analytics]
 enabled = true
 port = 55327

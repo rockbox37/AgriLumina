@@ -8,3 +8,4 @@
 .env.*.local
 .db-password.local
 .admin-credentials.local
+functions/admin-web/dist

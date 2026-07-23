@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:agrilumina/admin/main_admin.dart';
 import 'package:agrilumina/admin/screens/alerts_screen.dart';
 import 'package:agrilumina/admin/screens/bans_screen.dart';
+import 'package:agrilumina/admin/screens/listings_screen.dart';
 import 'package:agrilumina/admin/screens/blocklist_screen.dart';
 import 'package:agrilumina/admin/screens/overview_screen.dart';
 import 'package:agrilumina/admin/screens/posts_screen.dart';
@@ -19,6 +20,7 @@ class _AdminShellState extends State<AdminShell> {
   static const _panes = <Widget>[
     OverviewScreen(),
     PostsScreen(),
+    ListingsScreen(),
     BlocklistScreen(),
     BansScreen(),
     AlertsScreen(),
@@ -70,6 +72,11 @@ class _AdminShellState extends State<AdminShell> {
                     icon: Icon(Icons.article_outlined),
                     selectedIcon: Icon(Icons.article),
                     label: Text('Posts'),
+                  ),
+                  const NavigationRailDestination(
+                    icon: Icon(Icons.storefront_outlined),
+                    selectedIcon: Icon(Icons.storefront),
+                    label: Text('Listings'),
                   ),
                   const NavigationRailDestination(
                     icon: Icon(Icons.block_outlined),
