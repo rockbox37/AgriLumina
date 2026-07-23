@@ -46,3 +46,4 @@ app.*.map.json
 
 # local tooling
 .tmp-venv/
+admin-dashboard.local.html

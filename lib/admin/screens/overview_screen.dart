@@ -74,6 +74,30 @@ class OverviewScreen extends StatelessWidget {
                           value: stats.unreadAlerts,
                           highlight: stats.unreadAlerts > 0,
                         ),
+                        _StatTile(
+                          label: 'Active listings',
+                          value: stats.listingsActive,
+                        ),
+                        _StatTile(
+                          label: 'Seller listings',
+                          value: stats.listingsByRole['seller'] ?? 0,
+                        ),
+                        _StatTile(
+                          label: 'Buyer listings',
+                          value: stats.listingsByRole['buyer'] ?? 0,
+                        ),
+                        _StatTile(
+                          label: 'Listings 7d',
+                          value: stats.listings7d,
+                        ),
+                        _StatTile(
+                          label: 'Unlocks 24h',
+                          value: stats.contactUnlocks24h,
+                        ),
+                        _StatTile(
+                          label: 'Unlocks 7d',
+                          value: stats.contactUnlocks7d,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),

@@ -14,6 +14,12 @@ class AdminStats {
     required this.bannedDevices,
     required this.unreadAlerts,
     required this.topReported,
+    required this.listingsByRole,
+    required this.listingsActive,
+    required this.listings24h,
+    required this.listings7d,
+    required this.contactUnlocks24h,
+    required this.contactUnlocks7d,
   });
 
   final Map<String, int> postsByStatus;
@@ -26,6 +32,12 @@ class AdminStats {
   final int bannedDevices;
   final int unreadAlerts;
   final List<TopReportedPost> topReported;
+  final Map<String, int> listingsByRole;
+  final int listingsActive;
+  final int listings24h;
+  final int listings7d;
+  final int contactUnlocks24h;
+  final int contactUnlocks7d;
 
   int statusCount(String status) => postsByStatus[status] ?? 0;
 
@@ -44,6 +56,14 @@ class AdminStats {
             .whereType<Map>()
             .map((m) => TopReportedPost.fromJson(Map<String, Object?>.from(m)))
             .toList(),
+        listingsByRole: (json['listings_by_role'] as Map? ?? {})
+            .map((k, v) => MapEntry(k as String, (v as num).toInt())),
+        listingsActive: (json['listings_active'] as num?)?.toInt() ?? 0,
+        listings24h: (json['listings_24h'] as num?)?.toInt() ?? 0,
+        listings7d: (json['listings_7d'] as num?)?.toInt() ?? 0,
+        contactUnlocks24h:
+            (json['contact_unlocks_24h'] as num?)?.toInt() ?? 0,
+        contactUnlocks7d: (json['contact_unlocks_7d'] as num?)?.toInt() ?? 0,
       );
 }
 
@@ -116,6 +136,54 @@ class AdminPost {
       reportCount: (json['report_count'] as num?)?.toInt() ?? 0,
       replyCount: (json['reply_count'] as num?)?.toInt() ?? 0,
       createdAt: createdAt,
+    );
+  }
+}
+
+/// A marketplace listing with every column, including phone and device id.
+class AdminListing {
+  const AdminListing({
+    required this.id,
+    required this.ownerDeviceId,
+    required this.role,
+    required this.name,
+    required this.crop,
+    required this.quantityHint,
+    required this.locationText,
+    required this.phone,
+    required this.updatedAt,
+  });
+
+  final String id;
+  final String ownerDeviceId;
+  final String role;
+  final String name;
+  final String crop;
+  final String quantityHint;
+  final String locationText;
+  final String phone;
+  final DateTime updatedAt;
+
+  /// Read-side expiry horizon used by list_listings (kept in sync manually).
+  static const expiryDays = 30;
+
+  bool get expired =>
+      DateTime.now().difference(updatedAt).inDays >= expiryDays;
+
+  static AdminListing? fromJson(Map<String, Object?> json) {
+    final id = json['id'];
+    final updatedAt = DateTime.tryParse(json['updated_at'] as String? ?? '');
+    if (id is! String || updatedAt == null) return null;
+    return AdminListing(
+      id: id,
+      ownerDeviceId: json['owner_device_id'] as String? ?? '',
+      role: json['role'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      crop: json['crop'] as String? ?? '',
+      quantityHint: json['quantity_hint'] as String? ?? '',
+      locationText: json['location_text'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
+      updatedAt: updatedAt,
     );
   }
 }

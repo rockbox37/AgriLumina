@@ -176,6 +176,22 @@ class AdminApi {
     return post;
   }
 
+  Future<List<AdminListing>> fetchListings({
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final rows = await _getRows('listings', {
+      'select': '*',
+      'order': 'updated_at.desc',
+      'limit': '$limit',
+      'offset': '$offset',
+    });
+    return rows.map(AdminListing.fromJson).whereType<AdminListing>().toList();
+  }
+
+  Future<void> deleteListing(String id) =>
+      _mutate('DELETE', 'listings', filter: 'id=eq.$id');
+
   Future<List<BlocklistEntry>> fetchBlocklist() async {
     final rows = await _getRows('forum_blocklist', {'order': 'term'});
     return rows.map(BlocklistEntry.fromJson).toList();
